@@ -1,0 +1,7 @@
+node_modules/
+artifacts/
+cache/
+artifacts-manual/
+.env
+__pycache__/
+*.pyc
