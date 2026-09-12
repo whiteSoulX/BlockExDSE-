@@ -67,6 +67,17 @@ contract BlockExDSE {
     mapping(uint256 => MatchRecord) public matches;
     mapping(uint256 => Settlement) public settlements;
 
+    // ── DPoS-lite delegate election (Tier 2) ───────────────────────────────
+    // Simplified stake-free election: every KYC-verified participant gets
+    // one vote, admin triggers a rotation that promotes the current top-N
+    // vote-getters to delegate status. This sits alongside the original
+    // addDelegate() whitelist (kept for manual override / local testing) —
+    // real delegate elections are the intended path going forward.
+    mapping(address => address) public delegateVoteOf; // voter => candidate
+    mapping(address => uint256) public voteCount;       // candidate => votes
+    address[] public candidates;                        // anyone who ever received a vote
+    mapping(address => bool) private isCandidate;
+
     // ── Events (what your React frontend and edge layer listen for) ───────
     event OrderPlaced(uint256 indexed orderId, address indexed trader, string ticker, OrderType orderType, uint256 quantity, uint256 price);
     event OrderCancelled(uint256 indexed orderId);
@@ -74,6 +85,8 @@ contract BlockExDSE {
     event TradeSettled(uint256 indexed settlementId, uint256 indexed matchId, address buyer, address seller, bytes32 offChainHash);
     event DelegateAdded(address indexed delegate);
     event ParticipantVerified(address indexed participant);
+    event DelegateVoteCast(address indexed voter, address indexed candidate);
+    event DelegatesRotated(address[] delegates);
 
     // ── Modifiers ───────────────────────────────────────────────────────
     modifier onlyAdmin() {
@@ -108,24 +121,124 @@ contract BlockExDSE {
         emit ParticipantVerified(_participant);
     }
 
+    // ── DPoS-lite: delegate election ────────────────────────────────────
+    // Any KYC-verified participant gets exactly one vote, which it can move
+    // to a different candidate at any time (its previous vote, if any, is
+    // withdrawn first). This is a stake-free stand-in for full DPoS
+    // stake-weighted voting — sufficient to demonstrate delegate rotation
+    // without introducing a staking token into the prototype.
+    function voteForDelegate(address _candidate) external onlyKycVerified {
+        require(_candidate != address(0), "BlockExDSE: invalid candidate");
+
+        address previous = delegateVoteOf[msg.sender];
+        if (previous == _candidate) return;
+
+        if (previous != address(0)) {
+            voteCount[previous] -= 1;
+        }
+
+        if (!isCandidate[_candidate]) {
+            isCandidate[_candidate] = true;
+            candidates.push(_candidate);
+        }
+
+        delegateVoteOf[msg.sender] = _candidate;
+        voteCount[_candidate] += 1;
+
+        emit DelegateVoteCast(msg.sender, _candidate);
+    }
+
+    function candidateCount() external view returns (uint256) {
+        return candidates.length;
+    }
+
+    // Admin-triggered epoch rotation: promotes the current top-_topN
+    // vote-getters to delegate status and demotes every other non-admin
+    // delegate. The admin's own address always stays a delegate so the
+    // consortium can never be left without one. Sorting a small candidate
+    // array on-chain is fine at prototype scale; a production DPoS layer
+    // would do this off-chain and submit only the result.
+    function rotateDelegates(uint256 _topN) external onlyAdmin {
+        uint256 n = candidates.length;
+        address[] memory sorted = new address[](n);
+        for (uint256 i = 0; i < n; i++) {
+            sorted[i] = candidates[i];
+        }
+        for (uint256 i = 0; i < n; i++) {
+            uint256 maxIdx = i;
+            for (uint256 j = i + 1; j < n; j++) {
+                if (voteCount[sorted[j]] > voteCount[sorted[maxIdx]]) {
+                    maxIdx = j;
+                }
+            }
+            if (maxIdx != i) {
+                (sorted[i], sorted[maxIdx]) = (sorted[maxIdx], sorted[i]);
+            }
+        }
+
+        // Demote every current candidate that isn't admin — the winners get
+        // re-promoted just below.
+        for (uint256 i = 0; i < n; i++) {
+            if (sorted[i] != admin) {
+                delegates[sorted[i]] = false;
+            }
+        }
+
+        uint256 winners = _topN < n ? _topN : n;
+        address[] memory newDelegates = new address[](winners + 1);
+        newDelegates[0] = admin;
+        delegates[admin] = true;
+        for (uint256 i = 0; i < winners; i++) {
+            delegates[sorted[i]] = true;
+            newDelegates[i + 1] = sorted[i];
+        }
+
+        emit DelegatesRotated(newDelegates);
+    }
+
     // ── Trader: place an order ─────────────────────────────────────────
-    // NOTE: in the full system, this is called by the EDGE LAYER after
-    // PBFT-lite validation — not directly by the trader. For the earliest
-    // prototype milestone we allow direct calls so the contract can be
-    // tested standalone before the edge layer is wired up.
+    // Direct call path — a trader's own wallet places its own order. Used
+    // by the frontend's Trade tab when a trader interacts with the chain
+    // directly rather than going through the edge layer first.
     function placeOrder(
         string calldata _ticker,
         OrderType _orderType,
         uint256 _quantity,
         uint256 _price
     ) external onlyKycVerified returns (uint256) {
+        return _placeOrder(msg.sender, _ticker, _orderType, _quantity, _price);
+    }
+
+    // ── Delegate: place an order on behalf of a trader ──────────────────
+    // This is the edge-layer path: once a batch clears PBFT-lite validation,
+    // a delegate forwards each order to the chain here, on behalf of the
+    // trader who actually submitted it off-chain. The trader still must be
+    // KYC-verified; only the *caller* requirement differs from placeOrder().
+    function placeOrderFor(
+        address _trader,
+        string calldata _ticker,
+        OrderType _orderType,
+        uint256 _quantity,
+        uint256 _price
+    ) external onlyDelegate returns (uint256) {
+        require(kycVerified[_trader], "BlockExDSE: participant not KYC verified");
+        return _placeOrder(_trader, _ticker, _orderType, _quantity, _price);
+    }
+
+    function _placeOrder(
+        address _trader,
+        string calldata _ticker,
+        OrderType _orderType,
+        uint256 _quantity,
+        uint256 _price
+    ) internal returns (uint256) {
         require(_quantity > 0, "BlockExDSE: quantity must be positive");
         require(_price > 0, "BlockExDSE: price must be positive");
 
         uint256 orderId = nextOrderId++;
         orders[orderId] = Order({
             id: orderId,
-            trader: msg.sender,
+            trader: _trader,
             ticker: _ticker,
             orderType: _orderType,
             quantity: _quantity,
@@ -134,7 +247,7 @@ contract BlockExDSE {
             status: OrderStatus.PENDING
         });
 
-        emit OrderPlaced(orderId, msg.sender, _ticker, _orderType, _quantity, _price);
+        emit OrderPlaced(orderId, _trader, _ticker, _orderType, _quantity, _price);
         return orderId;
     }
 

@@ -1,0 +1,6 @@
+{
+  "address": "",
+  "network": "none",
+  "chainId": 0,
+  "note": "Overwritten by scripts/deploy-local.js after each local deploy. For a real deployment, set VITE_CONTRACT_ADDRESS instead of relying on this file."
+}

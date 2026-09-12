@@ -15,11 +15,18 @@ Each node:
   4. Runs a simplified PBFT-lite vote with the other two edge nodes:
      each node independently validates the same batch, signs a hash of it,
      and shares that signature. If 2-of-3 nodes agree, the batch is approved.
-  5. Forwards the approved, pre-validated batch onward (to the blockchain
-     layer — that wiring is the next piece to build).
+  5. Forwards the approved batch on-chain as a delegate (chain.py):
+     placeOrderFor() for each order, a simple equal-quantity match, then
+     recordMatch()/settleTrade() for anything that matched. Requires
+     CONTRACT_ADDRESS (or the frontend's generated contractAddress.json)
+     and DELEGATE_PRIVATE_KEY to be configured — without them this step is
+     skipped and the node behaves exactly as it did before (off-chain
+     PBFT-lite demo only).
 
-This is intentionally simple for the prototype: no persistent state, no
-real cryptographic signatures yet (HMAC stand-in), in-memory only.
+Off-chain records (D1/D2/D5/D6) are persisted to MongoDB when reachable
+(storage.py) and silently skipped otherwise, so this still runs with no
+extra infrastructure. Signatures are still an HMAC stand-in, not real
+per-node keypairs — that remains a documented prototype simplification.
 """
 
 import os
@@ -27,10 +34,18 @@ import time
 import hashlib
 import hmac
 import json
+import logging
 from typing import Literal
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import httpx
+
+import chain
+import storage
+
+logger = logging.getLogger("blockexdse.edge")
+logging.basicConfig(level=logging.INFO)
 
 EDGE_ID = os.environ.get("EDGE_ID", "1")
 PORT = int(os.environ.get("PORT", "9001"))
@@ -44,6 +59,17 @@ PEER_PORTS = [p for p in [9001, 9002, 9003] if p != PORT]
 SHARED_SECRET = b"blockexdse-prototype-shared-secret"
 
 app = FastAPI(title=f"BlockExDSE Edge Node {EDGE_ID}")
+
+# Prototype only: wide open so the browser-based frontend (any origin/port)
+# can call these nodes directly. Restrict to known origins before any real
+# deployment.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ── In-memory state (prototype only) ────────────────────────────────────
 pending_orders: list[dict] = []
@@ -96,9 +122,11 @@ def submit_order(order: OrderIn):
         "quantity": order.quantity,
         "price": order.price,
         "timestamp": time.time(),
+        "status": "pending_batch",
     }
     next_order_id += 1
     pending_orders.append(record)
+    storage.record_order(EDGE_ID, record)
     return record
 
 
@@ -148,16 +176,95 @@ def propose_batch():
 
     approved = len(votes) >= 2 and len(set(votes.values())) == 1
 
-    if approved:
-        pending_orders.clear()
+    storage.record_batch(
+        EDGE_ID,
+        {
+            "batch_hash": own_signature,
+            "order_ids": [o["id"] for o in batch],
+            "votes": votes,
+            "approved": approved,
+            "timestamp": time.time(),
+        },
+    )
 
-    return {
+    result = {
         "status": "approved" if approved else "rejected",
         "batch_size": len(batch),
         "votes_received": len(votes),
         "votes_required": 2,
         "batch_hash": own_signature,
         "batch": batch,
+    }
+
+    if approved:
+        pending_orders.clear()
+        result["on_chain"] = _forward_batch_on_chain(batch, own_signature)
+
+    return result
+
+
+def _forward_batch_on_chain(batch: list[dict], batch_hash: str) -> dict:
+    """Places every order in an approved batch on-chain as a delegate, then
+    matches and settles what it can. Returns a summary for the API response;
+    never raises — a chain-side failure is reported but doesn't undo the
+    PBFT-lite approval that already happened off-chain."""
+    client = chain.get_client()
+    if not client.enabled:
+        return {"forwarded": False, "reason": "no CONTRACT_ADDRESS/DELEGATE_PRIVATE_KEY configured"}
+
+    placed = []
+    try:
+        for order in batch:
+            result = client.place_order_for(
+                order["trader"], order["ticker"], order["order_type"], order["quantity"], order["price"]
+            )
+            enriched = {**order, "on_chain_order_id": result["order_id"], "tx_hash": result["tx_hash"], "status": "on_chain"}
+            placed.append(enriched)
+            storage.record_order(EDGE_ID, enriched)
+    except Exception as err:
+        logger.exception("Failed to place batch on-chain")
+        return {"forwarded": False, "error": str(err), "placed": len(placed)}
+
+    matches = chain.match_orders(
+        [{**p, "id": p["on_chain_order_id"]} for p in placed]
+    )
+
+    settlements = []
+    for m in matches:
+        try:
+            match_result = client.record_match(m["buy"]["id"], m["sell"]["id"], m["price"], m["quantity"])
+
+            off_chain_record = {
+                "match_id": match_result["match_id"],
+                "batch_hash": batch_hash,
+                "buy_order": m["buy"],
+                "sell_order": m["sell"],
+                "matched_price": m["price"],
+                "matched_quantity": m["quantity"],
+                "settled_at": time.time(),
+            }
+            off_chain_hash = hashlib.sha256(json.dumps(off_chain_record, sort_keys=True, default=str).encode()).hexdigest()
+
+            settle_result = client.settle_trade(match_result["match_id"], off_chain_hash)
+
+            record = {
+                **off_chain_record,
+                "off_chain_hash": off_chain_hash,
+                "settlement_id": settle_result["settlement_id"],
+                "match_tx_hash": match_result["tx_hash"],
+                "settlement_tx_hash": settle_result["tx_hash"],
+            }
+            storage.record_settlement(record)
+            settlements.append(record)
+        except Exception as err:
+            logger.exception("Failed to record match/settlement on-chain")
+            settlements.append({"error": str(err), "buy_order_id": m["buy"]["id"], "sell_order_id": m["sell"]["id"]})
+
+    return {
+        "forwarded": True,
+        "orders_placed": len(placed),
+        "matches_found": len(matches),
+        "settlements": settlements,
     }
 
 

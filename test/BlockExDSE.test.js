@@ -107,4 +107,62 @@ describe("BlockExDSE", function () {
       await expect(contract.connect(seller).cancelOrder(1)).to.be.revertedWith("BlockExDSE: not your order");
     });
   });
+
+  describe("Edge-layer forwarding (placeOrderFor)", function () {
+    it("lets a delegate place an order on behalf of a KYC'd trader", async function () {
+      await expect(contract.connect(admin).placeOrderFor(buyer.address, "DSEX", 0, 100, 50))
+        .to.emit(contract, "OrderPlaced")
+        .withArgs(1, buyer.address, "DSEX", 0, 100, 50);
+
+      const order = await contract.getOrder(1);
+      expect(order.trader).to.equal(buyer.address);
+    });
+
+    it("rejects placeOrderFor from a non-delegate", async function () {
+      await expect(
+        contract.connect(buyer).placeOrderFor(buyer.address, "DSEX", 0, 100, 50)
+      ).to.be.revertedWith("BlockExDSE: caller is not an elected delegate");
+    });
+
+    it("rejects placeOrderFor for a trader who isn't KYC verified", async function () {
+      await expect(
+        contract.connect(admin).placeOrderFor(outsider.address, "DSEX", 0, 100, 50)
+      ).to.be.revertedWith("BlockExDSE: participant not KYC verified");
+    });
+  });
+
+  describe("DPoS-lite delegate election", function () {
+    it("lets KYC-verified participants vote and moves votes between candidates", async function () {
+      await expect(contract.connect(buyer).voteForDelegate(seller.address))
+        .to.emit(contract, "DelegateVoteCast")
+        .withArgs(buyer.address, seller.address);
+      expect(await contract.voteCount(seller.address)).to.equal(1);
+
+      // Moving the vote withdraws it from the previous candidate.
+      await contract.connect(buyer).voteForDelegate(outsider.address);
+      expect(await contract.voteCount(seller.address)).to.equal(0);
+      expect(await contract.voteCount(outsider.address)).to.equal(1);
+    });
+
+    it("rejects votes from non-KYC-verified participants", async function () {
+      await expect(
+        contract.connect(outsider).voteForDelegate(seller.address)
+      ).to.be.revertedWith("BlockExDSE: participant not KYC verified");
+    });
+
+    it("promotes the top-N vote-getters on rotation and keeps admin a delegate", async function () {
+      await contract.connect(buyer).voteForDelegate(seller.address);
+      await contract.verifyParticipant(outsider.address);
+      await contract.connect(outsider).voteForDelegate(seller.address);
+
+      await expect(contract.connect(admin).rotateDelegates(1)).to.emit(contract, "DelegatesRotated");
+
+      expect(await contract.delegates(seller.address)).to.equal(true);
+      expect(await contract.delegates(admin.address)).to.equal(true);
+    });
+
+    it("rejects rotateDelegates from a non-admin", async function () {
+      await expect(contract.connect(buyer).rotateDelegates(1)).to.be.revertedWith("BlockExDSE: caller is not admin");
+    });
+  });
 });
