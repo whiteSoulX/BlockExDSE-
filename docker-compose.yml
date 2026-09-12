@@ -1,0 +1,121 @@
+# One-command local demo: `docker compose up --build`, then open
+# http://localhost:9001 for the dashboard. No manual deploy step, no
+# host-installed Node/Python required.
+#
+# NOTE: this file was written and reviewed but could not be built/run in
+# the environment it was authored in (no Docker available there). Please
+# validate with `docker compose up --build` before relying on it for a
+# live demo, and see README "Troubleshooting the local Docker demo" if
+# something doesn't come up.
+services:
+  hardhat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.hardhat
+    ports:
+      - "8545:8545"
+
+  deployer:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.hardhat
+    depends_on:
+      - hardhat
+    volumes:
+      - deployment_data:/shared
+    environment:
+      - HARDHAT_DOCKER_RPC_URL=http://hardhat:8545
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        for i in $(seq 1 30); do
+          npx hardhat run scripts/deploy.js --network docker && break
+          echo "waiting for the hardhat node to accept connections... ($i/30)"
+          sleep 2
+        done
+        cp deployment.json /shared/deployment.json
+        echo "deployment descriptor copied to shared volume"
+
+  edge1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.edge
+    depends_on:
+      - deployer
+    volumes:
+      - deployment_data:/shared
+    environment:
+      - EDGE_ID=1
+      - PORT=9001
+      - PRIMARY_PORT=9001
+      - PRIMARY_URL=http://edge1:9001
+      - PEER_URLS=http://edge2:9002,http://edge3:9003
+      - PUBLIC_URL=http://localhost:9001
+      - PEER_PUBLIC_URLS=http://localhost:9002,http://localhost:9003
+      - RPC_URL=http://hardhat:8545
+      - DEPLOYMENT_DESCRIPTOR=/shared/deployment.json
+      - DELEGATE_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    ports:
+      - "9001:9001"
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        until [ -f /shared/deployment.json ]; do echo "waiting for deployment descriptor..."; sleep 1; done
+        python edge/edge_node.py
+
+  edge2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.edge
+    depends_on:
+      - deployer
+    volumes:
+      - deployment_data:/shared
+    environment:
+      - EDGE_ID=2
+      - PORT=9002
+      - PRIMARY_PORT=9001
+      - PRIMARY_URL=http://edge1:9001
+      - PEER_URLS=http://edge1:9001,http://edge3:9003
+      - PUBLIC_URL=http://localhost:9002
+      - PEER_PUBLIC_URLS=http://localhost:9001,http://localhost:9003
+      - RPC_URL=http://hardhat:8545
+      - DEPLOYMENT_DESCRIPTOR=/shared/deployment.json
+      - DELEGATE_PRIVATE_KEY=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d
+    ports:
+      - "9002:9002"
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        until [ -f /shared/deployment.json ]; do echo "waiting for deployment descriptor..."; sleep 1; done
+        python edge/edge_node.py
+
+  edge3:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.edge
+    depends_on:
+      - deployer
+    volumes:
+      - deployment_data:/shared
+    environment:
+      - EDGE_ID=3
+      - PORT=9003
+      - PRIMARY_PORT=9001
+      - PRIMARY_URL=http://edge1:9001
+      - PEER_URLS=http://edge1:9001,http://edge2:9002
+      - PUBLIC_URL=http://localhost:9003
+      - PEER_PUBLIC_URLS=http://localhost:9001,http://localhost:9002
+      - RPC_URL=http://hardhat:8545
+      - DEPLOYMENT_DESCRIPTOR=/shared/deployment.json
+      - DELEGATE_PRIVATE_KEY=0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
+    ports:
+      - "9003:9003"
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        until [ -f /shared/deployment.json ]; do echo "waiting for deployment descriptor..."; sleep 1; done
+        python edge/edge_node.py
+
+volumes:
+  deployment_data:

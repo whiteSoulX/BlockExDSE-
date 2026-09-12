@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BlockExDSE — Live Trading Dashboard</title>
+<style>
+  :root {
+    --bg: #0b1220; --panel: #121a2b; --panel2: #172134; --border: #24304a;
+    --text: #e7ecf6; --muted: #93a1c0; --accent: #4f8cff; --green: #2ecc71;
+    --red: #ff5d5d; --amber: #f5a623; --fast: #2ecc71; --full: #f5a623;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  header { display:flex; align-items:center; justify-content:space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); background: var(--panel); flex-wrap: wrap; gap: 10px; }
+  header h1 { font-size: 18px; margin: 0; }
+  header h1 span { color: var(--accent); }
+  .nodes { display:flex; gap: 12px; font-size: 13px; }
+  .node { display:flex; align-items:center; gap:6px; padding: 4px 10px; border-radius: 20px; background: var(--panel2); border: 1px solid var(--border); }
+  .dot { width:8px; height:8px; border-radius:50%; background: var(--red); }
+  .dot.up { background: var(--green); }
+  main { max-width: 1200px; margin: 20px auto; padding: 0 16px; display: grid; grid-template-columns: 340px 1fr; gap: 16px; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 12px; }
+  label { display:block; font-size: 12px; color: var(--muted); margin-top: 10px; }
+  input, select { width: 100%; padding: 8px 10px; margin-top: 4px; background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; }
+  button { margin-top: 14px; width: 100%; padding: 10px; background: var(--accent); border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; font-size: 14px; }
+  button:hover { filter: brightness(1.1); }
+  button.sell { background: var(--red); }
+  .side-toggle { display:flex; gap:8px; margin-top:4px; }
+  .side-toggle button { margin-top:0; flex:1; background: var(--panel2); color: var(--muted); border: 1px solid var(--border); }
+  .side-toggle button.active.buy { background: var(--green); color: #06210f; border-color: var(--green); }
+  .side-toggle button.active.sell { background: var(--red); color: #2a0808; border-color: var(--red); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; }
+  .book-cols { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .asks td.price { color: var(--red); }
+  .bids td.price { color: var(--green); }
+  .tier { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+  .tier.FAST { background: rgba(46,204,113,.15); color: var(--fast); }
+  .tier.FULL { background: rgba(245,166,35,.15); color: var(--full); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--muted); }
+  .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--panel2); border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; max-width: 360px; font-size: 13px; }
+  .pill { display:inline-block; padding: 2px 8px; border-radius: 10px; background: var(--panel2); border: 1px solid var(--border); font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>BlockEx<span>DSE</span> — live demo</h1>
+  <div class="nodes" id="nodes"><div class="node">loading nodes…</div></div>
+</header>
+
+<main>
+  <div>
+    <div class="card">
+      <h2>Place order</h2>
+      <div class="side-toggle">
+        <button type="button" id="btn-buy" class="active buy">BUY</button>
+        <button type="button" id="btn-sell" class="sell">SELL</button>
+      </div>
+      <label>Trader address</label>
+      <input id="trader" placeholder="0x..." />
+      <label>Ticker</label>
+      <input id="ticker" value="DSEX" />
+      <label>Order kind</label>
+      <select id="kind">
+        <option value="LIMIT">LIMIT</option>
+        <option value="MARKET">MARKET</option>
+        <option value="IOC">IOC — immediate or cancel</option>
+        <option value="FOK">FOK — fill or kill</option>
+      </select>
+      <label>Quantity</label>
+      <input id="quantity" type="number" value="100" min="1" />
+      <label>Price <span class="pill" id="price-hint">required</span></label>
+      <input id="price" type="number" value="50" min="0" />
+      <button id="submit">Submit order</button>
+      <div class="empty" id="submit-result"></div>
+    </div>
+
+    <div class="card">
+      <h2>How this differs from v1</h2>
+      <div class="mono" style="line-height:1.6">
+        Every batch below is risk-scored, then routed on-chain to
+        <span class="tier FAST">FAST</span> (one delegate signature +
+        challenge window) or <span class="tier FULL">FULL</span>
+        (multi-delegate quorum vote) — the risk-adaptive consensus tier.
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <h2>Order book — <span id="ob-ticker">DSEX</span></h2>
+      <div class="book-cols">
+        <div>
+          <table class="bids"><thead><tr><th>Bid qty</th><th>Price</th></tr></thead>
+            <tbody id="bids"></tbody>
+          </table>
+        </div>
+        <div>
+          <table class="asks"><thead><tr><th>Price</th><th>Ask qty</th></tr></thead>
+            <tbody id="asks"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recent batches (risk-adaptive consensus)</h2>
+      <table>
+        <thead><tr><th>Tier</th><th>Risk (bps)</th><th>Orders</th><th>Fills</th><th>Status</th><th>Digest</th></tr></thead>
+        <tbody id="batches"><tr><td class="empty" colspan="6">No batches yet — submit a crossing pair of orders.</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Recent settlements</h2>
+      <table>
+        <thead><tr><th>Ticker</th><th>Qty</th><th>Price</th><th>Tx hash</th></tr></thead>
+        <tbody id="settlements"><tr><td class="empty" colspan="4">No settlements yet.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<script>
+// The dashboard is always served BY the primary node, so its own origin
+// IS the primary's URL. Peer node URLs are discovered via /config rather
+// than assumed to share a hostname — this is what lets the same dashboard
+// file work whether all three nodes run on one machine (127.0.0.1:9001-9003)
+// or as three independent cloud services with unrelated hostnames.
+const PRIMARY = window.location.origin;
+let NODE_URLS = [PRIMARY];
+let side = "BUY";
+
+async function loadConfig() {
+  try {
+    const r = await fetch(PRIMARY + "/config", { cache: "no-store" });
+    const cfg = await r.json();
+    NODE_URLS = cfg.all_public_node_urls;
+  } catch {
+    NODE_URLS = [PRIMARY];
+  }
+  const nodesEl = document.getElementById("nodes");
+  nodesEl.innerHTML = NODE_URLS.map((url, i) => `
+    <div class="node"><span class="dot" id="dot-${i}"></span> edge-${i + 1}${i === 0 ? " (primary)" : ""}</div>
+  `).join("");
+}
+
+document.getElementById("btn-buy").onclick = () => setSide("BUY");
+document.getElementById("btn-sell").onclick = () => setSide("SELL");
+function setSide(s) {
+  side = s;
+  document.getElementById("btn-buy").classList.toggle("active", s === "BUY");
+  document.getElementById("btn-sell").classList.toggle("active", s === "SELL");
+}
+
+document.getElementById("kind").onchange = (e) => {
+  const isMarket = e.target.value === "MARKET";
+  document.getElementById("price").disabled = isMarket;
+  document.getElementById("price-hint").textContent = isMarket ? "ignored for MARKET" : "required";
+};
+
+document.getElementById("submit").onclick = async () => {
+  const body = {
+    trader: document.getElementById("trader").value.trim(),
+    ticker: document.getElementById("ticker").value.trim(),
+    side,
+    kind: document.getElementById("kind").value,
+    quantity: parseInt(document.getElementById("quantity").value, 10),
+    price: parseInt(document.getElementById("price").value || "0", 10),
+  };
+  const out = document.getElementById("submit-result");
+  out.textContent = "Submitting...";
+  try {
+    const resp = await fetch(PRIMARY + "/orders", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+    });
+    const data = await resp.json();
+    if (!resp.ok) { out.textContent = "Error: " + (data.detail || resp.statusText); return; }
+    out.textContent = `Order #${data.order.local_id} → ${data.book_status} (${data.fills.length} fill(s) immediately). Waiting for the next batch cycle to reach the chain...`;
+  } catch (err) {
+    out.textContent = "Could not reach the primary edge node at " + PRIMARY;
+  }
+};
+
+async function pollHealth() {
+  for (let i = 0; i < NODE_URLS.length; i++) {
+    const dot = document.getElementById("dot-" + i);
+    if (!dot) continue;
+    try {
+      const r = await fetch(NODE_URLS[i] + "/health", { cache: "no-store" });
+      dot.classList.toggle("up", r.ok);
+    } catch { dot.classList.remove("up"); }
+  }
+}
+
+function shortHash(h) { return h ? h.slice(0, 10) + "…" + h.slice(-6) : ""; }
+
+async function pollBatches() {
+  try {
+    const r = await fetch(PRIMARY + "/batches", { cache: "no-store" });
+    const batches = await r.json();
+    const tbody = document.getElementById("batches");
+    if (!batches.length) { tbody.innerHTML = '<tr><td class="empty" colspan="6">No batches yet — submit a crossing pair of orders.</td></tr>'; return; }
+    tbody.innerHTML = batches.map(b => `
+      <tr>
+        <td>${b.tier ? `<span class="tier ${b.tier}">${b.tier}</span>` : "—"}</td>
+        <td>${b.risk_score_bps ?? "—"}</td>
+        <td>${b.order_count ?? "—"}</td>
+        <td>${b.fill_count ?? "—"}</td>
+        <td>${b.status}</td>
+        <td class="mono">${shortHash(b.digest)}</td>
+      </tr>`).join("");
+  } catch {}
+}
+
+async function pollSettlements() {
+  try {
+    const r = await fetch(PRIMARY + "/settlements", { cache: "no-store" });
+    const settlements = await r.json();
+    const tbody = document.getElementById("settlements");
+    if (!settlements.length) { tbody.innerHTML = '<tr><td class="empty" colspan="4">No settlements yet.</td></tr>'; return; }
+    tbody.innerHTML = settlements.map(s => `
+      <tr>
+        <td>${s.ticker}</td>
+        <td>${s.quantity}</td>
+        <td>${s.price}</td>
+        <td class="mono">${shortHash(s.tx_hash)}</td>
+      </tr>`).join("");
+  } catch {}
+}
+
+function connectOrderBookSocket() {
+  const ticker = document.getElementById("ticker").value.trim() || "DSEX";
+  document.getElementById("ob-ticker").textContent = ticker;
+  const wsUrl = PRIMARY.replace(/^http/, "ws") + "/ws/orderbook/" + ticker;
+  const ws = new WebSocket(wsUrl);
+  ws.onmessage = (evt) => {
+    const depth = JSON.parse(evt.data);
+    const bids = document.getElementById("bids");
+    const asks = document.getElementById("asks");
+    bids.innerHTML = depth.bids.length
+      ? depth.bids.map(l => `<tr><td>${l.quantity}</td><td class="price">${l.price}</td></tr>`).join("")
+      : '<tr><td class="empty" colspan="2">No bids</td></tr>';
+    asks.innerHTML = depth.asks.length
+      ? depth.asks.map(l => `<tr><td class="price">${l.price}</td><td>${l.quantity}</td></tr>`).join("")
+      : '<tr><td class="empty" colspan="2">No asks</td></tr>';
+  };
+  ws.onclose = () => setTimeout(connectOrderBookSocket, 2000);
+  ws.onerror = () => ws.close();
+}
+
+document.getElementById("ticker").addEventListener("change", connectOrderBookSocket);
+
+(async () => {
+  await loadConfig();
+  pollHealth(); setInterval(pollHealth, 3000);
+  pollBatches(); setInterval(pollBatches, 2000);
+  pollSettlements(); setInterval(pollSettlements, 2000);
+  connectOrderBookSocket();
+})();
+</script>
+</body>
+</html>

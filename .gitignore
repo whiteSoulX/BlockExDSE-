@@ -5,3 +5,5 @@ artifacts-manual/
 .env
 __pycache__/
 *.pyc
+.pytest_cache/
+deployment.json

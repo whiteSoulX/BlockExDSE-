@@ -1,0 +1,18 @@
+# Local-only Hardhat chain image, used by docker-compose.yml for the
+# one-command local demo. Never used for the public testnet deployment
+# (there, the chain is Sepolia itself — see README).
+FROM node:20-slim
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY contracts/ ./contracts/
+COPY scripts/ ./scripts/
+COPY hardhat.config.js ./
+
+RUN npx hardhat compile
+
+EXPOSE 8545
+CMD ["npx", "hardhat", "node", "--hostname", "0.0.0.0"]
