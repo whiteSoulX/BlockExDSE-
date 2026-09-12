@@ -5,6 +5,13 @@ blockchain settlement layer, an off-chain edge layer running PBFT-lite
 consensus, and a React frontend that drives both. All three pieces are
 built, tested, and confirmed running end-to-end.
 
+**New here?** See [GETTING_STARTED.md](GETTING_STARTED.md) for the
+step-by-step "clone it, run it, click through it, understand the tests"
+walkthrough. It also explains the branch situation — this branch
+(`v1-full-stack`) is one of two independent, not-yet-reconciled rewrites of
+the original `main`; the other is `v2-dev`. Worth reading before you assume
+`main` or a checkout without a branch name has this work on it.
+
 **Positioning note:** this isn't a crypto-asset exchange like Binance, nor
 an AMM like Uniswap — those are permissionless, KYC-optional (or exchange-side
 only), and don't use an order-book CDA. BlockExDSE is closer in shape to
