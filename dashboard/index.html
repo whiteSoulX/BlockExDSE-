@@ -63,6 +63,15 @@
       </div>
       <label>Trader address</label>
       <input id="trader" placeholder="0x..." />
+      <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+        <button type="button" id="verify-btn" style="margin-top:0; width:auto; padding:6px 12px; font-size:12px; background:var(--panel2); color:var(--muted); border:1px solid var(--border);">Get verified (demo)</button>
+        <span class="mono" id="verify-result" style="font-size:12px;"></span>
+      </div>
+      <div class="empty" style="margin-top:4px; font-size:11px;">
+        Orders need KYC verification first. This button simulates that —
+        see "How this differs from v1" below for why a real deployment
+        wouldn't work this way.
+      </div>
       <label>Ticker</label>
       <input id="ticker" value="DSEX" />
       <label>Order kind</label>
@@ -87,6 +96,11 @@
         <span class="tier FAST">FAST</span> (one delegate signature +
         challenge window) or <span class="tier FULL">FULL</span>
         (multi-delegate quorum vote) — the risk-adaptive consensus tier.
+        <br /><br />
+        "Get verified" above is a demo shortcut. In the actual design a
+        regulator, not the trader, controls registration — this button
+        only exists because the demo's admin key is reachable, and it
+        would not exist in a real deployment.
       </div>
     </div>
   </div>
@@ -187,6 +201,22 @@ document.getElementById("submit").onclick = async () => {
   }
 };
 
+document.getElementById("verify-btn").onclick = async () => {
+  const address = document.getElementById("trader").value.trim();
+  const out = document.getElementById("verify-result");
+  if (!address) { out.textContent = "enter an address first"; return; }
+  out.textContent = "verifying...";
+  try {
+    const resp = await fetch(PRIMARY + "/participants/verify", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address }),
+    });
+    const data = await resp.json();
+    out.textContent = resp.ok ? `✓ verified (tx ${data.tx_hash.slice(0, 10)}…)` : "✕ " + (data.detail || "failed");
+  } catch {
+    out.textContent = "could not reach the primary edge node";
+  }
+};
+
 async function pollHealth() {
   for (let i = 0; i < NODE_URLS.length; i++) {
     const dot = document.getElementById("dot-" + i);
@@ -200,6 +230,12 @@ async function pollHealth() {
 
 function shortHash(h) { return h ? h.slice(0, 10) + "…" + h.slice(-6) : ""; }
 
+function explainError(raw) {
+  if (!raw) return "";
+  const m = raw.match(/reason string '([^']+)'/) || raw.match(/reverted: ([^"\\]+)/);
+  return m ? m[1] : raw.slice(0, 80);
+}
+
 async function pollBatches() {
   try {
     const r = await fetch(PRIMARY + "/batches", { cache: "no-store" });
@@ -212,7 +248,7 @@ async function pollBatches() {
         <td>${b.risk_score_bps ?? "—"}</td>
         <td>${b.order_count ?? "—"}</td>
         <td>${b.fill_count ?? "—"}</td>
-        <td>${b.status}</td>
+        <td title="${b.error ? b.error.replace(/"/g, '&quot;') : ''}">${b.status}${b.error ? `<br /><span style="color:var(--red); font-size:11px;">${explainError(b.error)}</span>` : ""}</td>
         <td class="mono">${shortHash(b.digest)}</td>
       </tr>`).join("");
   } catch {}

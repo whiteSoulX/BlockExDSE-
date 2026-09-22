@@ -358,6 +358,39 @@ def post_order(order: OrderIn):
     return submit_order(order)
 
 
+@app.post("/participants/verify")
+def verify_participant_demo(body: dict):
+    """
+    Self-serve DEMO registration only. The report's own design (FR3, the
+    use-case diagram in Fig. 3.3) makes KYC a regulator-controlled action,
+    not something a trader grants themself — this exists purely so a
+    stranger opening the public demo has a way to get unblocked without
+    emailing an admin, and it is only reachable because the local/demo
+    deployer key doubles as delegate #1 here. A real deployment would gate
+    this behind actual identity verification and a regulator role, not an
+    open POST endpoint.
+    """
+    if not IS_PRIMARY:
+        try:
+            resp = httpx.post(f"{PRIMARY_URL}/participants/verify", json=body, timeout=10.0)
+            return resp.json()
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=502, detail=f"primary edge node unreachable: {exc}") from exc
+
+    if chain is None:
+        raise HTTPException(status_code=503, detail="no chain connection configured on this node")
+
+    address = (body.get("address") or "").strip()
+    if not address:
+        raise HTTPException(status_code=400, detail="address is required")
+
+    try:
+        receipt = chain.verify_participant(address)
+        return {"status": "verified", "address": address, "tx_hash": receipt.transactionHash.hex()}
+    except Exception as exc:  # noqa: BLE001 - surface the revert reason to the caller
+        raise HTTPException(status_code=400, detail=f"verification failed: {exc}") from exc
+
+
 @app.post("/batch/validate")
 def validate_batch(payload: dict):
     """Called BY peer edge nodes during the primary's PBFT-lite round."""
