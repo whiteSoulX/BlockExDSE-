@@ -1,0 +1,12 @@
+{
+  "name": "blockexdse",
+  "version": "1.1.0",
+  "private": true,
+  "scripts": {
+    "node": "hardhat node",
+    "compile": "hardhat compile"
+  },
+  "devDependencies": {
+    "hardhat": "^2.22.0"
+  }
+}

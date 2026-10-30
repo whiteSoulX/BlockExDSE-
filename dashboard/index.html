@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BlockExDSE Trading Terminal</title>
+<style>
+  :root { --bg:#0e1420; --card:#161e2e; --line:#26324a; --txt:#e6ecf8; --mut:#8b9bb8; --ok:#2fbf71; --warn:#f0b43c; --bad:#ec5b5b; --acc:#4f8cff; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); }
+  header { padding:14px 22px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+  h1 { font-size:18px; margin:0; } h2 { font-size:13px; margin:0 0 10px; color:var(--mut); text-transform:uppercase; letter-spacing:.06em; }
+  .sub { color:var(--mut); font-size:12px; }
+  main { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:14px; padding:14px 22px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; min-width:0; }
+  .wide { grid-column:1/-1; }
+  label { display:block; font-size:12px; color:var(--mut); margin:8px 0 3px; }
+  select,input { width:100%; padding:8px; background:#0b101a; color:var(--txt); border:1px solid var(--line); border-radius:6px; font:inherit; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .side { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+  button { padding:10px; border:0; border-radius:6px; font:inherit; font-weight:600; cursor:pointer; color:#fff; }
+  .buy { background:var(--ok); } .sell { background:var(--bad); }
+  button:disabled { opacity:.5; cursor:wait; }
+  .pipe { display:flex; gap:6px; margin:10px 0; } .st { flex:1; text-align:center; padding:8px 2px; border-radius:6px; background:#0b101a; border:1px solid var(--line); font-size:11px; color:var(--mut); }
+  .st.done { background:rgba(47,191,113,.15); border-color:var(--ok); color:var(--ok); } .st.fail { background:rgba(236,91,91,.15); border-color:var(--bad); color:var(--bad); }
+  table { width:100%; border-collapse:collapse; font-size:12px; } th,td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { color:var(--mut); font-weight:500; } .scroll { overflow-x:auto; }
+  .pill { padding:2px 8px; border-radius:99px; font-size:11px; background:#0b101a; border:1px solid var(--line); }
+  .s-settled,.s-matched { color:var(--ok); border-color:var(--ok); } .s-rejected { color:var(--bad); border-color:var(--bad); } .s-open,.s-partial { color:var(--warn); border-color:var(--warn); }
+  .mono { font-family:ui-monospace,Menlo,Consolas,monospace; } .node { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; background:var(--bad); } .dot.up { background:var(--ok); } .dot.f { background:var(--warn); }
+  .tiny { font-size:11px; padding:4px 8px; background:#0b101a; border:1px solid var(--line); color:var(--txt); }
+  #msg { margin-top:8px; min-height:18px; font-size:12px; color:var(--warn); }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>BlockExDSE Trading Terminal</h1><div class="sub">Edge PBFT-lite &rarr; RACD &rarr; Solidity settlement on local Hardhat</div></div>
+  <div class="sub mono" id="hdr">connecting…</div>
+</header>
+<main>
+  <section class="card">
+    <h2>Place order</h2>
+    <label>Trader (KYC verified)</label><select id="trader"></select>
+    <div class="row"><div><label>Ticker</label><select id="ticker"></select></div><div><label>Quantity</label><input id="qty" type="number" min="1" value="10"></div></div>
+    <label>Limit price (BDT) <span class="sub" id="band"></span></label><input id="price" type="number" min="1">
+    <div class="side"><button class="buy" onclick="send('BUY')">BUY</button><button class="sell" onclick="send('SELL')">SELL</button></div>
+    <div id="msg"></div>
+    <h2 style="margin-top:14px">Settlement pipeline <span class="sub" id="curId"></span></h2>
+    <div class="pipe" id="pipe"></div>
+    <div class="sub" id="curInfo"></div>
+  </section>
+  <section class="card">
+    <h2>Edge nodes</h2><div id="nodes"></div>
+    <div class="sub" style="margin-top:8px">Toggle “fault” to make a node return a corrupted hash. 2-of-3 still passes for STANDARD orders; ESCALATED orders (RACD) need 3-of-3 and will be rejected.</div>
+    <h2 style="margin-top:14px">Order book (resting)</h2><div class="scroll" id="book"></div>
+  </section>
+  <section class="card wide"><h2>Orders</h2><div class="scroll"><table id="orders"></table></div></section>
+  <section class="card wide"><h2>On-chain balances</h2><div class="scroll"><table id="bal"></table></div></section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const STAGES = ["submitted","edge_validated","consensus","matched","settled"];
+const LABEL = {submitted:"Submitted",edge_validated:"Edge validated",consensus:"Consensus",matched:"Matched",settled:"Settled"};
+let INFO = null, CUR = null;
+const short = h => h ? h.slice(0,10)+"…"+h.slice(-6) : "–";
+const fmt = n => Number(n).toLocaleString();
+
+async function api(path, opt) { const r = await fetch(path, opt); if (!r.ok) throw new Error((await r.json().catch(()=>({detail:r.statusText}))).detail || r.statusText); return r.json(); }
+
+async function init() {
+  INFO = await api("/api/info");
+  $("trader").innerHTML = INFO.traders.map(t => `<option value="${t.address}">${t.name} (${t.address.slice(0,8)}…)</option>`).join("");
+  $("ticker").innerHTML = Object.entries(INFO.tickers).map(([k,v]) => `<option value="${k}">${k} (ref ${v})</option>`).join("");
+  $("ticker").onchange = () => { $("price").value = INFO.tickers[$("ticker").value]; };
+  $("ticker").onchange();
+  $("band").textContent = `(allowed ±${INFO.price_band*100}% of reference)`;
+  $("hdr").textContent = `contract ${short(INFO.contract)} · storage: ${INFO.storage}`;
+  poll(); setInterval(poll, 800);
+}
+
+async function send(side) {
+  $("msg").textContent = "";
+  const b = document.querySelectorAll(".side button"); b.forEach(x => x.disabled = true);
+  try {
+    const r = await api("/api/order", { method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ trader:$("trader").value, ticker:$("ticker").value, qty:+$("qty").value, price:+$("price").value, side }) });
+    CUR = r.id;
+  } catch (e) { $("msg").textContent = e.message; }
+  setTimeout(() => b.forEach(x => x.disabled = false), 400);
+}
+
+function pipe(o) {
+  if (!o) { $("pipe").innerHTML = STAGES.map(s => `<div class="st">${LABEL[s]}</div>`).join(""); $("curId").textContent = ""; $("curInfo").textContent = ""; return; }
+  const failed = o.status === "rejected";
+  $("pipe").innerHTML = STAGES.map(s => {
+    const done = !!o.stages[s] || (s==="matched" && o.stages.settled);
+    return `<div class="st ${done ? "done" : ""}">${LABEL[s]}</div>`;
+  }).join("") + (failed ? `<div class="st fail">Rejected</div>` : "");
+  $("curId").textContent = o.id;
+  const v = o.votes ? `votes ${o.votes.agree}/${o.votes.required} (${o.risk.level}) · ` : "";
+  $("curInfo").innerHTML = failed ? `<span style="color:var(--bad)">${o.error}</span>` :
+    `${v}${o.status==="open" ? "resting on-chain, waiting for a counterparty · " : ""}${o.place_tx ? "tx " + `<span class="mono">${short(o.place_tx)}</span>` : ""}`;
+}
+
+async function poll() {
+  try {
+    const [orders, nodes, book, bal] = await Promise.all([api("/api/orders"), api("/api/nodes"), api("/api/book"), api("/api/balances")]);
+    pipe(orders.find(o => o.id === CUR) || null);
+    $("orders").innerHTML = `<tr><th>ID</th><th>Trader</th><th>Side</th><th>Ticker</th><th>Qty@Price</th><th>Status</th><th>Votes</th><th>RACD</th><th>Filled</th><th>Order tx</th><th>Trades (tx · block · hash anchor)</th><th>Gas</th><th>Total ms</th></tr>` +
+      orders.map(o => `<tr><td>${o.id}</td><td>${o.trader_name}</td><td>${o.side}</td><td>${o.ticker}</td><td>${fmt(o.qty)} @ ${fmt(o.price)}</td>
+        <td><span class="pill s-${o.status}">${o.status}</span>${o.error ? ` <span class="sub">${o.error}</span>` : ""}</td>
+        <td>${o.votes ? o.votes.agree + "/" + o.votes.required : "–"}</td><td>${o.risk ? o.risk.level : "–"}</td><td>${o.filled}/${o.qty}</td>
+        <td class="mono">${short(o.place_tx)}</td>
+        <td class="mono">${o.trades.map(t => `#${t.trade_id} ${t.qty}@${t.price} ${short(t.tx)} · blk ${t.block} · ${short("0x"+t.record_hash)}`).join("<br>") || "–"}</td>
+        <td>${o.gas_total ? fmt(o.gas_total) : "–"}</td><td>${o.total_ms ?? "…"}</td></tr>`).join("");
+    $("nodes").innerHTML = nodes.map(n => n.up ? `<div class="node"><span><span class="dot ${n.faulty ? "f" : "up"}"></span>Edge ${n.node} <span class="sub mono">:${n.port} ${n.leader ? "gateway" : "validator"}</span></span>
+        <span class="sub">${n.votes_cast} votes · ${n.ping_ms} ms <button class="tiny" onclick="fault(${n.node}, ${!n.faulty})">${n.faulty ? "heal" : "fault"}</button></span></div>`
+      : `<div class="node"><span><span class="dot"></span>Edge ${n.node} <span class="sub mono">:${n.port}</span></span><span class="sub">DOWN</span></div>`).join("");
+    const rows = s => book[s].map(o => `<tr><td>${o.ticker}</td><td>${fmt(o.remaining)}</td><td>${fmt(o.price)}</td><td>${o.id}</td></tr>`).join("") || `<tr><td colspan="4" class="sub">empty</td></tr>`;
+    $("book").innerHTML = `<table><tr><th colspan="4" style="color:var(--ok)">BUY</th></tr>${rows("BUY")}<tr><th colspan="4" style="color:var(--bad)">SELL</th></tr>${rows("SELL")}</table>`;
+    const tk = Object.keys(INFO.tickers);
+    $("bal").innerHTML = `<tr><th>Trader</th><th>Cash (BDT)</th>${tk.map(t => `<th>${t}</th>`).join("")}</tr>` +
+      bal.map(b => `<tr><td>${b.name}</td><td>${fmt(b.cash)}</td>${tk.map(t => `<td>${fmt(b.shares[t])}</td>`).join("")}</tr>`).join("");
+  } catch (e) { $("hdr").textContent = "gateway unreachable: " + e.message; }
+}
+async function fault(n, on) { await api(`/api/fault/${n}/${on ? "on" : "off"}`, { method:"POST" }); poll(); }
+init().catch(e => $("hdr").textContent = "init failed: " + e.message);
+</script>
+</body>
+</html>
