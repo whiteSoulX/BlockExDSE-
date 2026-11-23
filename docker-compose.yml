@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  blockexdse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: blockexdse:v2.0
+    container_name: blockexdse
+    restart: unless-stopped
+    ports:
+      # Main Trading Dashboard & Gateway API
+      - "9001:9001"
+      # Edge Validators
+      - "9002:9002"
+      - "9003:9003"
+      - "9004:9004"
+      # Hardhat EVM Blockchain Node
+      - "8545:8545"
+    environment:
+      - HOST=0.0.0.0
+      - PYTHONUNBUFFERED=1
+      # Visual delay between animation stages in seconds (0 for benchmarks, default 0.35)
+      - DEMO_DELAY=0.35
+      # Optional: Simulates block mining interval in ms (0 = instant, e.g. 250 or 500)
+      # - BLOCK_TIME_MS=0
+      # Optional: Connect to external or containerized MongoDB for order persistence
+      # - MONGO_URL=mongodb://mongodb:27017
+    volumes:
+      - logs_data:/app/logs
+      - benchmark_data:/app/benchmark_results
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9001/api/info"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # Optional MongoDB service for persistent order storage.
+  # Run with: docker compose --profile with-mongo up -d
+  mongodb:
+    image: mongo:7.0
+    container_name: blockexdse-mongo
+    profiles:
+      - with-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  logs_data:
+    name: blockexdse_logs
+  benchmark_data:
+    name: blockexdse_benchmarks
+  mongo_data:
+    name: blockexdse_mongo
