@@ -1,0 +1,10 @@
+{
+  "name": "BlockExDSE Trading Terminal",
+  "short_name": "BlockExDSE",
+  "description": "Edge-assisted blockchain settlement prototype for the Dhaka Stock Exchange",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e1420",
+  "theme_color": "#0e1420",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

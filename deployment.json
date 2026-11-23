@@ -1,0 +1,1273 @@
+{
+  "contracts": {
+    "DSE": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    "LSE": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "BNC": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+  },
+  "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tradeId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "recordHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "HashAnchored",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "tier",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "votes",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "compliance",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "signerBitmap",
+          "type": "uint256"
+        }
+      ],
+      "name": "OrderAttested",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "remainingQty",
+          "type": "uint256"
+        }
+      ],
+      "name": "OrderCancelled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "ticker",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "qty",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "side",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "otype",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "orderHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "OrderPlaced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "ticker",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "SharesCredited",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "buyId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "sellId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "qty",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "name": "TradeSettled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "trader",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "cash",
+          "type": "uint256"
+        }
+      ],
+      "name": "TraderRegistered",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "ATTEST_TYPEHASH",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "CANCEL_TYPEHASH",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DOMAIN_SEPARATOR",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ORDER_TYPEHASH",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "admin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tradeId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "recordHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "anchorHash",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "batchRoot",
+          "type": "bytes32"
+        }
+      ],
+      "name": "attestDigest",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "orderId",
+          "type": "uint256"
+        }
+      ],
+      "name": "cancelDigest",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "sig",
+          "type": "bytes"
+        }
+      ],
+      "name": "cancelOrder",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "cash",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "compliance",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "t",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "ticker",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "qty",
+          "type": "uint256"
+        }
+      ],
+      "name": "creditShares",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "edgeNode",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getOrder",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "trader",
+              "type": "address"
+            },
+            {
+              "internalType": "uint40",
+              "name": "ts",
+              "type": "uint40"
+            },
+            {
+              "internalType": "uint8",
+              "name": "otype",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "tier",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "votes",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum BlockExDSE.Side",
+              "name": "side",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum BlockExDSE.Status",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "ticker",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "qty",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "remaining",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "price",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "expiry",
+              "type": "uint64"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "orderHash",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct BlockExDSE.Order",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTrade",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint48",
+              "name": "buyId",
+              "type": "uint48"
+            },
+            {
+              "internalType": "uint48",
+              "name": "sellId",
+              "type": "uint48"
+            },
+            {
+              "internalType": "uint64",
+              "name": "qty",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "price",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint32",
+              "name": "ts",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "recordHash",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct BlockExDSE.Trade",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getValidators",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "trader",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "ticker",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "qty",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "side",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "otype",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "expiry",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BlockExDSE.OrderIn",
+          "name": "o",
+          "type": "tuple"
+        }
+      ],
+      "name": "hashOrder",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "holdings",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "kyc",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "lockedCash",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "lockedShares",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "buyId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "sellId",
+          "type": "uint256"
+        }
+      ],
+      "name": "matchOrders",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "tid",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "qty",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "orderCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "trader",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "ticker",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "qty",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "side",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "otype",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "expiry",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BlockExDSE.OrderIn",
+          "name": "o",
+          "type": "tuple"
+        }
+      ],
+      "name": "orderDigest",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "trader",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "ticker",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "qty",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "side",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "otype",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "expiry",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BlockExDSE.OrderIn[]",
+          "name": "ins",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "traderSigs",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "attSigs",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "compSig",
+          "type": "bytes"
+        }
+      ],
+      "name": "placeOrders",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "firstId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "quorumEsc",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "quorumStd",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "t",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "startCash",
+          "type": "uint256"
+        }
+      ],
+      "name": "registerTrader",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "riskNotional",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "ticker",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "qty",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "otype",
+          "type": "uint8"
+        }
+      ],
+      "name": "riskScore",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "ticker",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "qty",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "otype",
+          "type": "uint8"
+        }
+      ],
+      "name": "riskTier",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "a",
+          "type": "address"
+        }
+      ],
+      "name": "setCompliance",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "a",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "ok",
+          "type": "bool"
+        }
+      ],
+      "name": "setEdgeNode",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "std_",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "esc_",
+          "type": "uint8"
+        }
+      ],
+      "name": "setQuorum",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "v",
+          "type": "uint256"
+        }
+      ],
+      "name": "setRiskNotional",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "ticker",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "ref",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "bandBps",
+          "type": "uint256"
+        }
+      ],
+      "name": "setTicker",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "addrs",
+          "type": "address[]"
+        }
+      ],
+      "name": "setValidators",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "tickers",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "ref",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "bandBps",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "tradeCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "usedNonce",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "validatorCount",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "validatorIndex",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "traders": [
+    {
+      "name": "Alice",
+      "address": "0xDb02Cd7A8A4A3c6cd846dd8E8a57da759654395B"
+    },
+    {
+      "name": "Bob",
+      "address": "0x86980302bd4a82031E697198823Adfb0925c34ad"
+    },
+    {
+      "name": "Carol",
+      "address": "0xd98B0E3C085f090B454BBBa74E5868B8d8143eDC"
+    },
+    {
+      "name": "Dave",
+      "address": "0x463456aa0B307E8db9aed56D90506BC4Cf0C7bf1"
+    },
+    {
+      "name": "Erin",
+      "address": "0xB4a42Be8c33FC5f6732Ec97aBadf557A6221CEde"
+    },
+    {
+      "name": "Frank",
+      "address": "0x4B15565A641508855F1D648059aC3c6161e1B13c"
+    }
+  ],
+  "edge_nodes": {
+    "1": "0x57f700302f3135c9cf30579B13D9A13E3C05d6b8",
+    "2": "0xe91CdfC93D08d2dD0ee44e04FD0E1A1e3C48349B",
+    "3": "0x281aD0C88D9aC523F4862E9C438f1C7eAe903fb2",
+    "4": "0xF09cEDFbA7Aa3d54F3110364c28cD8d1DA8E1167"
+  },
+  "compliance": "0x6487D3496897D357d7C5e113bA3805cdbbA8a4D8",
+  "chain": {
+    "id": 31337,
+    "name": "Hardhat local test chain"
+  }
+}

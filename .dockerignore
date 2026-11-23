@@ -1,0 +1,12 @@
+.venv
+node_modules
+logs
+artifacts
+cache
+__pycache__
+*.pyc
+.git
+.gitignore
+benchmark_results/*.csv
+benchmark_results/*.json
+!benchmark_results/v2.0-reference/**
