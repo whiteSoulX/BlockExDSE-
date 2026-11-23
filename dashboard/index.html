@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e1420">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<title>BlockExDSE Trading Terminal</title>
+<style>
+:root{--bg:#0e1420;--card:#161e2e;--line:#26324a;--txt:#e6ecf8;--mut:#8b9bb8;--ok:#2fbf71;--warn:#f0b43c;--bad:#ec5b5b;--acc:#4f8cff;--in:#0b101a}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;font:15px/1.45 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);padding-top:env(safe-area-inset-top)}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+.brand{font-weight:700;font-size:16px}.brand small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.who{display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;justify-content:flex-end}
+.badge{padding:1px 8px;border-radius:99px;font-size:11px;border:1px solid var(--acc);color:var(--acc)}
+nav{display:flex;gap:4px;padding:8px 16px;border-bottom:1px solid var(--line);overflow-x:auto}
+nav button{background:none;border:0;color:var(--mut);padding:8px 14px;border-radius:8px;font:inherit;cursor:pointer;white-space:nowrap;min-height:40px}
+nav button.on{background:var(--card);color:var(--txt);border:1px solid var(--line)}
+nav .cnt{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:99px;background:var(--warn);color:#111;font-size:11px;font-weight:700}
+main{max-width:1150px;margin:0 auto;padding:14px 16px 90px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+h2{font-size:12px;margin:0 0 10px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+h3{margin:0 0 6px;font-size:17px}
+label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
+input,select{width:100%;padding:11px;background:var(--in);color:var(--txt);border:1px solid var(--line);border-radius:8px;font:inherit;min-height:44px}
+input:focus,select:focus{outline:2px solid var(--acc);outline-offset:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{padding:12px;border:0;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;color:#fff;background:var(--acc);min-height:44px;width:100%}
+.btn.ok{background:var(--ok)}.btn.bad{background:var(--bad)}.btn.ghost{background:none;border:1px solid var(--line);color:var(--txt)}.btn.sm{width:auto;padding:6px 12px;min-height:34px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seg button{padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--in);color:var(--txt);font:inherit;font-weight:600;cursor:pointer;min-height:44px}
+.seg button.buy.on{background:var(--ok);border-color:var(--ok)}.seg button.sell.on{background:var(--bad);border-color:var(--bad)}
+.sub{color:var(--mut);font-size:12px}.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.pill{padding:2px 9px;border-radius:99px;font-size:11px;background:var(--in);border:1px solid var(--line)}
+.s-settled,.s-matched,.s-active{color:var(--ok);border-color:var(--ok)}.s-rejected{color:var(--bad);border-color:var(--bad)}.s-open,.s-partial,.s-approval_pending,.s-held{color:var(--warn);border-color:var(--warn)}
+.pipe{display:flex;gap:5px;margin:10px 0;flex-wrap:wrap}.st{flex:1;min-width:74px;text-align:center;padding:8px 2px;border-radius:8px;background:var(--in);border:1px solid var(--line);font-size:11px;color:var(--mut)}
+.st.done{background:rgba(47,191,113,.15);border-color:var(--ok);color:var(--ok)}.st.fail{background:rgba(236,91,91,.15);border-color:var(--bad);color:var(--bad)}.st.hold{background:rgba(240,180,60,.15);border-color:var(--warn);color:var(--warn)}
+.ocard{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:var(--in)}
+.ocard .top{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.buy-t{color:var(--ok);font-weight:700}.sell-t{color:var(--bad);font-weight:700}
+.hash{cursor:pointer;color:var(--acc)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mut);font-weight:500}.scroll{overflow-x:auto}
+.node{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px;flex-wrap:wrap}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;background:var(--bad)}.dot.up{background:var(--ok)}.dot.f{background:var(--warn)}
+.note{background:var(--in);border:1px dashed var(--line);border-radius:8px;padding:10px;font-size:13px;color:var(--mut)}
+.demo{background:rgba(240,180,60,.1);border-color:var(--warn);color:var(--txt)}
+.steps{display:flex;gap:6px;margin-bottom:12px}.steps div{flex:1;height:5px;border-radius:3px;background:var(--line)}.steps div.on{background:var(--acc)}.steps div.ok{background:var(--ok)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{padding:6px 10px;border-radius:99px;border:1px solid var(--line);background:var(--in);color:var(--txt);font-size:12px;cursor:pointer;min-height:34px}
+.vchip{padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:var(--in);color:var(--mut);font-size:11px}.vchip.y{border-color:var(--ok);color:var(--ok)}.vchip.n{border-color:var(--bad);color:var(--bad)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.col h3{font-size:14px}.item{padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.pass{color:var(--ok);font-weight:700}.fail{color:var(--bad);font-weight:700}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom));background:#222c42;border:1px solid var(--line);padding:10px 16px;border-radius:10px;font-size:13px;z-index:30;display:none;max-width:90%}
+#tour{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:40;padding:16px}
+#tour .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:440px;width:100%}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes sp{to{transform:rotate(360deg)}}
+.mkbar{display:flex;gap:8px;padding:8px 16px;border-bottom:1px solid var(--line);align-items:center;flex-wrap:wrap}
+.mkbar button{background:var(--in);border:1px solid var(--line);color:var(--txt);padding:7px 14px;border-radius:99px;font:inherit;font-size:13px;cursor:pointer;min-height:36px}
+.mkbar button.on{background:var(--acc);border-color:var(--acc);color:#fff}.mkbar .sub{flex:1;min-width:200px}
+.trow{display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px;gap:8px}
+.trow.on{background:var(--in);outline:1px solid var(--acc)}.up{color:var(--ok)}.dn{color:var(--bad)}
+.lad{display:grid;grid-template-columns:1fr 1fr;font-size:13px}.lad div{padding:4px 8px;position:relative}.lad .h{color:var(--mut);font-size:11px}
+.lad .a{color:var(--bad)}.lad .b{color:var(--ok)}.lad .r{text-align:right}
+.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mut);margin-right:5px}.live.on{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.tag{padding:1px 7px;border-radius:6px;font-size:10px;background:var(--in);border:1px solid var(--line);color:var(--mut);margin-left:4px}
+.keybox{word-break:break-all;font-size:12px;margin-top:8px}
+@media(max-width:700px){
+  nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--bg);border-top:1px solid var(--line);border-bottom:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom));justify-content:flex-start;gap:2px}
+  nav button{padding:6px 8px;font-size:12px;min-width:56px;border:0!important}
+  .row{grid-template-columns:1fr 1fr}.who .nm{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">BlockExDSE<small>Edge-validated settlement prototype v2.0 (simulated)</small></div>
+  <div class="who" id="who"></div>
+</header>
+<div class="mkbar" id="mkbar" style="display:none"></div>
+<nav id="nav"></nav>
+<main id="main"></main>
+<div id="toast"></div>
+<div id="tour"></div>
+
+<script src="/vendor/sign.js"></script>
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n).toLocaleString();
+const short = h => h ? h.slice(0, 10) + "…" + h.slice(-6) : "–";
+const S = { token: sessionStorage.getItem("bx_token") || "", market: sessionStorage.getItem("bx_mk") || "DSE", me: null, portfolios: null, info: null,
+            view: null, tab: "in", otpDemo: "", orders: [], cur: null, side: "BUY", otype: "LIMIT", tk: {}, snap: {}, nodes: [], req: null,
+            accounts: [], demo: [], sim: {}, es: null, liveAt: 0, key: null, keyDemo: false, tmpKey: null, review: [],
+            lab: { audit: {}, results: null, tamper: {}, bench: null, benchJob: null, busy: false } };
+const STAGES = ["submitted", "edge_validated", "consensus", "onchain", "matched", "settled"];
+const LABEL = { submitted: "Signed by investor", edge_validated: "Edge checked", consensus: "Validators signed", onchain: "Verified on-chain", matched: "Matched", settled: "Settled" };
+const TABS = {
+  trader: [["trade", "Trade"], ["orders", "Orders"], ["portfolio", "Portfolio"], ["market", "Market"], ["proof", "Proof"], ["roadmap", "Roadmap"]],
+  broker: [["requests", "Requests"], ["review", "Review"], ["orders", "Orders"], ["accounts", "Accounts"], ["market", "Market"], ["proof", "Proof"], ["roadmap", "Roadmap"]],
+  admin:  [["requests", "Requests"], ["review", "Review"], ["orders", "Orders"], ["accounts", "Accounts"], ["market", "Market"], ["proof", "Proof"], ["roadmap", "Roadmap"]],
+};
+const MODE_NAME = { chain_only: "Contract only (no edge)", edge_only: "Gateway check only", fixed3: "Always 3 of 4", fixed4: "Always 4 of 4", racd: "Risk-proportional (3 or 4)" };
+
+/* ───────── helpers ───────── */
+const MK = () => S.info.markets[S.market];
+function money(m, n) { const f = S.info.markets[m].fmt; return f.prefix + (n / f.div).toLocaleString(undefined, { minimumFractionDigits: f.dec, maximumFractionDigits: f.dec }) + f.suffix; }
+function px(m, n) { return fmt(n) + S.info.markets[m].fmt.price_suffix; }
+async function api(path, opt = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (S.token) headers.Authorization = "Bearer " + S.token;
+  const r = await fetch(path, { ...opt, headers, body: opt.body ? JSON.stringify(opt.body) : undefined });
+  let j = {}; try { j = await r.json(); } catch (e) {}
+  if (!r.ok) {
+    if (r.status === 401 && S.token && !path.includes("/auth/login")) { signOutLocal(); toast("Session ended. Please sign in again."); }
+    const d = j.detail; throw new Error(typeof d === "string" ? d : (Array.isArray(d) ? "Please check the form fields." : r.statusText));
+  }
+  return j;
+}
+let toastT; function toast(msg) { const t = $("#toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => t.style.display = "none", 4200); }
+function signOutLocal() {
+  S.token = ""; S.tab = "in"; S.otpDemo = ""; S.me = null; S.portfolios = null; S.view = null; S.cur = null; S.key = null; S.keyDemo = false; S.review = [];
+  sessionStorage.removeItem("bx_token"); sessionStorage.removeItem("bx_demo_key"); route();
+}
+function setToken(t) { S.token = t; sessionStorage.setItem("bx_token", t); }
+document.addEventListener("click", e => { const h = e.target.closest(".hash"); if (h && h.dataset.full && navigator.clipboard) navigator.clipboard.writeText(h.dataset.full).then(() => toast("Copied: " + short(h.dataset.full))); });
+const H = h => h ? `<span class="hash mono" data-full="${esc(h)}" title="Click to copy">${esc(short(h))}</span>` : "–";
+function busy(btn, on) { if (btn) btn.disabled = on; }
+function chgHTML(c) { return `<span class="${c > 0 ? "up" : c < 0 ? "dn" : "sub"}">${c > 0 ? "+" : ""}${c.toFixed(2)}%</span>`; }
+
+/* ───────── the investor's signing key (stays on this device) ───────── */
+const keyStore = {
+  get(email) { try { return localStorage.getItem("bx_key_" + String(email).toLowerCase()); } catch (e) { return null; } },
+  set(email, k) { try { localStorage.setItem("bx_key_" + String(email).toLowerCase(), k); return true; } catch (e) { return false; } },
+};
+function loadKey() {
+  const u = S.me && S.me.user; S.key = null; S.keyDemo = false;
+  if (!u || u.role !== "trader" || !window.BXSign) return;
+  const demo = sessionStorage.getItem("bx_demo_key"), k = demo || keyStore.get(u.email) || S.tmpKey;
+  if (!k || !BXSign.validKey(k)) return;
+  if (u.wallet && BXSign.addressOf(k).toLowerCase() !== u.wallet.toLowerCase()) return;      // a key that belongs to another account
+  S.key = k; S.keyDemo = !!demo;
+}
+function ensureKey() {                      // called at the identity step: create the key here, in the browser
+  const em = S.me.user.email; let k = keyStore.get(em) || S.tmpKey;
+  if (!k || !BXSign.validKey(k)) { k = BXSign.newKey(); S.tmpKey = k; if (!keyStore.set(em, k)) toast("This browser blocks local storage: the key will be lost when the tab closes."); }
+  return k;
+}
+function domainOf(m) {                      // computed here from the chain id and contract address, then compared with the gateway's value
+  const cfg = S.info.markets[m], d = BXSign.domainSeparator(S.info.chain.id, cfg.contract);
+  if (d.toLowerCase() !== String(cfg.domain).toLowerCase()) throw new Error("Safety check failed: the signing domain does not match this contract.");
+  return d;
+}
+
+/* ───────── routing ───────── */
+function route() {
+  const u = S.me && S.me.user;
+  renderWho();
+  $("#mkbar").style.display = "none";
+  if (!u) { S.view = "guest"; $("#nav").innerHTML = ""; return mountGuest(); }
+  if (u.role === "trader" && u.status !== "active") { S.view = "onboard"; $("#nav").innerHTML = ""; return mountOnboard(); }
+  const tabs = TABS[u.role]; if (!tabs.some(t => t[0] === S.view)) S.view = tabs[0][0];
+  renderNav();
+  renderMarketBar();
+  ({ trade: mountTrade, orders: mountOrders, portfolio: mountPortfolio, market: mountMarket, roadmap: mountRoadmap, requests: mountRequests,
+     accounts: mountAccounts, review: mountReview, proof: mountProof })[S.view]();
+  connectStream(); tick();
+}
+function renderNav() {
+  const u = S.me.user, tabs = TABS[u.role];
+  $("#nav").innerHTML = tabs.map(t => `<button data-v="${t[0]}" class="${S.view === t[0] ? "on" : ""}">${t[1]}${t[0] === "review" && S.review.length ? `<span class="cnt">${S.review.length}</span>` : ""}</button>`).join("");
+  $("#nav").querySelectorAll("button").forEach(b => b.onclick = () => { S.view = b.dataset.v; route(); });
+}
+function renderMarketBar() {
+  const bar = $("#mkbar"); bar.style.display = "flex";
+  bar.innerHTML = Object.values(S.info.markets).map(m => `<button data-m="${m.code}" class="${m.code === S.market ? "on" : ""}">${esc(m.code)} · ${esc(m.name)}</button>`).join("") +
+    `<span class="sub" id="mkinfo">${esc(MK().hours)}. Simulation: orders are accepted at any time.</span>`;
+  bar.querySelectorAll("button").forEach(b => b.onclick = () => { S.market = b.dataset.m; sessionStorage.setItem("bx_mk", S.market); S.cur = null; route(); });
+}
+function renderWho() {
+  const u = S.me && S.me.user;
+  $("#who").innerHTML = (u ? `<span class="nm">${esc(u.name)}</span><span class="badge">${esc(u.role)}</span><button class="btn ghost sm" id="bOut">Sign out</button>` : "") + `<button class="btn ghost sm" id="bTour">Tour</button>`;
+  $("#bTour").onclick = () => openTour(0);
+  if (u) $("#bOut").onclick = async () => { try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {} signOutLocal(); };
+}
+
+/* ───────── guest: sign in / sign up ───────── */
+async function mountGuest() {
+  $("#main").innerHTML = `<div class="grid"><div class="card" style="max-width:480px;margin:0 auto;width:100%;grid-column:1/-1">
+    <div class="seg" style="margin-bottom:12px"><button id="tIn" class="${S.tab === "in" ? "on buy" : ""}">Sign in</button><button id="tUp" class="${S.tab === "up" ? "on buy" : ""}">Create account</button></div>
+    <div id="gform"></div></div></div>`;
+  $("#tIn").onclick = () => { S.tab = "in"; mountGuest(); }; $("#tUp").onclick = () => { S.tab = "up"; mountGuest(); };
+  S.tab === "in" ? formSignIn() : formSignUp();
+}
+async function formSignIn() {
+  $("#gform").innerHTML = `<label>Email</label><input id="em" type="email" autocomplete="username" placeholder="you@example.com">
+    <label>Password</label><input id="pw" type="password" autocomplete="current-password">
+    <div id="err" class="sub" style="color:var(--bad);margin-top:6px;min-height:18px"></div>
+    <button class="btn" id="go" style="margin-top:6px">Sign in</button>
+    <div class="note" style="margin-top:14px"><b>Demo accounts</b> (this is a simulation; tap one to sign in)<div class="chips" id="chips"></div></div>`;
+  $("#go").onclick = () => doLogin($("#em").value, $("#pw").value, $("#go"));
+  $("#pw").onkeydown = e => { if (e.key === "Enter") $("#go").click(); };
+  try { S.demo = await api("/api/demo-accounts"); } catch (e) {}
+  if (!$("#chips")) return;
+  $("#chips").innerHTML = S.demo.map((d, i) => `<button class="chip" data-i="${i}">${esc(d.label)} · ${esc(d.role)}</button>`).join("");
+  $("#chips").querySelectorAll(".chip").forEach(c => c.onclick = () => { const d = S.demo[+c.dataset.i]; doLogin(d.email, d.password, null); });
+}
+function keepDemoKey(r) { if (r.demo_key) sessionStorage.setItem("bx_demo_key", r.demo_key); else sessionStorage.removeItem("bx_demo_key"); }
+async function doLogin(email, password, btn) {
+  busy(btn, true);
+  try { const r = await api("/api/auth/login", { method: "POST", body: { email, password } }); setToken(r.token); keepDemoKey(r); await loadMe(); route(); }
+  catch (e) { const el = $("#err"); if (el) el.textContent = e.message; else toast(e.message); }
+  busy(btn, false);
+}
+function formSignUp() {
+  $("#gform").innerHTML = `<div class="note demo">Simulation only. Real accounts are opened through a licensed broker and a BO account; nothing here is real.</div>
+    <label>Full name</label><input id="nm" autocomplete="name">
+    <label>Email</label><input id="em" type="email" autocomplete="email">
+    <label>Mobile (Bangladesh)</label><input id="mo" type="tel" placeholder="01712345678" autocomplete="tel">
+    <label>Password (8+ characters, a letter and a number)</label><input id="pw" type="password" autocomplete="new-password">
+    <div id="err" class="sub" style="color:var(--bad);margin-top:6px;min-height:18px"></div>
+    <button class="btn" id="go">Create account</button>`;
+  $("#go").onclick = async () => {
+    busy($("#go"), true);
+    try {
+      const r = await api("/api/auth/signup", { method: "POST", body: { name: $("#nm").value, email: $("#em").value, mobile: $("#mo").value, password: $("#pw").value } });
+      setToken(r.token); sessionStorage.removeItem("bx_demo_key"); S.otpDemo = r.otp_demo; await loadMe(); route();
+    } catch (e) { $("#err").textContent = e.message; }
+    busy($("#go"), false);
+  };
+}
+
+/* ───────── onboarding wizard ───────── */
+function mountOnboard() {
+  const u = S.me.user, st = u.status;
+  const idx = { otp_pending: 1, kyc_pending: 2, rejected: 2, approval_pending: 3 }[st] ?? 1;
+  const bar = [0, 1, 2, 3].map(i => `<div class="${i < idx ? "ok" : i === idx ? "on" : ""}"></div>`).join("");
+  let body = "", addr = "";
+  if (st === "otp_pending") body = `<h3>Verify your mobile</h3><p class="sub">Step 2 of 4. Enter the 6-digit code.</p>
+    ${S.otpDemo ? `<div class="note demo">Demo only: your code is <b class="mono" style="font-size:18px">${esc(S.otpDemo)}</b><br>A real system would send this by SMS.</div>` : `<div class="note">Tap “Send new code” to get a demo code.</div>`}
+    <label>Code</label><input id="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+    <div id="err" class="sub" style="color:var(--bad);min-height:18px;margin-top:6px"></div>
+    <button class="btn" id="go">Verify</button><button class="btn ghost" id="again" style="margin-top:8px">Send new code</button>`;
+  else if (st === "kyc_pending" || st === "rejected") {
+    addr = BXSign.addressOf(ensureKey());
+    body = `<h3>Identity check and signing key</h3><p class="sub">Step 3 of 4. Simulated: only a format check is done.</p>
+    ${st === "rejected" ? `<div class="note" style="border-color:var(--bad);color:var(--bad)">Not approved: ${esc(u.reject_reason)}. You can submit again.</div>` : ""}
+    <label>National ID number (10, 13 or 17 digits)</label><input id="nid" inputmode="numeric" autocomplete="off">
+    <label>Photo (optional)</label><input id="ph" type="file" accept="image/*">
+    <p class="sub">The ID number is stored only as a one-way hash plus its last 4 digits. The photo is never uploaded: only its fingerprint (hash) is sent.</p>
+    <div class="note" id="keynote">Your signing key was created on this device. Its address is ${H(addr)}.<br>The key never leaves this browser. Without it nobody, including the broker and the exchange, can place or cancel an order in your name.</div>
+    <div id="err" class="sub" style="color:var(--bad);min-height:18px;margin-top:6px"></div><button class="btn" id="go">Submit for approval</button>`;
+  } else body = `<h3><span class="spin"></span>Waiting for broker approval</h3><p class="sub">Step 4 of 4. You will be taken to trading as soon as a broker approves you. ID ending <b>${esc(u.nid_last4)}</b>.</p>
+    <div class="note demo">Demo tip: in another browser window, sign in as <b>broker@blockexdse.demo</b> / <b>Broker@123</b> and approve this request.</div>`;
+  $("#main").innerHTML = `<div class="card" style="max-width:480px;margin:0 auto"><div class="steps">${bar}</div>${body}</div>`;
+  if (st === "otp_pending") {
+    $("#go").onclick = () => act($("#go"), () => api("/api/auth/otp/verify", { method: "POST", body: { code: $("#otp").value } }), "Contact verified.");
+    $("#again").onclick = async () => { try { const r = await api("/api/auth/otp/resend", { method: "POST" }); S.otpDemo = r.otp_demo; mountOnboard(); } catch (e) { $("#err").textContent = e.message; } };
+  } else if (st === "kyc_pending" || st === "rejected") {
+    $("#go").onclick = () => act($("#go"), async () => {
+      let ph = null; const f = $("#ph").files[0];
+      if (f && window.crypto && crypto.subtle) { const d = await crypto.subtle.digest("SHA-256", await f.arrayBuffer()); ph = [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, "0")).join(""); }
+      return api("/api/kyc", { method: "POST", body: { nid: $("#nid").value, photo_hash: ph, wallet: addr } });
+    }, "Submitted. A broker will review it.");
+  }
+}
+async function act(btn, fn, okMsg) {
+  busy(btn, true);
+  try { await fn(); toast(okMsg); await loadMe(); route(); } catch (e) { const el = $("#err"); if (el) el.textContent = e.message; else toast(e.message); }
+  busy(btn, false);
+}
+async function loadMe() { S.me = await api("/api/me"); S.portfolios = S.me.portfolios || null; loadKey(); }
+
+/* ───────── live market data (stream with polling fallback) ───────── */
+function connectStream() {
+  if (S.es && S.es.mk === S.market) return;
+  if (S.es) { S.es.close(); S.es = null; }
+  if (!window.EventSource || !S.token) return;
+  const es = new EventSource("/api/stream/" + S.market); es.mk = S.market;
+  es.onmessage = e => { try { S.snap[es.mk] = JSON.parse(e.data); S.liveAt = Date.now(); refreshLive(); } catch (x) {} };
+  S.es = es;
+}
+const isLive = () => Date.now() - S.liveAt < 3500;
+function snap() { return S.snap[S.market] || null; }
+function selTicker() { const t = S.tk[S.market]; return t && MK().tickers[t] ? t : Object.keys(MK().tickers)[0]; }
+function stripHTML() {
+  const sn = snap(); if (!sn) return `<div class="sub">Loading market data…</div>`;
+  const sel = selTicker();
+  return Object.entries(sn.tickers).map(([t, v]) => `<div class="trow ${t === sel ? "on" : ""}" data-t="${esc(t)}"><span><b>${esc(t)}</b> <span class="sub">${esc(v.name)}</span></span><span>${px(S.market, v.last)} ${chgHTML(v.chg)}</span></div>`).join("");
+}
+function ladderHTML() {
+  const sn = snap(); if (!sn) return "";
+  const v = sn.tickers[selTicker()], asks = v.asks.slice().reverse(), bids = v.bids;
+  const row = (a, cls) => `<div class="${cls}">${a ? px(S.market, a[0]) : ""}</div><div class="r ${cls}">${a ? fmt(a[1]) : ""}</div>`;
+  return `<div class="lad"><div class="h">Price</div><div class="h r">Quantity</div>${asks.map(a => row(a, "a")).join("") || `<div class="sub" style="grid-column:1/-1">No sellers</div>`}
+    <div style="grid-column:1/-1;border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;padding:6px"><b>${px(S.market, v.last)}</b> ${chgHTML(v.chg)}<span class="sub"> · vol ${fmt(v.volume)}${v.high != null ? ` · H ${px(S.market, v.high)} L ${px(S.market, v.low)}` : ""}</span></div>
+    ${bids.map(a => row(a, "b")).join("") || `<div class="sub" style="grid-column:1/-1">No buyers</div>`}</div>`;
+}
+function tapeHTML() {
+  const sn = snap(); if (!sn) return "";
+  return sn.tape.slice(0, 8).map(t => `<div class="item"><b>${esc(t.ticker)}</b> ${fmt(t.qty)} @ ${px(S.market, t.price)} <span class="sub">${esc(t.buyer)} ← ${esc(t.seller)} · ${new Date(t.t).toLocaleTimeString()}</span></div>`).join("") || `<div class="sub">No trades yet.</div>`;
+}
+function refreshLive() {
+  if ($("#strip")) { $("#strip").innerHTML = stripHTML(); $("#strip").querySelectorAll(".trow").forEach(r => r.onclick = () => selectTicker(r.dataset.t)); }
+  if ($("#ladder")) $("#ladder").innerHTML = ladderHTML();
+  if ($("#tape")) $("#tape").innerHTML = tapeHTML();
+  if ($("#liveDot")) $("#liveDot").className = "live " + (isLive() ? "on" : "");
+  if ($("#prev") && S.view === "trade") syncPreview();
+}
+function selectTicker(t) {
+  S.tk[S.market] = t; if ($("#tk")) { $("#tk").value = t; setDefaultPrice(); }
+  refreshLive();
+}
+function marketCard() {
+  return `<div class="card"><h2><span class="live" id="liveDot"></span>${esc(MK().code)} live market</h2><div id="strip"></div>
+    <h2 style="margin-top:12px">Depth (top 5)</h2><div id="ladder"></div><h2 style="margin-top:12px">Recent trades</h2><div id="tape"></div></div>`;
+}
+
+/* ───────── trade ───────── */
+function expectPrice(t, side) {
+  const sn = snap(), v = sn && sn.tickers[t]; if (!v) return null;
+  const l = side === "BUY" ? v.asks : v.bids; return l.length ? l[0][0] : null;
+}
+function riskOf(t, qty, price, otype) {    // the contract's integer rule (BlockExDSE.riskScore), repeated here only as a preview
+  const cfg = MK(), tk = cfg.tickers[t], ref = tk.ref, bps = tk.band_bps, mkt = otype === "MARKET";
+  const n = qty * (mkt ? ref : price);
+  const nPart = Math.min(Math.floor(n * 10000 / cfg.risk_notional), 10000);
+  let dPart = 0, dev = 0;
+  if (!mkt && bps > 0) { dev = Math.floor(Math.abs(price - ref) * 10000 / ref); dPart = Math.min(Math.floor(dev * 20000 / bps), 10000); }
+  const score = Math.floor((nPart + dPart) / 2);
+  return { n, dev, score, esc: score >= 5000, out: price * 10000 < ref * (10000 - bps) || price * 10000 > ref * (10000 + bps), big: qty > cfg.max_qty, band: bps / 100 };
+}
+function quorumText(r) {
+  const q = MK().quorum, n = S.info.validators;
+  return `<b style="color:${r.esc ? "var(--warn)" : "var(--ok)"}">${r.esc ? `ESCALATED: ${q.risky} of ${n} validators must sign` : `STANDARD: ${q.routine} of ${n} validators must sign`}</b> <span class="sub">(risk score ${Math.round(r.score / 100)} of 100)</span>`;
+}
+function setDefaultPrice() { const t = $("#tk").value, sn = snap(), v = sn && sn.tickers[t]; $("#px").value = v ? v.last : MK().tickers[t].ref; syncPreview(); }
+function syncPreview() {
+  if (!$("#prev")) return;
+  const cfg = MK(), t = $("#tk").value, q = Math.floor(+$("#qty").value); const p = Math.floor(+$("#px").value);
+  if (S.otype === "MARKET") {
+    const e = expectPrice(t, S.side), lim = S.side === "BUY" ? cfg.tickers[t].hi : cfg.tickers[t].lo;
+    if (!(q > 0)) { $("#prev").textContent = "Enter a quantity."; return; }
+    if (q > cfg.max_qty) { $("#prev").innerHTML = `<span style="color:var(--bad)">Above the order size limit of ${fmt(cfg.max_qty)}: the edge validators will refuse it.</span>`; return; }
+    if (e == null) { $("#prev").innerHTML = `<span style="color:var(--warn)">No ${S.side === "BUY" ? "sellers" : "buyers"} right now: a market order would be cancelled unfilled.</span>`; return; }
+    const r = riskOf(t, q, lim, "MARKET");
+    $("#prev").innerHTML = `Best available price <b>${px(S.market, e)}</b>, about ${money(S.market, q * e)} for ${fmt(q)}.<br>${quorumText(r)}<br><span class="sub">You sign a protective limit of ${px(S.market, lim)} (the band edge). It fills what is on the book; the rest is cancelled.</span>`;
+    return;
+  }
+  if (!(q > 0 && p > 0)) { $("#prev").textContent = "Enter a quantity and price."; return; }
+  const r = riskOf(t, q, p, "LIMIT");
+  $("#prev").innerHTML = `Value <b>${money(S.market, r.n)}</b> · ${(r.dev / 100).toFixed(2)}% from reference<br>` +
+    (r.out ? `<span style="color:var(--bad)">Outside the ±${r.band.toFixed(2)}% band for ${esc(t)}: the validators and the contract will both refuse it.</span>` :
+     r.big ? `<span style="color:var(--bad)">Above the order size limit of ${fmt(cfg.max_qty)}: the edge validators will refuse it.</span>` : quorumText(r));
+}
+async function placeOrder() {
+  const cfg = MK(), t = $("#tk").value, q = Math.floor(+$("#qty").value);
+  const price = S.otype === "LIMIT" ? Math.floor(+$("#px").value) : (S.side === "BUY" ? cfg.tickers[t].hi : cfg.tickers[t].lo);
+  if (!S.key) throw new Error("This device does not hold your signing key. Open Portfolio to import it.");
+  if (!(q > 0 && price > 0)) throw new Error("Enter a quantity and a price.");
+  const order = { trader: S.me.user.wallet, ticker: t, qty: q, price, side: S.side, otype: S.otype, nonce: BXSign.randomNonce(), expiry: Math.floor(Date.now() / 1000) + 1800 };
+  const sig = BXSign.sign(S.key, BXSign.orderDigest(domainOf(S.market), order));      // signed here; only the signature leaves the device
+  const r = await api("/api/order", { method: "POST", body: { market: S.market, ticker: t, qty: q, price, side: S.side, otype: S.otype, nonce: order.nonce, expiry: order.expiry, sig } });
+  S.cur = r.id; toast("Order " + r.id + " signed on this device and sent to the edge validators");
+}
+function mountTrade() {
+  const cfg = MK(), tk = Object.entries(cfg.tickers);
+  $("#main").innerHTML = `<div class="grid"><div class="card"><h2>Place order · ${esc(cfg.code)}</h2>
+    <div class="seg" style="margin-bottom:8px"><button id="oL" class="${S.otype === "LIMIT" ? "on buy" : ""}">Limit</button><button id="oM" class="${S.otype === "MARKET" ? "on buy" : ""}">Market</button></div>
+    <div class="seg"><button class="buy ${S.side === "BUY" ? "on" : ""}" id="sB">BUY</button><button class="sell ${S.side === "SELL" ? "on" : ""}" id="sS">SELL</button></div>
+    <label>Ticker</label><select id="tk">${tk.map(([k, v]) => `<option value="${esc(k)}">${esc(k)} · ${esc(v.name)} (ref ${px(cfg.code, v.ref)}, ±${v.band}%)</option>`).join("")}</select>
+    <div class="row"><div><label>Quantity</label><input id="qty" type="number" inputmode="numeric" min="1" value="10"></div>
+    <div><label>${S.otype === "MARKET" ? "Price" : "Limit price"} (${esc(cfg.currency)})</label><input id="px" type="number" inputmode="numeric" min="1" ${S.otype === "MARKET" ? "disabled placeholder=\"best available\"" : ""}></div></div>
+    <div class="note" id="prev" style="margin-top:10px"></div>
+    <button class="btn ${S.side === "BUY" ? "ok" : "bad"}" id="go" style="margin-top:10px" ${S.key ? "" : "disabled"}>Sign and ${S.side === "BUY" ? "buy" : "sell"}${S.otype === "MARKET" ? " at market" : ""}</button>
+    <div class="sub" id="keyline" style="margin-top:8px">${S.key ? `Signed on this device with your key ${H(S.me.user.wallet)}.` : `<span style="color:var(--warn)">This device does not hold your signing key. Open Portfolio to import it.</span>`}</div>
+    <div class="sub" id="bal" style="margin-top:4px"></div></div>${marketCard()}
+    <div class="card" style="grid-column:1/-1"><h2>Settlement pipeline <span id="curId"></span></h2><div id="pipe"></div><div id="detail"></div></div></div>`;
+  $("#tk").value = selTicker();
+  if (S.otype === "LIMIT") setDefaultPrice(); else syncPreview();
+  $("#tk").onchange = () => { S.tk[S.market] = $("#tk").value; if (S.otype === "LIMIT") setDefaultPrice(); else syncPreview(); refreshLive(); };
+  ["qty", "px"].forEach(i => $("#" + i).oninput = syncPreview);
+  $("#sB").onclick = () => { S.side = "BUY"; mountTrade(); }; $("#sS").onclick = () => { S.side = "SELL"; mountTrade(); };
+  $("#oL").onclick = () => { S.otype = "LIMIT"; mountTrade(); }; $("#oM").onclick = () => { S.otype = "MARKET"; mountTrade(); };
+  if (S.prefill) {
+    const p = S.prefill; S.prefill = null; S.side = p.side; S.otype = p.otype || "LIMIT"; if (p.ticker) S.tk[S.market] = p.ticker;
+    mountTrade(); $("#qty").value = p.qty; if (p.price && S.otype === "LIMIT") $("#px").value = p.price; syncPreview(); return;
+  }
+  $("#go").onclick = async () => {
+    busy($("#go"), true);
+    try { await placeOrder(); } catch (e) { toast(e.message); }
+    setTimeout(() => busy($("#go"), !S.key), 500);
+  };
+  refreshLive(); refreshTrade();
+}
+function stageDone(o, s) { return s === "onchain" ? !!o.place_tx : s === "matched" ? !!(o.stages.matched || o.stages.settled) : !!o.stages[s]; }
+function pipeHTML(o) {
+  if (!o) return `<div class="pipe">${STAGES.map(s => `<div class="st">${LABEL[s]}</div>`).join("")}</div><div class="sub">Place an order to follow it: your signature, the edge validators, the contract's own checks, then matching and settlement.</div>`;
+  const failed = o.status === "rejected", cx = o.status === "cancelled" || o.status === "part_filled", held = o.status === "held";
+  return `<div class="pipe">${STAGES.map(s => `<div class="st ${stageDone(o, s) ? "done" : ""}">${LABEL[s]}</div>`).join("")}${held ? `<div class="st hold">Held for review</div>` : ""}${failed ? `<div class="st fail">Rejected</div>` : ""}${cx ? `<div class="st fail">Cancelled ${o.cancelled_qty ?? ""}</div>` : ""}</div>`;
+}
+function votesHTML(o) {
+  if (!o.votes || !o.votes.detail || !o.votes.detail.length) return "";
+  const word = d => d.agree ? "signed" : d.verdict === "not-asked" ? "not asked" : d.verdict === "no-response" ? "no answer" : d.verdict === "accept" ? "useless signature" : "refused";
+  return `<div class="chips">${o.votes.detail.map(d => `<span class="vchip ${d.agree ? "y" : d.verdict === "not-asked" ? "" : "n"}" title="${esc(d.reason || "")}">Validator ${d.node}: ${word(d)}</span>`).join("")}${o.votes.compliance ? `<span class="vchip y">Reviewer: approved</span>` : ""}</div>`;
+}
+function riskLine(o) {
+  if (!o.risk || o.risk.required == null) return "";
+  return `<div class="sub">Risk score <b>${Math.round(o.risk.score_bps / 100)}</b> of 100 (${esc(o.risk.level)}): needs <b>${o.risk.required}</b> validator signatures${o.votes ? `, has <b>${o.votes.agree}</b>` : ""}.</div>${votesHTML(o)}`;
+}
+function detailHTML(o) {
+  if (!o) return "";
+  const where = { edge: "Stopped at the edge, before any blockchain transaction", consensus: "Stopped by the validators", contract: "Refused by the contract", review: "Rejected by the reviewer" }[o.rejected_by] || "";
+  let h = riskLine(o);
+  if (o.status === "rejected") return h + `<div class="note" style="border-color:var(--bad);color:var(--bad);margin-top:8px">${where ? esc(where) + ": " : ""}${esc(o.error)}</div>`;
+  if (o.status === "held") return h + `<div class="note" style="border-color:var(--warn);color:var(--txt);margin-top:8px">A risky order needs every validator and one signature is missing, so a person decides. It waits in the Review tab of a broker or admin. The contract accepts one reviewer signature in place of one validator, for a risky order only.</div>`;
+  h += `<div class="sub" style="margin-top:6px">${esc(o.market)} · ${o.otype === "MARKET" ? "market order (protective limit " + px(o.market, o.price) + ")" : "limit order"}${o.place_tx ? ` · the contract verified the investor's signature and ${o.votes ? o.votes.agree : 0} validator signatures${o.votes && o.votes.compliance ? " plus the reviewer's" : ""}, then locked the ${o.side === "BUY" ? "cash" : "shares"}: tx ${H(o.place_tx)}${o.place_gas ? ` (gas ${fmt(Math.round(o.place_gas))})` : ""}` : ""}${o.status === "open" ? " · resting on-chain, waiting for a counterparty" : ""}${o.cancelled_qty ? ` · ${fmt(o.cancelled_qty)} unfilled and cancelled` : ""}</div>`;
+  if (o.trades.length) h += `<h2 style="margin-top:12px">Receipt</h2>` + o.trades.map(t => `<div class="ocard"><b>${esc(t.buyer)}</b> bought ${fmt(t.qty)} ${esc(t.ticker)} @ ${px(o.market, t.price)} from <b>${esc(t.seller)}</b><div class="sub">Trade #${t.trade_id} · block ${t.block} · gas ${fmt(t.gas + t.anchor_gas)}<br>Settlement tx ${H(t.tx)}<br>Anchored record hash ${H("0x" + t.record_hash)}</div></div>`).join("");
+  return h;
+}
+function refreshTrade() {
+  const o = S.orders.find(x => x.id === S.cur) || null;
+  if ($("#pipe")) { $("#pipe").innerHTML = pipeHTML(o); $("#detail").innerHTML = detailHTML(o); $("#curId").textContent = o ? o.id : ""; }
+  const p = S.portfolios && S.portfolios[S.market];
+  if ($("#bal") && p) $("#bal").textContent = `${S.market} cash available ${money(S.market, p.cash)}${p.locked_cash ? ` · locked in open buy orders ${money(S.market, p.locked_cash)}` : ""}`;
+}
+
+/* ───────── orders / portfolio / market ───────── */
+function orderCard(o) {
+  const mine = S.me.user.role === "trader" && (o.status === "open" || o.status === "partial");
+  return `<div class="ocard"><div class="top"><span><b>${esc(o.id)}</b> <span class="${o.side === "BUY" ? "buy-t" : "sell-t"}">${esc(o.side)}</span> ${fmt(o.qty)} ${esc(o.ticker)} ${o.otype === "MARKET" ? "at market" : "@ " + px(o.market, o.price)} <span class="tag">${esc(o.market)}</span><span class="tag">${esc(o.otype)}</span></span><span class="pill s-${esc(o.status)}">${esc(o.status.replace("_", " "))}</span></div>
+    <div class="sub">${esc(o.trader_name)} · filled ${o.filled}/${o.qty}${o.cancelled_qty ? ` · ${o.cancelled_qty} cancelled` : ""}${o.votes && o.risk ? ` · signatures ${o.votes.agree}/${o.votes.required} ${esc(o.risk.level)}${o.votes.compliance ? " + reviewer" : ""}` : ""}${o.gas_total ? ` · gas ${fmt(Math.round(o.gas_total))}` : ""}${o.total_ms != null ? ` · ${o.total_ms} ms` : ""}</div>
+    ${o.error ? `<div class="sub" style="color:var(--bad)">${esc(o.error)}</div>` : ""}<div class="sub">Order tx ${H(o.place_tx)}${o.cancel_tx ? ` · cancel tx ${H(o.cancel_tx)}` : ""}</div>
+    ${o.trades.map(t => `<div class="sub">Trade #${t.trade_id}: ${fmt(t.qty)} @ ${px(o.market, t.price)} · tx ${H(t.tx)} · hash ${H("0x" + t.record_hash)}</div>`).join("")}
+    ${mine ? `<button class="btn ghost sm cx" data-id="${esc(o.id)}" style="margin-top:8px">Sign and cancel</button>` : ""}</div>`;
+}
+async function cancelOrder(id) {
+  const o = S.orders.find(x => x.id === id);
+  if (!o || !o.chain_id) throw new Error("This order is not on the ledger.");
+  if (!S.key) throw new Error("This device does not hold your signing key.");
+  const sig = BXSign.sign(S.key, BXSign.cancelDigest(domainOf(o.market), o.chain_id));   // the contract cancels only with the investor's signature
+  await api(`/api/orders/${id}/cancel`, { method: "POST", body: { sig } });
+}
+function mountOrders() { $("#main").innerHTML = `<div class="card"><h2>${S.me.user.role === "trader" ? "My orders" : "All orders"} (all markets)</h2><div id="olist"></div></div>`; }
+function refreshOrders() {
+  if (!$("#olist")) return;
+  $("#olist").innerHTML = S.orders.map(orderCard).join("") || `<div class="sub">No orders yet.</div>`;
+  $("#olist").querySelectorAll(".cx").forEach(b => b.onclick = async () => { busy(b, true); try { await cancelOrder(b.dataset.id); toast("Cancel signed; the contract released the locked funds"); } catch (e) { toast(e.message); busy(b, false); } });
+}
+function mountPortfolio() {
+  $("#main").innerHTML = `<div class="grid"><div class="card"><h2>Cash · ${esc(S.market)}</h2><div id="cash" style="font-size:26px;font-weight:700"></div><div class="sub" id="lockc"></div><div class="sub" id="wal" style="margin-top:6px"></div></div>
+    <div class="card"><h2>Holdings · ${esc(S.market)}</h2><div class="scroll" id="hold"></div></div>
+    <div class="card"><h2>Signing key</h2><div id="keycard"></div></div></div>`;
+  renderKeyCard();
+}
+function renderKeyCard() {
+  const u = S.me.user, el = $("#keycard"); if (!el) return;
+  if (S.key) {
+    el.innerHTML = `<div class="sub">This device holds the key for ${H(u.wallet)}. Every order and every cancel is signed here; the gateway receives only the signature, and the contract checks it.</div>
+      ${S.keyDemo ? `<div class="note demo" style="margin-top:8px">Demo account: this key is a published test key, handed over at sign-in. An account you create gets its own key, made on your device.</div>` : `<div class="note" style="margin-top:8px">Back the key up. If this browser's storage is cleared, the key is gone and nobody can restore it.</div>`}
+      <button class="btn ghost sm" id="kShow" style="margin-top:8px">Show key to back it up</button><div class="keybox mono" id="kOut"></div>`;
+    $("#kShow").onclick = () => { const o = $("#kOut"); o.textContent = o.textContent ? "" : S.key; $("#kShow").textContent = o.textContent ? "Hide key" : "Show key to back it up"; };
+  } else {
+    el.innerHTML = `<div class="note" style="border-color:var(--warn);color:var(--txt)">This device does not hold the signing key for ${H(u.wallet)}. Paste the key you backed up to trade from this device.</div>
+      <label>Signing key (64 hex characters)</label><input id="kIn" class="mono" autocomplete="off" spellcheck="false"><button class="btn sm" id="kImp" style="margin-top:8px">Import key</button>`;
+    $("#kImp").onclick = () => {
+      const k = $("#kIn").value.trim();
+      if (!BXSign.validKey(k)) return toast("That is not a valid key.");
+      if (BXSign.addressOf(k).toLowerCase() !== String(u.wallet).toLowerCase()) return toast("This key belongs to another address.");
+      keyStore.set(u.email, k.startsWith("0x") ? k : "0x" + k); S.tmpKey = k; loadKey(); toast("Key imported on this device."); renderKeyCard();
+    };
+  }
+}
+function refreshPortfolio() {
+  const u = S.me.user, p = S.portfolios && S.portfolios[S.market]; if (!p || !$("#cash")) return;
+  $("#cash").textContent = money(S.market, p.cash);
+  $("#lockc").textContent = `Available. Locked in open buy orders: ${money(S.market, p.locked_cash)}`;
+  $("#wal").innerHTML = `Address ${H(u.wallet)} · registered on-chain in tx ${H(u.reg_tx)}`;
+  const cfg = MK(); $("#hold").innerHTML = `<table><tr><th>Ticker</th><th>Available</th><th>Locked in sell orders</th><th>Reference</th><th>Value</th></tr>${Object.entries(p.shares).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${fmt(v)}</td><td>${fmt(p.locked_shares[k] || 0)}</td><td>${px(S.market, cfg.tickers[k].ref)}</td><td>${money(S.market, (v + (p.locked_shares[k] || 0)) * cfg.tickers[k].ref)}</td></tr>`).join("")}</table>`;
+}
+function mountMarket() {
+  const admin = S.me.user.role === "admin";
+  $("#main").innerHTML = `<div class="grid">${marketCard()}<div class="card"><h2>Edge validators</h2><div id="nodes"></div><div class="sub" style="margin-top:8px" id="faultnote"></div>
+    ${admin ? `<h2 style="margin-top:14px">Market simulation · ${esc(S.market)}</h2><div class="sub">Three demo traders sign and post orders so the market moves. Their orders pass the same validators and settle on-chain.</div><button class="btn ghost" id="simBtn" style="margin-top:8px"></button>` : ""}
+    <h2 style="margin-top:14px">Blockchain</h2><div id="chain" class="sub"></div></div></div>`;
+  if (admin) $("#simBtn").onclick = async () => { try { S.sim = await api(`/api/admin/sim/${S.market}/${S.sim[S.market] ? "off" : "on"}`, { method: "POST" }); refreshMarket(); } catch (e) { toast(e.message); } };
+  refreshLive();
+}
+function refreshMarket() {
+  if (!$("#nodes")) return;
+  const admin = S.me.user.role === "admin", q = MK().quorum;
+  $("#nodes").innerHTML = S.nodes.map(n => n.up ? `<div class="node"><span><span class="dot ${n.faulty ? "f" : "up"}"></span>Validator ${n.node} <span class="sub mono">:${n.port}${n.leader ? " + gateway" : ""}</span>${n.faulty ? ` <span class="tag">faulty</span>` : ""}</span><span class="sub">${n.votes_cast} signed · ${n.refused} refused · ${n.ping_ms} ms ${admin ? `<button class="btn ghost sm" data-n="${n.node}" data-on="${!n.faulty}">${n.faulty ? "heal" : "make faulty"}</button>` : ""}</span></div>` : `<div class="node"><span><span class="dot"></span>Validator ${n.node}</span><span class="sub">DOWN</span></div>`).join("");
+  $("#nodes").querySelectorAll("button").forEach(b => b.onclick = async () => { try { await api(`/api/fault/${b.dataset.n}/${b.dataset.on === "true" ? "on" : "off"}`, { method: "POST" }); } catch (e) { toast(e.message); } });
+  $("#faultnote").textContent = (admin ? "A faulty validator returns a useless signature. " : "Only the admin can switch a validator to faulty for the demo. ") + `Routine orders still pass with ${q.routine} of ${S.info.validators}. Risky orders need ${q.risky} of ${S.info.validators}; one short, they are held for a reviewer.`;
+  if ($("#simBtn")) $("#simBtn").textContent = S.sim[S.market] ? "Stop simulation" : "Start simulation";
+  const c = S.info.chain;
+  $("#chain").innerHTML = `${esc(c.name)} (chain id ${c.id}) · ${c.mode === "signed" ? "transactions signed with a configured key" : "local node, unlocked admin account"} · node ${esc(c.rpc_host)} · storage ${esc(S.info.storage)} · signature library ${esc(S.info.crypto)}<br>` +
+    Object.values(S.info.markets).map(m => `${esc(m.code)} contract ${H(m.contract)} · ${m.counts.orders} orders, ${m.counts.trades} trades`).join("<br>");
+}
+
+/* ───────── staff: requests / review / accounts ───────── */
+function mountRequests() { $("#main").innerHTML = `<div class="grid"><div class="card"><h2>Waiting for approval</h2><div id="pend"></div></div><div class="card"><h2>Recent decisions</h2><div id="dec"></div></div></div>`; }
+function mountAccounts() { $("#main").innerHTML = `<div class="card"><h2>On-chain balances · ${esc(S.market)}</h2><div class="sub" style="margin-bottom:8px">Read from the contract. Numbers in brackets are locked in open orders.</div><div class="scroll" id="acc"></div></div>`; }
+function refreshRequests() {
+  if (!$("#pend") || !S.req) return;
+  if (document.activeElement && document.activeElement.classList.contains("why")) return;
+  $("#pend").innerHTML = S.req.pending.map(u => `<div class="ocard"><b>${esc(u.name)}</b> <span class="sub">${esc(u.email)} · ${esc(u.mobile)}</span><div class="sub">National ID ending <b>${esc(u.nid_last4)}</b> · photo fingerprint ${u.has_photo ? "provided" : "not provided"}</div>
+    <input class="why" placeholder="Reason if rejecting" style="margin:8px 0"><div class="row"><button class="btn ok sm" data-a="1" data-id="${esc(u.id)}">Approve</button><button class="btn bad sm" data-a="0" data-id="${esc(u.id)}">Reject</button></div></div>`).join("") || `<div class="sub">No requests waiting.</div>`;
+  $("#pend").querySelectorAll("button").forEach(b => b.onclick = async () => {
+    busy(b, true); const why = b.closest(".ocard").querySelector(".why").value;
+    try { await api("/api/admin/decision", { method: "POST", body: { user_id: b.dataset.id, approve: b.dataset.a === "1", reason: why } }); toast(b.dataset.a === "1" ? "Approved: the investor's own address is now registered on-chain" : "Rejected"); S.req = await api("/api/admin/requests"); refreshRequests(); }
+    catch (e) { toast(e.message); busy(b, false); }
+  });
+  $("#dec").innerHTML = S.req.decided.slice().reverse().map(u => `<div class="item"><b>${esc(u.name)}</b> <span class="pill s-${esc(u.status)}">${esc(u.status)}</span><div class="sub">by ${esc(u.decided_by)}${u.reg_tx ? " · tx " : ""}${u.reg_tx ? H(u.reg_tx) : ""}${u.reject_reason ? " · " + esc(u.reject_reason) : ""}</div></div>`).join("") || `<div class="sub">None yet.</div>`;
+}
+function mountReview() {
+  $("#main").innerHTML = `<div class="card"><h2>Risky orders held for review</h2><div class="sub" style="margin-bottom:10px">A risky order needs every validator. When exactly one signature is missing, the order is not lost: a person decides here. The contract counts one reviewer signature in place of one validator, and only for a risky order.</div><div id="rv"></div></div>`;
+  refreshReview();
+}
+function refreshReview() {
+  if (!$("#rv")) return;
+  if (document.activeElement && document.activeElement.classList.contains("why")) return;
+  $("#rv").innerHTML = S.review.map(r => `<div class="ocard"><div class="top"><span><b>${esc(r.id)}</b> <span class="${r.side === "BUY" ? "buy-t" : "sell-t"}">${esc(r.side)}</span> ${fmt(r.qty)} ${esc(r.ticker)} @ ${px(r.market, r.price)} <span class="tag">${esc(r.market)}</span></span><span class="pill s-held">held</span></div>
+    <div class="sub">${esc(r.trader_name)} · value ${money(r.market, r.risk.notional)} · risk score ${Math.round(r.risk.score_bps / 100)} of 100 · validator signatures ${r.held.have} of ${r.held.need}</div>
+    <input class="why" placeholder="Reason (optional)" style="margin:8px 0"><div class="row"><button class="btn ok sm" data-a="1" data-id="${esc(r.id)}">Approve and sign</button><button class="btn bad sm" data-a="0" data-id="${esc(r.id)}">Reject</button></div></div>`).join("") || `<div class="sub">Nothing is waiting.</div>`;
+  $("#rv").querySelectorAll("button").forEach(b => b.onclick = async () => {
+    busy(b, true); const why = b.closest(".ocard").querySelector(".why").value;
+    try {
+      const r = await api(`/api/review/${b.dataset.id}`, { method: "POST", body: { approve: b.dataset.a === "1", reason: why } });
+      toast(r.status === "rejected" ? (r.error || "Rejected") : "Approved: the contract accepted the reviewer's signature");
+      S.review = await api("/api/review"); renderNav(); refreshReview();
+    } catch (e) { toast(e.message); busy(b, false); }
+  });
+}
+function refreshAccounts() {
+  if (!$("#acc")) return; const tk = Object.keys(MK().tickers);
+  const lk = (a, b) => fmt(a) + (b ? ` <span class="sub">(${fmt(b)})</span>` : "");
+  $("#acc").innerHTML = `<table><tr><th>Name</th><th>Cash</th>${tk.map(t => `<th>${esc(t)}</th>`).join("")}</tr>${S.accounts.map(b => `<tr><td>${esc(b.name)}</td><td>${money(S.market, b.cash)}${b.locked_cash ? ` <span class="sub">(${money(S.market, b.locked_cash)})</span>` : ""}</td>${tk.map(t => `<td>${lk(b.shares[t], b.locked_shares[t])}</td>`).join("")}</tr>`).join("")}</table>`;
+}
+
+/* ───────── proof: audit, attack tests, tamper demonstration, quick benchmark ───────── */
+function mountProof() {
+  const admin = S.me.user.role === "admin";
+  $("#main").innerHTML = `<div class="grid">
+    <div class="card"><h2>Independent audit · ${esc(S.market)}</h2><div class="sub">Re-checks the whole market from the ledger alone: every investor signature, every validator signature, the quorum for each risk tier, price-time priority, the balances, and the anchored trade records.</div>
+      <button class="btn" id="bAudit" style="margin-top:10px">Run the audit</button><div id="audit" style="margin-top:10px"></div></div>
+    ${admin ? `<div class="card"><h2>Attack tests · ${esc(S.market)}</h2><div class="sub">Each test sends a bad request to the real contract as a dry run, so nothing is written. Where signatures are needed they are made with the validators' own keys, which is the worst case.</div>
+      <button class="btn" id="bLab" style="margin-top:10px">Run all nine tests</button><div id="lab" style="margin-top:10px"></div></div>
+    <div class="card"><h2>Tamper demonstration · ${esc(S.market)}</h2><div class="sub">Changes one price in the gateway's own off-chain trade record. Run the audit again: the hash anchored on-chain no longer matches.</div>
+      <button class="btn ghost" id="bTamper" style="margin-top:10px"></button></div>
+    <div class="card" style="grid-column:1/-1"><h2>Quick benchmark · hidden test market</h2><div class="sub">Sends the same 40 simulated orders through five configurations. About a quarter of the orders are invalid. It takes under a minute, and the numbers describe this computer only.</div>
+      <button class="btn ghost" id="bBench" style="margin-top:10px">Run the benchmark</button><div id="bench" class="scroll" style="margin-top:10px"></div></div>` :
+    `<div class="card"><h2>What the contract refuses</h2><div class="item">An order that the investor did not sign</div><div class="item">An order with fewer validator signatures than its risk tier needs</div><div class="item">The same validator counted twice, or a signature from an unknown key</div><div class="item">A replayed or expired order, or a price outside the band</div><div class="item">A cancel that the investor did not sign</div><div class="sub" style="margin-top:8px">The admin account can run these nine attacks against the live contract from this tab.</div></div>`}
+  </div>`;
+  $("#bAudit").onclick = () => runAudit();
+  if (admin) {
+    $("#bLab").onclick = async () => { busy($("#bLab"), true); try { S.lab.results = await api(`/api/lab/attack/all?market=${S.market}`, { method: "POST" }); } catch (e) { toast(e.message); } busy($("#bLab"), false); refreshProof(); };
+    $("#bTamper").onclick = async () => {
+      busy($("#bTamper"), true);
+      try { const r = await api(`/api/lab/tamper/${S.market}/${S.lab.tamper[S.market] ? "off" : "on"}`, { method: "POST" }); S.lab.tamper[S.market] = r.tampered; toast(r.tampered ? `Trade #${r.trade_id}: the off-chain record was changed` : "The record was restored"); await runAudit(); }
+      catch (e) { toast(e.message); }
+      busy($("#bTamper"), false); refreshProof();
+    };
+    $("#bBench").onclick = async () => {
+      try { const r = await api("/api/admin/bench/start", { method: "POST", body: { modes: Object.keys(MODE_NAME), n: 40, seed: 7, label: "dashboard" } }); S.lab.benchJob = r.job; S.lab.bench = { state: "running", progress: "", results: [] }; }
+      catch (e) { toast(e.message); }
+      refreshProof();
+    };
+  }
+  refreshProof();
+}
+async function runAudit() {
+  busy($("#bAudit"), true);
+  try { const rep = await api("/api/audit/" + S.market); S.lab.audit[S.market] = rep; S.lab.tamper[S.market] = rep.tamper_demo_on; } catch (e) { toast(e.message); }
+  busy($("#bAudit"), false); refreshProof();
+}
+function refreshProof() {
+  const rep = S.lab.audit[S.market];
+  if ($("#audit")) $("#audit").innerHTML = !rep ? "" : `<div class="${rep.ok ? "pass" : "fail"}">${rep.ok ? "AUDIT PASSED" : "AUDIT FOUND PROBLEMS"}</div><div class="sub">Block ${rep.block} · ${rep.orders} orders · ${rep.trades} trades · ${rep.signatures_checked} signatures re-checked${rep.tamper_demo_on ? " · tamper demonstration is ON" : ""}</div>` +
+    rep.checks.map(c => `<div class="item"><span class="${c.ok ? "pass" : "fail"}">${c.ok ? "PASS" : "FAIL"}</span> ${esc(c.name)} <span class="sub">(${esc(c.detail)})</span></div>`).join("") + rep.problems.map(p => `<div class="item" style="color:var(--bad)">${esc(p)}</div>`).join("");
+  const rs = S.lab.results;
+  if ($("#lab")) $("#lab").innerHTML = !rs ? "" : `<div class="${rs.every(r => r.blocked) ? "pass" : "fail"}">${rs.filter(r => r.blocked).length} of ${rs.length} attacks refused</div>` +
+    rs.map(r => `<div class="item"><span class="${r.blocked ? "pass" : "fail"}">${r.blocked ? "REFUSED" : "ACCEPTED"}</span> <b>${esc(r.title)}</b><div class="sub">${esc(r.attempt)}${r.validators ? ` Honest validators asked: ${r.validators.asked}, refused: ${r.validators.refused}.` : ""}</div><div class="sub">Contract answer: <b>${esc(r.contract)}</b></div></div>`).join("");
+  if ($("#bTamper")) $("#bTamper").textContent = S.lab.tamper[S.market] ? "Restore the record" : "Change one off-chain trade record";
+  const b = S.lab.bench;
+  if ($("#bench")) $("#bench").innerHTML = !b ? "" : b.state === "error" ? `<div class="fail">${esc(b.error || "The benchmark failed.")}</div>` :
+    (b.state === "running" ? `<div class="sub"><span class="spin"></span>Running ${esc(MODE_NAME[b.progress] || "…")}</div>` : "") +
+    (b.results.length ? `<table><tr><th>Configuration</th><th>Orders per second</th><th>Mean time (ms)</th><th>Invalid orders sent</th><th>Reached the ledger</th><th>Signatures per accepted order</th><th>Gas per accepted order</th></tr>${b.results.map(r => `<tr><td>${esc(MODE_NAME[r.mode] || r.mode)}</td><td>${r.throughput_ops}</td><td>${r.lat_mean_ms}</td><td>${r.invalid_orders}</td><td class="${r.invalid_reached_ledger ? "fail" : "pass"}">${r.invalid_reached_ledger}</td><td>${r.sigs_per_accepted}</td><td>${fmt(r.gas_per_accepted)}</td></tr>`).join("")}</table>` : "");
+  if ($("#bBench")) busy($("#bBench"), !!S.lab.benchJob);
+}
+
+/* ───────── roadmap ───────── */
+const ROAD = {
+  "Built (works now)": ["Orders signed on the investor's own device (EIP-712); the contract checks the signature", "Four edge validators; the contract recovers and counts their signatures itself", "Risk rule computed by the contract: 3 of 4 signatures for routine orders, 4 of 4 for risky ones", "A risky order one signature short is held for a human reviewer instead of being lost", "Cash and shares locked at order entry, so every matched trade settles", "Price band enforced by the contract; size limit and restricted list enforced at the edge", "Independent audit from the ledger: signatures, quorums, price-time priority, balances, anchors", "Nine attack tests that the contract refuses", "Two simulated exchanges (DSE and LSE); limit and market orders; cancel with the investor's signature", "Live prices, depth and trade tape; sign-up, OTP, identity step and broker approval (simulated)", "Benchmark with fault injection and an energy proxy", "Any EVM chain through configuration; mobile-friendly and installable"],
+  "Demo only (simulated)": ["Reference prices are illustrative, not live market data", "The four validators run on one computer, not at four sites", "Demo accounts use published test keys; a real key belongs in a phone's secure hardware", "Identity checks are format checks; the OTP is shown on screen", "One gateway matches orders and relays transactions (its matching is audited, not yet decentralised)", "The local chain has one node; a real deployment needs four or more", "Orders are accepted at any time; prices are whole numbers"],
+  "Upcoming (not built)": ["Short netting windows, to cut the cash that instant settlement locks up", "Fair ordering, so that a gateway cannot reorder or front-run orders", "Gateway fail-over and validators at separate sites", "A four-validator QBFT ledger and a public test network run", "Energy measured in joules on real edge hardware", "Opening and closing auctions; stop orders", "Licensed market data; watchlists, alerts and charts", "bKash and Nagad deposits; biometric login; IPO applications", "Privacy for order details"],
+};
+function mountRoadmap() {
+  $("#main").innerHTML = `<div class="note" style="margin-bottom:12px">Honest status: only the first column works. The others are simulated or planned, and are shown so the board can see the direction. Nothing here connects to a real exchange.</div><div class="cols">` +
+    Object.entries(ROAD).map(([k, v], i) => `<div class="card col"><h3 style="color:${["var(--ok)", "var(--warn)", "var(--mut)"][i]}">${k}</h3>${v.map(x => `<div class="item">${esc(x)}</div>`).join("")}</div>`).join("") + `</div>`;
+}
+
+/* ───────── guided tour ───────── */
+const TOUR = [
+  { t: "Welcome", x: "In BlockExDSE v2 nobody acts alone. You sign each order on your own device, four edge validators check it, and the settlement contract verifies every signature before it locks funds and settles. This tour takes about five minutes. Everything is simulated.", go: null },
+  { t: "1. Create an account", x: "Sign up, enter the demo code shown on screen, then submit an ID number (10 digits, any). At that step your browser creates your signing key. It never leaves the device.", go: ["Open sign-up", async () => { await logoutQuiet(); S.tab = "up"; route(); $("#tour").style.display = "none"; }] },
+  { t: "2. Broker approves", x: "A broker approves the request. The address of the key you created is written into both exchange contracts as KYC-verified, with starting cash in each currency.", go: ["Sign in as Broker", () => demoLogin("Broker", "requests")] },
+  { t: "3. Alice sells on the DSE", x: "Alice signs a limit sell for 100 GP at 300 BDT. Three of four validators sign it. The contract checks her signature and theirs, locks her shares, and the order rests on the book.", go: ["Sign in as Alice, prefill", () => demoLogin("Alice", "trade", { market: "DSE", side: "SELL", otype: "LIMIT", ticker: "GP", qty: 100, price: 300 })] },
+  { t: "4. Bob sends a market order", x: "Bob buys 60 GP at the market. It takes the best price on the book (300) and settles in one transaction. The receipt shows the transaction and the anchored record hash.", go: ["Sign in as Bob, prefill", () => demoLogin("Bob", "trade", { market: "DSE", side: "BUY", otype: "MARKET", ticker: "GP", qty: 60 })] },
+  { t: "5. A risky order", x: "Bob bids 320 for GP, more than half-way to the edge of the price band. The contract itself scores this order as ESCALATED, so all four validators must sign it.", go: ["Bob bids 320, prefill", () => demoLogin("Bob", "trade", { market: "DSE", side: "BUY", otype: "LIMIT", ticker: "GP", qty: 5, price: 320 })] },
+  { t: "6. Break a validator", x: "As admin, open Market and make validator 3 faulty. A routine order still passes with 3 of 4. Repeat the risky order: it is now held, not lost.", go: ["Sign in as Admin", () => demoLogin("Admin", "market")] },
+  { t: "7. A person decides", x: "Open Review as broker or admin and approve the held order. The contract accepts one reviewer signature in place of one validator, and only for a risky order.", go: ["Sign in as Broker, open Review", () => demoLogin("Broker", "review")] },
+  { t: "8. Proof", x: "Open Proof as admin. Run the audit, then the nine attack tests. Each attack is refused by the contract, even when all the validator keys are used against it.", go: ["Sign in as Admin, open Proof", () => demoLogin("Admin", "proof")] },
+  { t: "9. Switch to London", x: "Switch the exchange to LSE: different tickers, prices in pence, its own contract and its own balances. Alice sells 10 HSBA at 900p.", go: ["Alice on the LSE, prefill", () => demoLogin("Alice", "trade", { market: "LSE", side: "SELL", otype: "LIMIT", ticker: "HSBA", qty: 10, price: 900 })] },
+  { t: "10. See the roadmap", x: "The roadmap separates what is built, what is simulated, and what is still planned.", go: ["Open roadmap", () => { if (S.me) { S.view = "roadmap"; route(); $("#tour").style.display = "none"; } else toast("Sign in first, then open Roadmap."); }] },
+];
+async function logoutQuiet() { if (S.token) { try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {} signOutLocal(); } }
+async function demoLogin(label, view, prefill) {
+  try {
+    await logoutQuiet(); if (!S.demo.length) S.demo = await api("/api/demo-accounts");
+    const d = S.demo.find(x => x.label === label); const r = await api("/api/auth/login", { method: "POST", body: { email: d.email, password: d.password } });
+    setToken(r.token); keepDemoKey(r); await loadMe();
+    if (prefill && prefill.market) { S.market = prefill.market; sessionStorage.setItem("bx_mk", S.market); }
+    S.view = view; S.prefill = prefill || null; route(); $("#tour").style.display = "none";
+  } catch (e) { toast(e.message); }
+}
+function openTour(i) {
+  const s = TOUR[i], t = $("#tour"); t.style.display = "flex";
+  t.innerHTML = `<div class="box"><div class="sub">Step ${i + 1} of ${TOUR.length}</div><h3>${esc(s.t)}</h3><p>${esc(s.x)}</p>
+    ${s.go ? `<button class="btn" id="tg">${esc(s.go[0])}</button>` : ""}<div class="row" style="margin-top:10px"><button class="btn ghost" id="tp" ${i === 0 ? "disabled" : ""}>Back</button><button class="btn ghost" id="tn">${i === TOUR.length - 1 ? "Close" : "Next"}</button></div></div>`;
+  if (s.go) $("#tg").onclick = () => s.go[1](); $("#tp").onclick = () => openTour(i - 1);
+  $("#tn").onclick = () => i === TOUR.length - 1 ? t.style.display = "none" : openTour(i + 1);
+}
+
+/* ───────── polling ───────── */
+let busyTick = false;
+async function tick() {
+  if (busyTick) return; busyTick = true;
+  try {
+    S.info = S.info || await api("/api/info");
+    if (S.token && !S.me) await loadMe();
+    const u = S.me && S.me.user; if (!u) { busyTick = false; return; }
+    if (S.view === "onboard") {
+      const before = u.status; await loadMe();
+      if (S.me.user.status !== before) { if (S.me.user.status === "active") { toast("Approved. Your address is registered on-chain."); S.view = null; } route(); }
+    } else {
+      const v = S.view;
+      if (["trade", "market"].includes(v) && !isLive()) { S.snap[S.market] = await api("/api/market/" + S.market); refreshLive(); }
+      if (["trade", "orders"].includes(v)) S.orders = await api("/api/orders");
+      if (v === "trade") { try { const m = await api("/api/me"); S.portfolios = m.portfolios; } catch (e) {} refreshTrade(); }
+      if (v === "orders") refreshOrders();
+      if (v === "portfolio") { const m = await api("/api/me"); S.me = m; S.portfolios = m.portfolios || null; refreshPortfolio(); }
+      if (v === "market") { [S.nodes, S.info] = await Promise.all([api("/api/nodes"), api("/api/info")]); if (u.role === "admin") S.sim = await api("/api/admin/sim"); refreshMarket(); }
+      if (v === "requests") { S.req = await api("/api/admin/requests"); refreshRequests(); }
+      if (v === "accounts") { S.accounts = await api("/api/balances?market=" + S.market); refreshAccounts(); }
+      if (u.role !== "trader") { const n = S.review.length; S.review = await api("/api/review"); if (S.review.length !== n) renderNav(); if (v === "review") refreshReview(); }
+      if (S.lab.benchJob) { const st = await api("/api/admin/bench/" + S.lab.benchJob); S.lab.bench = st; if (st.state !== "running") S.lab.benchJob = null; if (v === "proof") refreshProof(); }
+    }
+  } catch (e) {}
+  busyTick = false;
+}
+
+(async function init() {
+  if (!window.BXSign) { $("#main").innerHTML = `<div class="note">The signing module (vendor/sign.js) did not load, so orders cannot be signed. Check that the file exists and reload.</div>`; return; }
+  if ("serviceWorker" in navigator && (location.hostname === "localhost" || location.protocol === "https:")) navigator.serviceWorker.register("/sw.js").catch(() => {});
+  try { S.info = await api("/api/info"); if (!S.info.markets[S.market]) S.market = Object.keys(S.info.markets)[0]; if (S.token) await loadMe(); } catch (e) { $("#main").innerHTML = `<div class="note">Cannot reach the gateway on port 9001. Is the system running?</div>`; return; }
+  route(); setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>

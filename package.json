@@ -1,18 +1,12 @@
 {
   "name": "blockexdse",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "2.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "node": "hardhat node",
+    "compile": "hardhat compile"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "5.0.0",
-    "ethers": "^6.17.0",
-    "hardhat": "2.29.0",
-    "solc": "^0.8.24"
+    "hardhat": "^2.22.0"
   }
 }
