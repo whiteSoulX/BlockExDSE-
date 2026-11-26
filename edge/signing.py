@@ -15,6 +15,7 @@ DOMAIN_TYPEHASH = keccak(text="EIP712Domain(string name,string version,uint256 c
 ORDER_TYPEHASH = keccak(text="Order(address trader,bytes32 ticker,uint256 qty,uint256 price,uint8 side,uint8 otype,uint256 nonce,uint256 expiry)")
 ATTEST_TYPEHASH = keccak(text="Attestation(bytes32 batchRoot)")
 CANCEL_TYPEHASH = keccak(text="Cancel(uint256 orderId)")
+WITHDRAW_TYPEHASH = keccak(text="Withdraw(address trader,uint256 amount,uint256 nonce,uint256 expiry)")
 SIDES = {"BUY": 0, "SELL": 1}
 OTYPES = {"LIMIT": 0, "MARKET": 1}
 N_VALIDATORS = 4
@@ -76,6 +77,12 @@ def attest_digest(domain: bytes, root: bytes) -> bytes:
 
 def cancel_digest(domain: bytes, order_id: int) -> bytes:
     return digest(domain, keccak(encode(["bytes32", "uint256"], [CANCEL_TYPEHASH, int(order_id)])))
+
+
+def withdraw_digest(domain: bytes, trader: str, amount: int, nonce: int, expiry: int) -> bytes:
+    """v2.1: what the investor signs to take cash out (same as BlockExDSE.withdrawDigest)."""
+    return digest(domain, keccak(encode(["bytes32", "address", "uint256", "uint256", "uint256"],
+                                        [WITHDRAW_TYPEHASH, to_checksum_address(trader), int(amount), int(nonce), int(expiry)])))
 
 
 # ---- signatures (65 bytes: r, s, v with v = 27 or 28) ----

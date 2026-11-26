@@ -37,12 +37,14 @@ MARKETS = {
         "fmt": {"div": 1, "prefix": "", "suffix": " BDT", "price_suffix": "", "dec": 0},
         "risk_notional": 500_000, "max_qty": 10_000,     # max_qty: "fat finger" cap, checked only at the edge
         "demo_cash": 5_000_000, "demo_shares": 500, "new_cash": 1_000_000, "new_shares": 100,
+        # v2.1 practice wallet (simulated payments; amounts in BDT)
+        "wallet": {"methods": ["bkash", "nagad", "rocket", "bank"], "min": 500, "max": 500_000},
         "tickers": {
-            "GP": {"name": "Grameenphone", "ref": 300},
-            "BRACBANK": {"name": "BRAC Bank", "ref": 45},
-            "SQURPHARMA": {"name": "Square Pharmaceuticals", "ref": 220},
-            "ROBI": {"name": "Robi Axiata", "ref": 28},
-            "BATBC": {"name": "British American Tobacco Bangladesh", "ref": 380},
+            "GP": {"name": "Grameenphone", "ref": 300, "sector": "Telecommunication", "about": "Mobile phone and internet operator"},
+            "BRACBANK": {"name": "BRAC Bank", "ref": 45, "sector": "Bank", "about": "Commercial bank"},
+            "SQURPHARMA": {"name": "Square Pharmaceuticals", "ref": 220, "sector": "Pharmaceuticals", "about": "Medicine maker"},
+            "ROBI": {"name": "Robi Axiata", "ref": 28, "sector": "Telecommunication", "about": "Mobile phone and internet operator"},
+            "BATBC": {"name": "British American Tobacco Bangladesh", "ref": 380, "sector": "Food and allied", "about": "Tobacco products"},
         },
     },
     "LSE": {
@@ -53,12 +55,14 @@ MARKETS = {
         "fmt": {"div": 100, "prefix": "£", "suffix": "", "price_suffix": "p", "dec": 2},
         "risk_notional": 20_000_000, "max_qty": 10_000,    # risk_notional in pence, i.e. 200,000 GBP
         "demo_cash": 50_000_000, "demo_shares": 500, "new_cash": 10_000_000, "new_shares": 100,
+        # v2.1 practice wallet (simulated payments; amounts in pence)
+        "wallet": {"methods": ["bank", "card"], "min": 1_000, "max": 500_000},
         "tickers": {
-            "HSBA": {"name": "HSBC Holdings", "ref": 900},
-            "SHEL": {"name": "Shell", "ref": 2700},
-            "AZN": {"name": "AstraZeneca", "ref": 11500},
-            "ULVR": {"name": "Unilever", "ref": 4500},
-            "VOD": {"name": "Vodafone Group", "ref": 75},
+            "HSBA": {"name": "HSBC Holdings", "ref": 900, "sector": "Banks", "about": "International bank"},
+            "SHEL": {"name": "Shell", "ref": 2700, "sector": "Energy", "about": "Oil, gas and energy"},
+            "AZN": {"name": "AstraZeneca", "ref": 11500, "sector": "Pharmaceuticals", "about": "Medicine maker"},
+            "ULVR": {"name": "Unilever", "ref": 4500, "sector": "Consumer goods", "about": "Food, home and personal care brands"},
+            "VOD": {"name": "Vodafone Group", "ref": 75, "sector": "Telecommunication", "about": "Mobile and broadband operator"},
         },
     },
 }

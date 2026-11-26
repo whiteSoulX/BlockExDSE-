@@ -33,7 +33,7 @@ from auth import AuthError, AuthStore
 from contract_client import Chain, ContractClient
 from markets import MARKETS, band_bps
 
-VERSION_TAG = "2.0"
+VERSION_TAG = "2.1"
 NODE_ID = int(os.getenv("NODE_ID", "1"))
 PORT = int(os.getenv("PORT", str(9000 + NODE_ID)))
 HOST = os.getenv("HOST", "127.0.0.1")
@@ -455,6 +455,7 @@ BOOKS = {m: {"BUY": [], "SELL": []} for m in MK}                         # resti
 TAPE = {m: deque(maxlen=60) for m in MK}                                 # recent trades per market
 STATS = {m: {t: {"last": None, "high": None, "low": None, "volume": 0, "trades": 0} for t in MK[m]["tickers"]} for m in MK}
 SIM = {m: False for m in MK}
+PRICES = {m: {t: deque(maxlen=400) for t in MK[m]["tickers"]} for m in MK}     # v2.1: intraday trade prices for charts
 
 
 def bump():
@@ -473,6 +474,7 @@ def record_trade(m, trade):
     s["last"], s["volume"], s["trades"] = p, s["volume"] + trade["qty"], s["trades"] + 1
     s["high"] = p if s["high"] is None else max(s["high"], p)
     s["low"] = p if s["low"] is None else min(s["low"], p)
+    PRICES[m][trade["ticker"]].append((now_ms(), p))
     TAPE[m].appendleft({"t": now_ms(), "ticker": trade["ticker"], "qty": trade["qty"], "price": p,
                         "buyer": trade["buyer"], "seller": trade["seller"], "tx": trade["tx"], "block": trade["block"]})
 
@@ -917,7 +919,9 @@ def info():
         markets[m]["quorum"] = {"routine": QUORUM[m][0], "risky": QUORUM[m][1]}
         markets[m]["counts"] = CLIENTS[m].counts()
         markets[m]["tickers"] = {t: {"name": v["name"], "ref": v["ref"], "band": bps_of(m, t) / 100, "band_bps": bps_of(m, t),
-                                     "lo": limits(m, t)[0], "hi": limits(m, t)[1]} for t, v in cfg["tickers"].items()}
+                                     "lo": limits(m, t)[0], "hi": limits(m, t)[1], "sector": v.get("sector", ""), "about": v.get("about", "")}
+                                 for t, v in cfg["tickers"].items()}
+        markets[m]["wallet"] = cfg.get("wallet", {"methods": [], "min": 0, "max": 0})
     return {"version": VERSION_TAG, "markets": markets, "chain": CHAIN.info(), "storage": STORE.mode,
             "validators": len(PEERS), "crypto": crypto_backend()}
 
@@ -978,6 +982,143 @@ def set_fault(pid: int, on: str, _=Depends(admin_user)):
     if pid == NODE_ID:
         return fault(on)
     return HTTP.post(f"http://127.0.0.1:{PEERS[pid]}/fault/{on}", timeout=2).json()
+
+
+# ───────────────────────── v2.1: wallet (add money / withdraw), watchlist, price history ─────────────────────────
+WALLET_LOCK = threading.Lock()
+METHOD_NAME = {"bkash": "bKash", "nagad": "Nagad", "rocket": "Rocket", "bank": "Bank transfer", "card": "Debit card"}
+
+
+class DepositIn(BaseModel):
+    market: str
+    amount: int                       # in the market's base unit (BDT, or pence on the LSE)
+    method: str
+
+
+class WithdrawIn(BaseModel):
+    market: str
+    amount: int
+    method: str
+    nonce: str
+    expiry: int
+    sig: str
+
+
+class WatchIn(BaseModel):
+    market: str
+    ticker: str
+    on: bool = True
+
+
+def _wallet_market(m):
+    if m not in MK or MK[m].get("hidden"):
+        raise HTTPException(404, "Unknown market.")
+    return MK[m].get("wallet") or {"methods": [], "min": 0, "max": 0}
+
+
+def _wallet_log(u):
+    return u.setdefault("wallet_log", [])
+
+
+@app.get("/api/wallet")
+def wallet_get(u=Depends(trading_user)):
+    _leader_only()
+    return {"history": list(reversed(_wallet_log(u)))[:50],
+            "methods": {m: [{"id": x, "name": METHOD_NAME.get(x, x)} for x in _wallet_market(m)["methods"]] for m in MK if not MK[m].get("hidden")}}
+
+
+@app.post("/api/wallet/deposit")
+def wallet_deposit(b: DepositIn, u=Depends(trading_user)):
+    """Practice top-up. The payment is SIMULATED (no money moves); the broker key credits the on-chain cash."""
+    _leader_only()
+    w = _wallet_market(b.market)
+    if b.method not in w["methods"]:
+        raise HTTPException(400, "Choose a payment method.")
+    if not (w["min"] <= b.amount <= w["max"]):
+        raise HTTPException(400, f"Amount must be between {w['min']} and {w['max']}.")
+    with WALLET_LOCK:
+        r = CLIENTS[b.market].deposit_cash(u["wallet"], b.amount)
+        ref = "SIM-" + secrets.token_hex(3).upper()
+        entry = {"id": ref, "type": "deposit", "market": b.market, "amount": b.amount, "method": b.method,
+                 "method_name": METHOD_NAME.get(b.method, b.method), "tx": r["tx"], "block": r["block"], "t": now_ms(), "status": "completed"}
+        _wallet_log(u).append(entry)
+    bump()
+    return {"entry": entry, "balance": CLIENTS[b.market].balance(u["wallet"], list(MK[b.market]["tickers"]))}
+
+
+@app.post("/api/wallet/withdraw")
+def wallet_withdraw(b: WithdrawIn, u=Depends(trading_user)):
+    """Withdrawal signed on the investor's device. The edge checks the signature first; the contract checks it again."""
+    _leader_only()
+    w = _wallet_market(b.market)
+    if b.method not in w["methods"]:
+        raise HTTPException(400, "Choose where to send the money.")
+    if not (0 < b.amount <= w["max"]):
+        raise HTTPException(400, f"Amount must be between 1 and {w['max']}.")
+    try:
+        nonce, sig = int(b.nonce), bytes.fromhex(b.sig.removeprefix("0x"))
+        signer = S.recover(S.withdraw_digest(CLIENTS[b.market].domain, u["wallet"], b.amount, nonce, b.expiry), sig)
+    except (ValueError, TypeError):
+        raise HTTPException(400, "The withdrawal signature is not valid.")
+    if signer.lower() != u["wallet"].lower():
+        raise HTTPException(400, "The withdrawal was not signed with your key.")
+    if b.expiry < time.time():
+        raise HTTPException(400, "The signed withdrawal has expired. Try again.")
+    with WALLET_LOCK:
+        free = CLIENTS[b.market].balance(u["wallet"], [])["cash"]
+        if b.amount > free:
+            raise HTTPException(400, "Not enough free cash. Cash locked in open buy orders cannot be withdrawn.")
+        try:
+            r = CLIENTS[b.market].withdraw_cash(u["wallet"], b.amount, nonce, b.expiry, sig)
+        except RuntimeError as e:
+            raise HTTPException(400, f"The contract refused the withdrawal: {e}")
+        ref = "SIM-" + secrets.token_hex(3).upper()
+        entry = {"id": ref, "type": "withdraw", "market": b.market, "amount": b.amount, "method": b.method,
+                 "method_name": METHOD_NAME.get(b.method, b.method), "tx": r["tx"], "block": r["block"], "t": now_ms(), "status": "completed"}
+        _wallet_log(u).append(entry)
+    bump()
+    return {"entry": entry, "balance": CLIENTS[b.market].balance(u["wallet"], list(MK[b.market]["tickers"]))}
+
+
+@app.get("/api/watchlist")
+def watchlist_get(u=Depends(current_user)):
+    _leader_only()
+    return u.setdefault("watchlist", {})
+
+
+@app.post("/api/watchlist")
+def watchlist_set(b: WatchIn, u=Depends(current_user)):
+    _leader_only()
+    if b.market not in MK or b.ticker not in MK[b.market]["tickers"]:
+        raise HTTPException(404, "Unknown stock.")
+    wl = u.setdefault("watchlist", {})
+    cur = [t for t in wl.get(b.market, []) if t != b.ticker]
+    wl[b.market] = cur + [b.ticker] if b.on else cur
+    return wl
+
+
+@app.get("/api/history/{market}/{ticker}")
+def price_history(market: str, ticker: str, days: int = 30):
+    """Today: prices of the simulated trades. Before today: an ILLUSTRATIVE series (seeded, inside the price band, ending at
+    the reference price). It is not real market history and is labelled as such in the dashboard."""
+    _leader_only()
+    if market not in MK or ticker not in MK[market]["tickers"]:
+        raise HTTPException(404, "Unknown stock.")
+    ref, bps = ref_of(market, ticker), bps_of(market, ticker)
+    rnd = random.Random(f"{market}-{ticker}-history")
+    days = max(5, min(int(days), 90))
+    closes, p = [], ref * (1 + rnd.uniform(-0.6, 0.6) * bps / 10000)
+    for _ in range(days):
+        p = p * (1 + rnd.gauss(0, 0.25) * bps / 10000)
+        p = min(max(p, ref * (1 - 2.5 * bps / 10000)), ref * (1 + 2.5 * bps / 10000))
+        closes.append(p)
+    shift = ref - closes[-1]                                       # end the series at the reference price
+    closes = [max(1, round(c + shift * (i + 1) / days)) for i, c in enumerate(closes)]
+    day = 86_400_000
+    start = (now_ms() // day) * day
+    return {"market": market, "ticker": ticker, "ref": ref, "illustrative": True,
+            "daily": [{"t": start - (days - i) * day, "close": c} for i, c in enumerate(closes)],
+            "today": [{"t": t, "price": px} for t, px in PRICES[market][ticker]]}
 
 
 # ───────────────────────── gateway: market simulator (liquidity bots) ─────────────────────────

@@ -20,7 +20,8 @@ from eth_utils import keccak
 
 import signing as S
 
-EVENTS = ("TraderRegistered", "SharesCredited", "OrderPlaced", "OrderAttested", "TradeSettled", "HashAnchored", "OrderCancelled")
+EVENTS = ("TraderRegistered", "SharesCredited", "OrderPlaced", "OrderAttested", "TradeSettled", "HashAnchored", "OrderCancelled",
+          "CashDeposited", "CashWithdrawn")            # the last two: v2.1 wallet
 ORDER_TYPES = ["bytes32", "address", "bytes32", "uint256", "uint256", "uint8", "uint8", "uint256", "uint256"]
 
 
@@ -34,6 +35,8 @@ def _get_logs(ev):
 def _events(cl):
     rows = []
     for name in EVENTS:
+        if not hasattr(cl.c.events, name):              # a contract deployed before v2.1 has no wallet events
+            continue
         for lg in _get_logs(getattr(cl.c.events, name)()):
             rows.append((lg["blockNumber"], lg["logIndex"], name, dict(lg["args"]), lg["transactionHash"]))
     rows.sort(key=lambda r: (r[0], r[1]))
@@ -169,15 +172,36 @@ def audit_market(cl, trade_log=None) -> dict:
 
     # ── 4: conservation of cash and shares ──
     traders = sorted({a["trader"] for _, _, n, a, _ in events if n == "TraderRegistered"})
-    cash_in = sum(a["cash"] for _, _, n, a, _ in events if n == "TraderRegistered")
+    registered = sum(a["cash"] for _, _, n, a, _ in events if n == "TraderRegistered")
+    deposited = sum(a["amount"] for _, _, n, a, _ in events if n == "CashDeposited")
+    withdrawn = sum(a["amount"] for _, _, n, a, _ in events if n == "CashWithdrawn")
+    cash_in = registered + deposited - withdrawn
     cash_now = sum(f.cash(t).call() + f.lockedCash(t).call() for t in traders)
     shares_in = {}
     for _, _, n, a, _ in events:
         if n == "SharesCredited":
             shares_in[a["ticker"]] = shares_in.get(a["ticker"], 0) + a["qty"]
     shares_ok = all(sum(f.holdings(t, tk).call() + f.lockedShares(t, tk).call() for t in traders) == q for tk, q in shares_in.items())
-    add("No cash was created or destroyed", cash_in == cash_now, f"issued {cash_in}, held now {cash_now} across {len(traders)} accounts")
+    add("No cash was created or destroyed", cash_in == cash_now,
+        f"issued {registered}" + (f", added {deposited}, withdrawn {withdrawn}" if deposited or withdrawn else "") + f", held now {cash_now} across {len(traders)} accounts")
     add("No shares were created or destroyed", shares_ok, f"{len(shares_in)} tickers checked across {len(traders)} accounts")
+
+    # ── 4b (v2.1): every withdrawal was signed by the investor who owned the cash ──
+    w_rows = [(a, txh) for _, _, n, a, txh in events if n == "CashWithdrawn"]
+    if w_rows:
+        w_ok = 0
+        for a, txh in w_rows:
+            try:
+                _, args = c.decode_function_input(w3.eth.get_transaction(txh)["input"])
+                dig = S.withdraw_digest(cl.domain, args["t"], args["amount"], args["nonce"], args["expiry"])
+                sigs_checked += 1
+                if S.recover(dig, bytes(args["sig"])).lower() == a["trader"].lower() and int(args["amount"]) == int(a["amount"]):
+                    w_ok += 1
+                else:
+                    bad(f"withdrawal in tx {S.hx(txh)[:12]}: not signed by the account owner")
+            except Exception:
+                bad(f"withdrawal in tx {S.hx(txh)[:12]}: could not be re-checked")
+        add("Every withdrawal was signed by the account owner", w_ok == len(w_rows), f"{w_ok} of {len(w_rows)} withdrawals")
 
     # ── 5: anchors, and the exchange's off-chain records against them ──
     add("Every trade has a record hash anchored on-chain", all(t in anchors for t in trade_ids), f"{sum(1 for t in trade_ids if t in anchors)} of {n_trades} trades")

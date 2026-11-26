@@ -172,6 +172,16 @@ class ContractClient:
     def credit_shares(self, addr, ticker, qty):
         return self._tx(self.c.functions.creditShares(Web3.to_checksum_address(addr), to_b32(ticker), int(qty)))
 
+    # ---- v2.1 wallet ----
+    def deposit_cash(self, addr, amount):
+        return self._tx(self.c.functions.depositCash(Web3.to_checksum_address(addr), int(amount)))
+
+    def withdraw_fn(self, addr, amount, nonce, expiry, sig):
+        return self.c.functions.withdrawCash(Web3.to_checksum_address(addr), int(amount), int(nonce), int(expiry), bytes(sig))
+
+    def withdraw_cash(self, addr, amount, nonce, expiry, sig):
+        return self._tx(self.withdraw_fn(addr, amount, nonce, expiry, sig))
+
     def set_edge_node(self, addr):
         return self._tx(self.c.functions.setEdgeNode(Web3.to_checksum_address(addr), True))
 
