@@ -1,4 +1,7 @@
-# BlockExDSE v2.0 - runnable prototype
+# RACE (BlockExDSE v2.1) - runnable prototype
+
+**RACE: Risk-Adaptive Consensus at the Edge.** The product name is set in one place: `BRAND` at the top of the script in
+`dashboard/index.html`.
 
 A simulated stock-exchange settlement system in which nobody acts alone:
 
@@ -15,7 +18,22 @@ contract accepts one reviewer signature in place of one validator, for a risky o
 Two simulated exchanges run side by side: **DSE** (Dhaka, taka, price-slab circuit breakers) and **LSE** (London, pence).
 Nothing connects to a real exchange and no real money is involved.
 
-## What is new in 2.0
+## What is new in 2.1
+
+| For everyday investors | How it works |
+|---|---|
+| **Phone-first investor app** in the poster design: Home, Markets, Trade, Orders and Wallet tabs | `dashboard/index.html` (one file, no build step). Broker and admin keep a wide staff console in the same colours |
+| **Bangla / English switch** | One tap in the header or under Profile. Amounts use Bangladeshi grouping and Bangla digits in Bangla |
+| **Guided first trade** | Seven coached steps on the real Trade screen: company, buy or sell, quantity, price, the RACD risk check, signing, and watching it settle |
+| **Market explorer and watchlist** | Search, sector filters, a page per stock (price, chart, allowed band, order book, recent trades), star to follow. Stock details in `edge/markets.py` |
+| **Add money and withdraw (practice)** | bKash, Nagad, Rocket or bank screens. **Payments are simulated.** The broker key credits on-chain cash (`depositCash`); a withdrawal is **signed on the investor's phone** (EIP-712 `Withdraw`) and the contract checks the signature, the nonce, the expiry and that only free cash leaves (`withdrawCash`) |
+| **The audit covers the wallet** | Cash conservation now counts deposits and withdrawals, and every withdrawal signature is re-checked from the transaction input |
+
+New endpoints: `GET /api/wallet`, `POST /api/wallet/deposit`, `POST /api/wallet/withdraw`, `GET/POST /api/watchlist`,
+`GET /api/history/{market}/{ticker}`. The 30-day price charts are **illustrative** (a seeded series inside the price band,
+ending at the reference price), and the app labels them that way. New test: `scripts/wallet_test.py` (15 checks).
+
+## What was new in 2.0
 
 | Gap in 1.x and in published designs | What 2.0 does |
 |---|---|
@@ -62,7 +80,9 @@ Tap a name on the sign-in screen, or type: `alice@blockexdse.demo` / `Demo@123` 
 5. **Broker** > Review > "Approve and sign". The contract accepts the reviewer in place of the missing validator.
 6. **Admin** > Market > "heal" validator 4, then Proof > "Run all nine tests", "Run the audit", and the tamper button.
 
-The **Tour** button in the header walks through the same steps. New users can also sign up (the one-time code is shown on
+The **Tour** button walks through the same steps. Investors now find Portfolio under **Home** (holdings) and **Wallet** (cash),
+and the audit under **Profile** (tap the round initials). The **Guided first trade** card on Home is the quickest demo for a
+first-time investor. New users can also sign up (the one-time code is shown on
 screen, the ID number is any 10 digits); the browser creates the signing key at that step.
 
 ## Check that it works
@@ -74,6 +94,7 @@ python scripts/smoke_test.py        # 15 checks: order flow, quorums, hold and r
 python scripts/security_test.py     # 18 checks: hashes, nine attacks, audit and tamper detection
 python scripts/onboarding_test.py   # 14 checks: sign-up, one-time code, ID check, approval
 python scripts/market_test.py       # 15 checks: two markets, market orders, cancel, live data
+python scripts/wallet_test.py       # 15 checks (v2.1): add money, signed withdrawal, replay and forgery refused, watchlist, history, audit
 python scripts/audit_chain.py       # independent audit of DSE and LSE from the ledger
 ```
 
@@ -100,6 +121,7 @@ chain. Real-money chains are refused unless `ALLOW_MAINNET=yes-i-understand` is 
 | Real in the prototype | Simulated |
 |---|---|
 | Signatures (investor, validators, reviewer) and their on-chain verification | Identity checks, one-time codes, ID numbers |
+| v2.1: withdrawal signatures, free-cash check and audit of deposits and withdrawals | v2.1: bKash, Nagad, Rocket, bank and card payments; 30-day chart history |
 | Risk score, quorum, price band, nonce and expiry checks in the contract | Money, shares, reference prices, market data |
 | Locking of funds, matching, settlement, record hashes | All nodes on one computer; a local test blockchain with one node |
 | Audit, attack tests, benchmark | Demo accounts whose keys the server also knows (real sign-ups keep the key in the browser) |
@@ -110,7 +132,9 @@ Known limits: one gateway orders the incoming orders (no protection against unfa
 ## Files
 
 `contracts/BlockExDSE.sol` settlement contract · `edge/` validators, gateway, signing, audit · `dashboard/` single-page app
-(`vendor/sign.js` is built from `tools/sign_src.js`) · `scripts/` tests and benchmark · `tools/film_demo.js` records the
+(`vendor/sign.js` is built from `tools/sign_src.js`; v2.1 added `withdrawDigest`. The page itself is assembled from
+`tools/dash_parts/` with `cat tools/dash_parts/{head.html,core.js,inv.js,staff.js,tail.js} > dashboard/index.html`, or edit
+`dashboard/index.html` directly) · `scripts/` tests and benchmark · `tools/film_demo.js` records the
 demo video (needs Playwright; optional) · `run.py` launcher.
 
 ## Trouble?
@@ -120,3 +144,9 @@ demo video (needs Playwright; optional) · `run.py` launcher.
   `npm install --no-save solc@0.8.20` then `node tools/compile_solcjs.js` and start with `python run.py --no-compile`.
 - **Port in use**: run `stop_all.bat` (Windows) or `fuser -k 8545/tcp 9001/tcp 9002/tcp 9003/tcp 9004/tcp` (Linux).
 - **Signing is slow**: the launcher tries to install `coincurve` for fast signatures; without it everything still works.
+
+## Notes for 2.1
+
+- `test/BlockExDSE.test.js` still describes the v1 contract API and does not run against v2; the Python scripts above are the
+  tests that match the current contract.
+- `tools/film_demo.js` records the v2.0 trading screens. It needs new selectors before it can film the 2.1 investor app.
