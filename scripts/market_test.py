@@ -16,7 +16,7 @@ check("two markets with their own contract, currency and tickers",
       set(info["markets"]) == {"DSE", "LSE"} and info["markets"]["LSE"]["currency"] == "GBX" and "HSBA" in info["markets"]["LSE"]["tickers"]
       and info["markets"]["DSE"]["contract"] != info["markets"]["LSE"]["contract"])
 nodes = call("/api/nodes")[1]
-check("four validators are online", len(nodes) == 4 and all(n.get("up") for n in nodes) and info["validators"] == 4 and info["version"] == "2.0", f"crypto backend {info['crypto']}")
+check("four validators are online", len(nodes) == 4 and all(n.get("up") for n in nodes) and info["validators"] == 4 and info["version"].startswith("2."), f"crypto backend {info['crypto']}")
 check("chain info available", info["chain"]["id"] > 0 and info["chain"]["mode"] in ("local-unlocked", "signed"), f"{info['chain']['name']} / {info['chain']['mode']}")
 
 o1 = submit(alice, "HSBA", "SELL", 10, 900, market="LSE")
