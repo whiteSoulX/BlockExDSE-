@@ -3,132 +3,471 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e1420">
+<meta name="theme-color" content="#1F3864">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
-<title>BlockExDSE Trading Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap">
+<title>RACE · BlockExDSE v2.1</title>
 <style>
-:root{--bg:#0e1420;--card:#161e2e;--line:#26324a;--txt:#e6ecf8;--mut:#8b9bb8;--ok:#2fbf71;--warn:#f0b43c;--bad:#ec5b5b;--acc:#4f8cff;--in:#0b101a}
+/* v2.1 look: the phone design from the poster. Light, navy and blue, orange only for escalated risk. */
+:root{--navy:#1F3864;--blue:#2F5597;--sky:#8FAADC;--ice:#DAE3F3;--pale:#EEF2FA;--orange:#C55A11;--amber:#ED7D31;--peach:#FBE5D6;
+  --ink:#16202f;--mut:#667085;--line:#E3E6EC;--bg:#F4F6FA;--card:#fff;--ok:#2E9E5B;--okbg:#E3F4EA;--bad:#C0392B;--badbg:#FBE7E4;--warn:#B7791F;--warnbg:#FFF4DE;
+  --r:18px;--sh:0 1px 2px rgba(20,30,60,.06),0 4px 14px rgba(20,30,60,.05)}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
-body{margin:0;font:15px/1.45 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--txt);padding-top:env(safe-area-inset-top)}
-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
-.brand{font-weight:700;font-size:16px}.brand small{display:block;font-weight:400;color:var(--mut);font-size:11px}
-.who{display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;justify-content:flex-end}
-.badge{padding:1px 8px;border-radius:99px;font-size:11px;border:1px solid var(--acc);color:var(--acc)}
-nav{display:flex;gap:4px;padding:8px 16px;border-bottom:1px solid var(--line);overflow-x:auto}
-nav button{background:none;border:0;color:var(--mut);padding:8px 14px;border-radius:8px;font:inherit;cursor:pointer;white-space:nowrap;min-height:40px}
-nav button.on{background:var(--card);color:var(--txt);border:1px solid var(--line)}
-nav .cnt{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:99px;background:var(--warn);color:#111;font-size:11px;font-weight:700}
-main{max-width:1150px;margin:0 auto;padding:14px 16px 90px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
-h2{font-size:12px;margin:0 0 10px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
-h3{margin:0 0 6px;font-size:17px}
-label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
-input,select{width:100%;padding:11px;background:var(--in);color:var(--txt);border:1px solid var(--line);border-radius:8px;font:inherit;min-height:44px}
-input:focus,select:focus{outline:2px solid var(--acc);outline-offset:0}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{padding:12px;border:0;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;color:#fff;background:var(--acc);min-height:44px;width:100%}
-.btn.ok{background:var(--ok)}.btn.bad{background:var(--bad)}.btn.ghost{background:none;border:1px solid var(--line);color:var(--txt)}.btn.sm{width:auto;padding:6px 12px;min-height:34px;font-size:13px}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seg button{padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--in);color:var(--txt);font:inherit;font-weight:600;cursor:pointer;min-height:44px}
-.seg button.buy.on{background:var(--ok);border-color:var(--ok)}.seg button.sell.on{background:var(--bad);border-color:var(--bad)}
-.sub{color:var(--mut);font-size:12px}.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
-.pill{padding:2px 9px;border-radius:99px;font-size:11px;background:var(--in);border:1px solid var(--line)}
-.s-settled,.s-matched,.s-active{color:var(--ok);border-color:var(--ok)}.s-rejected{color:var(--bad);border-color:var(--bad)}.s-open,.s-partial,.s-approval_pending,.s-held{color:var(--warn);border-color:var(--warn)}
-.pipe{display:flex;gap:5px;margin:10px 0;flex-wrap:wrap}.st{flex:1;min-width:74px;text-align:center;padding:8px 2px;border-radius:8px;background:var(--in);border:1px solid var(--line);font-size:11px;color:var(--mut)}
-.st.done{background:rgba(47,191,113,.15);border-color:var(--ok);color:var(--ok)}.st.fail{background:rgba(236,91,91,.15);border-color:var(--bad);color:var(--bad)}.st.hold{background:rgba(240,180,60,.15);border-color:var(--warn);color:var(--warn)}
-.ocard{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:var(--in)}
-.ocard .top{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
-.buy-t{color:var(--ok);font-weight:700}.sell-t{color:var(--bad);font-weight:700}
-.hash{cursor:pointer;color:var(--acc)}
-table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--mut);font-weight:500}.scroll{overflow-x:auto}
-.node{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px;flex-wrap:wrap}
-.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;background:var(--bad)}.dot.up{background:var(--ok)}.dot.f{background:var(--warn)}
-.note{background:var(--in);border:1px dashed var(--line);border-radius:8px;padding:10px;font-size:13px;color:var(--mut)}
-.demo{background:rgba(240,180,60,.1);border-color:var(--warn);color:var(--txt)}
-.steps{display:flex;gap:6px;margin-bottom:12px}.steps div{flex:1;height:5px;border-radius:3px;background:var(--line)}.steps div.on{background:var(--acc)}.steps div.ok{background:var(--ok)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{padding:6px 10px;border-radius:99px;border:1px solid var(--line);background:var(--in);color:var(--txt);font-size:12px;cursor:pointer;min-height:34px}
-.vchip{padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:var(--in);color:var(--mut);font-size:11px}.vchip.y{border-color:var(--ok);color:var(--ok)}.vchip.n{border-color:var(--bad);color:var(--bad)}
-.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}.col h3{font-size:14px}.item{padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+body{margin:0;font:15px/1.45 Inter,"Hind Siliguri",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+body.bn{font-family:"Hind Siliguri",Inter,system-ui,sans-serif}
+button,input,select{font:inherit;color:inherit}
+input,select{width:100%;padding:11px 12px;background:#fff;border:1px solid var(--line);border-radius:12px;min-height:46px}
+input:focus,select:focus{outline:2px solid var(--blue);outline-offset:0;border-color:transparent}
+label{display:block;font-size:12.5px;color:var(--mut);margin:12px 0 5px;font-weight:600}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}.sub{color:var(--mut);font-size:12.5px}
+.hash{cursor:pointer;color:var(--blue)}
+.up{color:var(--ok)}.dn{color:var(--bad)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom));background:var(--navy);color:#fff;padding:11px 16px;border-radius:14px;font-size:13.5px;z-index:60;display:none;max-width:92%;box-shadow:0 8px 24px rgba(20,30,60,.25)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--ice);border-top-color:var(--blue);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ───────── investor app (phone first) ───────── */
+.inv .shell{max-width:520px;margin:0 auto;min-height:100vh;padding:calc(10px + env(safe-area-inset-top)) 16px calc(92px + env(safe-area-inset-bottom))}
+.top{display:flex;align-items:center;justify-content:space-between;margin:4px 0 10px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;color:var(--navy);letter-spacing:-.3px}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;flex:none}
+.brand small{display:block;font-size:11px;font-weight:600;color:var(--mut);letter-spacing:0;margin-top:-2px}
+.topr{display:flex;gap:8px;align-items:center}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--ice);color:var(--navy);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;border:0;cursor:pointer}
+.lang{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 10px;font-size:12px;font-weight:700;color:var(--blue);cursor:pointer;min-height:34px}
+.chiprow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.chip{font-size:12px;font-weight:600;padding:6px 11px;border-radius:99px;background:#fff;border:1px solid var(--line);color:var(--mut);display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:32px}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block}.dot.off{background:#c3c9d4}
+.card{background:var(--card);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;box-shadow:var(--sh)}
+.hero{background:linear-gradient(140deg,#1F3864 0%,#2F5597 100%);color:#fff;position:relative;overflow:hidden;padding:16px 18px}
+.hero .lbl{font-size:13px;opacity:.85}.hero .val{font-size:30px;font-weight:800;letter-spacing:-.6px;margin-top:2px}
+.hero .chg{font-size:13px;font-weight:600;color:#BFE8CF;margin-top:2px}.hero .chg.neg{color:#ffc9c2}
+.hero svg{position:absolute;right:12px;bottom:14px;opacity:.95}
+.hero .note2{font-size:11px;opacity:.7;margin-top:6px}
+.qa{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.qa button{background:#fff;border:0;border-radius:16px;padding:10px 4px;box-shadow:var(--sh);cursor:pointer;font-size:12px;font-weight:600;color:var(--navy);display:flex;flex-direction:column;align-items:center;gap:5px;min-height:70px}
+.qa svg{width:22px;height:22px}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:6px 2px 8px;gap:8px}
+.sec b{font-size:16px;color:var(--navy)}.sec span,.sec a{font-size:12px;color:var(--mut)}.sec a{color:var(--blue);cursor:pointer;font-weight:600}
+.seg{display:flex;background:var(--pale);border-radius:13px;padding:3px;margin-bottom:10px}
+.seg button{flex:1;text-align:center;font-size:14px;font-weight:700;padding:8px 0;border-radius:11px;color:var(--mut);border:0;background:none;cursor:pointer;min-height:40px}
+.seg button.on{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.seg.side button.on.sell{color:var(--bad)}
+.seg.sm button{font-size:12.5px;padding:5px 0;min-height:32px}
+.f3{display:grid;grid-template-columns:1.15fr .95fr 1fr;gap:8px;margin-bottom:8px}
+.f{background:var(--pale);border-radius:12px;padding:7px 10px;position:relative}
+.f small{display:block;font-size:11px;color:var(--mut);font-weight:600}
+.f input,.f select{border:0;background:none;padding:0;min-height:28px;font-size:16px;font-weight:700;border-radius:0}
+.f input:focus,.f select:focus{outline:0}
+.f:focus-within{outline:2px solid var(--blue)}
+.hint{font-size:12px;color:var(--mut);margin:2px 2px 10px}
+.hint b{color:var(--ink)}
+.cost{display:flex;justify-content:space-between;align-items:center;background:var(--pale);border-radius:12px;padding:9px 12px;margin-bottom:10px;font-size:13px}
+.cost b{font-size:15px}
+.risk{background:var(--pale);border-radius:14px;padding:10px 12px 11px;margin-bottom:10px}
+.risk.esc{background:var(--peach)}
+.risk .rt{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--blue)}
+.risk.esc .rt{color:var(--orange)}
+.meter{position:relative;height:10px;border-radius:6px;margin:9px 0 7px;background:linear-gradient(90deg,var(--blue) 0 50%,var(--amber) 50% 100%)}
+.meter .pin{position:absolute;top:-5px;width:4px;height:20px;background:var(--ink);border-radius:2px;transform:translateX(-2px);transition:left .25s}
+.meter .thr{position:absolute;top:-2px;left:50%;width:2px;height:14px;background:#fff}
+.risk .msg{font-size:13px}.risk .msg b{color:var(--blue)}.risk.esc .msg b{color:var(--orange)}
+.warnbox{border-radius:12px;padding:9px 12px;font-size:13px;margin-bottom:10px;background:var(--badbg);color:var(--bad)}
+.warnbox.soft{background:var(--warnbg);color:#7a5200}
+.infobox{border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:10px;background:var(--pale);color:var(--ink)}
+.btn{background:var(--navy);color:#fff;border-radius:14px;text-align:center;font-weight:700;font-size:15.5px;padding:13px 14px;display:flex;align-items:center;justify-content:center;gap:9px;border:0;width:100%;cursor:pointer;min-height:50px}
+.btn.buy{background:var(--navy)}.btn.sell{background:var(--bad)}.btn.ok{background:var(--ok)}
+.btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--ice)}
+.btn.sm{width:auto;min-height:36px;padding:7px 12px;font-size:13px;border-radius:11px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn svg{width:20px;height:20px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ord{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:10px;gap:8px}
+.ord b.b{color:var(--blue)}.ord b.s{color:var(--bad)}
+.tag{font-size:11.5px;font-weight:700;color:var(--blue);background:var(--ice);padding:3px 9px;border-radius:99px;white-space:nowrap}
+.tag.esc{color:var(--orange);background:var(--peach)}.tag.ok{color:var(--ok);background:var(--okbg)}.tag.bad{color:var(--bad);background:var(--badbg)}.tag.wait{color:#7a5200;background:var(--warnbg)}
+.steps{display:flex;align-items:flex-start;justify-content:space-between;position:relative;margin:4px 0 10px}
+.steps::before{content:"";position:absolute;top:12px;left:18px;right:18px;height:3px;background:var(--ice)}
+.steps .bar{position:absolute;top:12px;left:18px;height:3px;background:var(--blue);transition:width .3s}
+.st{position:relative;z-index:1;flex:1;text-align:center;font-size:10.5px;color:var(--mut);font-weight:600;line-height:1.2}
+.st i{display:flex;margin:0 auto 4px;width:26px;height:26px;border-radius:50%;background:#fff;border:2.5px solid var(--ice);color:#fff;align-items:center;justify-content:center;font-style:normal;font-size:13px;font-weight:800}
+.st.done i{background:var(--blue);border-color:var(--blue)}.st.now i{border-color:var(--blue);animation:pulse 1.2s infinite}
+.st.fail i{background:var(--bad);border-color:var(--bad)}.st.hold i{background:var(--amber);border-color:var(--amber)}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(47,85,151,.15)}}
+.vals{display:flex;gap:7px;margin-bottom:8px}
+.v{flex:1;border-radius:10px;padding:6px 0;text-align:center;font-size:12.5px;font-weight:700;background:var(--pale);color:var(--mut)}
+.v.y{background:var(--ice);color:var(--navy)}.v.n{background:#F0F0F0;color:#9A9A9A;text-decoration:line-through}
+.foot{font-size:12px;color:var(--mut);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.foot b{color:var(--ok)}
+.lrow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;gap:10px;cursor:pointer}
+.lrow+.lrow{border-top:1px solid var(--line)}
+.lrow .l{display:flex;align-items:center;gap:11px;min-width:0}
+.lrow .tk{width:42px;height:42px;border-radius:12px;background:var(--pale);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:none;letter-spacing:-.2px;text-align:center;line-height:1.05;padding:2px}
+.lrow .nm{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow small{display:block;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .r{text-align:right;flex:none}.lrow .r b{font-size:14.5px}
+.pc{font-size:12px;font-weight:700;padding:2px 7px;border-radius:8px;display:inline-block;margin-top:2px}
+.pc.up{background:var(--okbg)}.pc.dn{background:var(--badbg)}.pc.fl{background:var(--pale);color:var(--mut)}
+.empty{color:var(--mut);font-size:13.5px;padding:8px 0}
+.search{position:relative;margin-bottom:10px}.search input{padding-left:38px;border-radius:14px}
+.search svg{position:absolute;left:12px;top:13px;width:18px;height:18px;color:var(--mut)}
+.hscroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;scrollbar-width:none}.hscroll::-webkit-scrollbar{display:none}
+.hscroll .chip{white-space:nowrap;flex:none}
+.back{display:flex;align-items:center;gap:6px;color:var(--blue);font-weight:700;font-size:14px;cursor:pointer;background:none;border:0;padding:6px 0;min-height:36px}
+.star{background:none;border:0;cursor:pointer;padding:6px;min-width:40px;min-height:40px}
+.big{font-size:32px;font-weight:800;letter-spacing:-.6px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stats div{background:var(--pale);border-radius:12px;padding:8px 10px}.stats small{display:block;font-size:11.5px;color:var(--mut);font-weight:600}.stats b{font-size:14px}
+.rangebar{position:relative;height:8px;border-radius:5px;background:linear-gradient(90deg,var(--badbg),var(--pale),var(--okbg));margin:12px 0 4px}
+.rangebar i{position:absolute;top:-4px;width:4px;height:16px;border-radius:2px;background:var(--navy);transform:translateX(-2px)}
+.book{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px}
+.book .h{font-size:11.5px;color:var(--mut);font-weight:700;display:flex;justify-content:space-between;margin-bottom:4px}
+.book .lv{display:flex;justify-content:space-between;padding:4px 8px;border-radius:7px;margin-bottom:3px;position:relative;overflow:hidden}
+.book .lv span{position:relative;z-index:1}
+.book .lv i{position:absolute;top:0;bottom:0;right:0;opacity:.6}
+.book .bid i{background:var(--okbg)}.book .ask i{background:var(--badbg);left:0;right:auto}
+.sticky{position:fixed;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));z-index:15;padding:10px 16px;background:linear-gradient(180deg,rgba(244,246,250,0),var(--bg) 35%)}
+.sticky .in{max-width:520px;margin:0 auto}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);z-index:20;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+.tabs .in{max-width:520px;margin:0 auto;display:flex;justify-content:space-around}
+.tab{flex:1;text-align:center;font-size:11.5px;font-weight:600;color:#9AA3B2;background:none;border:0;cursor:pointer;padding:5px 0;display:flex;flex-direction:column;align-items:center;gap:3px;min-height:54px;position:relative}
+.tab svg{width:25px;height:25px}.tab.on{color:var(--blue)}
+.tab .cnt{position:absolute;top:2px;left:55%;background:var(--amber);color:#fff;border-radius:99px;font-size:10px;padding:0 5px;min-width:16px}
+.oc{border-radius:16px;background:#fff;box-shadow:var(--sh);padding:12px 14px;margin-bottom:10px}
+.oc .t1{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.oc .t1 b{font-size:14.5px}.oc .t2{font-size:12.5px;color:var(--mut);margin-top:3px}
+.oc .plain{font-size:13px;margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--pale)}
+.oc details{margin-top:8px;font-size:12.5px}.oc summary{cursor:pointer;color:var(--blue);font-weight:600}
+.oc .dl div{padding:3px 0;color:var(--mut)}
+.mini{display:flex;gap:3px;margin-top:8px}.mini i{flex:1;height:5px;border-radius:3px;background:var(--ice)}.mini i.d{background:var(--blue)}.mini i.f{background:var(--bad)}.mini i.h{background:var(--amber)}
+.wcard{display:flex;justify-content:space-between;align-items:center}
+.wcard .amt{font-size:24px;font-weight:800;letter-spacing:-.4px}
+.hist{display:flex;align-items:center;gap:11px;padding:10px 0}.hist+.hist{border-top:1px solid var(--line)}
+.hist .ic{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;font-weight:800}
+.hist .ic.in{background:var(--okbg);color:var(--ok)}.hist .ic.out{background:var(--badbg);color:var(--bad)}
+.hist .m{flex:1;min-width:0}.hist .m b{font-size:14px}.hist .m small{display:block;color:var(--mut);font-size:12px}
+.hist .a{font-weight:800;font-size:14.5px}
+.pm{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pm button{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:11px 10px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:48px}
+.pm button i{width:12px;height:12px;border-radius:50%;flex:none}
+.pm button.on{border-color:var(--blue);background:var(--pale)}
+.quick{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.quick button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;min-height:34px}
+.okmark{width:64px;height:64px;border-radius:50%;background:var(--okbg);color:var(--ok);display:flex;align-items:center;justify-content:center;margin:6px auto 10px}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;gap:10px;cursor:pointer;font-size:14.5px}
+.mrow+.mrow{border-top:1px solid var(--line)}.mrow span{color:var(--mut);font-size:13px}
+.how{counter-reset:h}.how div{position:relative;padding:6px 0 6px 36px;font-size:13.5px}
+.how div::before{counter-increment:h;content:counter(h);position:absolute;left:0;top:6px;width:24px;height:24px;border-radius:50%;background:var(--ice);color:var(--navy);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
 .pass{color:var(--ok);font-weight:700}.fail{color:var(--bad);font-weight:700}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom));background:#222c42;border:1px solid var(--line);padding:10px 16px;border-radius:10px;font-size:13px;z-index:30;display:none;max-width:90%}
-#tour{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:40;padding:16px}
-#tour .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:440px;width:100%}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes sp{to{transform:rotate(360deg)}}
-.mkbar{display:flex;gap:8px;padding:8px 16px;border-bottom:1px solid var(--line);align-items:center;flex-wrap:wrap}
-.mkbar button{background:var(--in);border:1px solid var(--line);color:var(--txt);padding:7px 14px;border-radius:99px;font:inherit;font-size:13px;cursor:pointer;min-height:36px}
-.mkbar button.on{background:var(--acc);border-color:var(--acc);color:#fff}.mkbar .sub{flex:1;min-width:200px}
-.trow{display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px;gap:8px}
-.trow.on{background:var(--in);outline:1px solid var(--acc)}.up{color:var(--ok)}.dn{color:var(--bad)}
-.lad{display:grid;grid-template-columns:1fr 1fr;font-size:13px}.lad div{padding:4px 8px;position:relative}.lad .h{color:var(--mut);font-size:11px}
-.lad .a{color:var(--bad)}.lad .b{color:var(--ok)}.lad .r{text-align:right}
-.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mut);margin-right:5px}.live.on{background:var(--ok);box-shadow:0 0 6px var(--ok)}
-.tag{padding:1px 7px;border-radius:6px;font-size:10px;background:var(--in);border:1px solid var(--line);color:var(--mut);margin-left:4px}
 .keybox{word-break:break-all;font-size:12px;margin-top:8px}
-@media(max-width:700px){
-  nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--bg);border-top:1px solid var(--line);border-bottom:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom));justify-content:flex-start;gap:2px}
-  nav button{padding:6px 8px;font-size:12px;min-width:56px;border:0!important}
-  .row{grid-template-columns:1fr 1fr}.who .nm{display:none}
-}
+.help{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--ice);color:var(--navy);font-size:11px;font-weight:800;border:0;cursor:pointer;margin-left:4px;vertical-align:1px;padding:0}
+/* sheet (bottom drawer) */
+#sheet{position:fixed;inset:0;z-index:50;display:none}
+#sheet .bg{position:absolute;inset:0;background:rgba(15,25,45,.45)}
+#sheet .pn{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:#fff;border-radius:24px 24px 0 0;padding:10px 18px calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;animation:rise .2s ease-out}
+#sheet .grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+#sheet h3{margin:0 0 4px;font-size:19px;color:var(--navy)}
+@keyframes rise{from{transform:translateY(40px);opacity:.5}}
+/* guided first trade */
+#coach{position:fixed;left:0;right:0;bottom:calc(76px + env(safe-area-inset-bottom));z-index:40;display:none;padding:0 12px}
+#coach .cb{max-width:500px;margin:0 auto;background:var(--navy);color:#fff;border-radius:18px;padding:13px 15px;box-shadow:0 10px 30px rgba(20,30,60,.35)}
+#coach .cs{font-size:11.5px;opacity:.75;font-weight:600;display:flex;justify-content:space-between}
+#coach h4{margin:3px 0 4px;font-size:16px}#coach p{margin:0 0 10px;font-size:13.5px;opacity:.95}
+#coach .cbtn{display:flex;gap:8px}#coach .cbtn button{flex:1;border:0;border-radius:11px;padding:9px;font-weight:700;cursor:pointer;min-height:40px}
+#coach .nx{background:#fff;color:var(--navy)}#coach .pv{background:rgba(255,255,255,.15);color:#fff}#coach .x{background:none;color:#fff;opacity:.7;flex:0 0 auto!important}
+.glow{position:relative;z-index:30;box-shadow:0 0 0 3px var(--amber),0 0 0 8px rgba(237,125,49,.25)!important;border-radius:14px}
+/* guest + onboarding */
+.gwrap{max-width:460px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 16px 40px}
+.ghero{text-align:center;margin:14px 0 18px}.ghero .logo{width:62px;height:62px;border-radius:18px;font-size:32px;margin:0 auto 10px}
+.ghero h1{margin:0;font-size:28px;color:var(--navy);letter-spacing:-.5px}.ghero p{margin:6px auto 0;color:var(--mut);font-size:14px;max-width:360px}
+.pills3{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:12px}
+.demo-note{background:var(--warnbg);color:#6b4a00;border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.prog{display:flex;gap:6px;margin-bottom:14px}.prog div{flex:1;height:6px;border-radius:3px;background:var(--line)}.prog div.on{background:var(--blue)}.prog div.ok{background:var(--ok)}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:6px}
+.dchips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+
+/* ───────── staff console (broker and admin): same colours, wider layout ───────── */
+.staff header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 18px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.staff .who{display:flex;align-items:center;gap:8px;font-size:13px;flex-wrap:wrap;justify-content:flex-end}
+.staff .badge{padding:2px 9px;border-radius:99px;font-size:11.5px;background:var(--ice);color:var(--navy);font-weight:700}
+.staff nav{display:flex;gap:4px;padding:8px 18px;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto}
+.staff nav button{background:none;border:0;color:var(--mut);padding:8px 14px;border-radius:10px;cursor:pointer;white-space:nowrap;min-height:40px;font-weight:600}
+.staff nav button.on{background:var(--pale);color:var(--blue)}
+.staff nav .cnt{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:99px;background:var(--amber);color:#fff;font-size:11px;font-weight:700}
+.staff main{max-width:1180px;margin:0 auto;padding:16px 18px 90px}
+.staff .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.staff .card{margin-bottom:0;min-width:0}
+.staff h2{font-size:12px;margin:0 0 10px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.staff h3{margin:0 0 6px;font-size:17px;color:var(--navy)}
+.staff .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.staff .btn{min-height:44px;font-size:14px;border-radius:12px;padding:10px}
+.staff .btn.bad{background:var(--bad)}.staff .btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--ice)}
+.staff .seg button{font-size:13px}
+.staff .pill{padding:2px 9px;border-radius:99px;font-size:11.5px;background:var(--pale);font-weight:700;color:var(--mut)}
+.staff .s-settled,.staff .s-matched,.staff .s-active{color:var(--ok);background:var(--okbg)}.staff .s-rejected{color:var(--bad);background:var(--badbg)}
+.staff .s-open,.staff .s-partial,.staff .s-approval_pending,.staff .s-held{color:#7a5200;background:var(--warnbg)}
+.staff .pipe{display:flex;gap:5px;margin:10px 0;flex-wrap:wrap}.staff .pipe .st{flex:1;min-width:74px;text-align:center;padding:8px 2px;border-radius:9px;background:var(--pale);font-size:11px;color:var(--mut)}
+.staff .pipe .st.done{background:var(--ice);color:var(--navy)}.staff .pipe .st.fail{background:var(--badbg);color:var(--bad)}.staff .pipe .st.hold{background:var(--warnbg);color:#7a5200}
+.staff .ocard{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fff}
+.staff .ocard .top{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap;margin:0}
+.staff .buy-t{color:var(--blue);font-weight:700}.staff .sell-t{color:var(--bad);font-weight:700}
+.staff table{width:100%;border-collapse:collapse;font-size:13px}.staff th,.staff td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}.staff th{color:var(--mut);font-weight:600}.staff .scroll{overflow-x:auto}
+.staff .node{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);gap:8px;flex-wrap:wrap}
+.staff .ndot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;background:var(--bad)}.staff .ndot.up{background:var(--ok)}.staff .ndot.f{background:var(--amber)}
+.staff .note{background:var(--pale);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--ink)}
+.staff .demo{background:var(--warnbg)}
+.staff .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.staff .vchip{padding:3px 9px;border-radius:99px;background:var(--pale);color:var(--mut);font-size:11.5px;font-weight:600}.staff .vchip.y{background:var(--ice);color:var(--navy)}.staff .vchip.n{background:var(--badbg);color:var(--bad)}
+.staff .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.staff .col h3{font-size:15px}.staff .item{padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.staff .trow{display:flex;justify-content:space-between;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:8px;gap:8px}
+.staff .trow.on{background:var(--pale)}
+.staff .lad{display:grid;grid-template-columns:1fr 1fr;font-size:13px}.staff .lad div{padding:4px 8px}.staff .lad .h{color:var(--mut);font-size:11px}
+.staff .lad .a{color:var(--bad)}.staff .lad .b{color:var(--ok)}.staff .lad .r{text-align:right}
+.staff .live{display:inline-block;width:8px;height:8px;border-radius:50%;background:#c3c9d4;margin-right:5px}.staff .live.on{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.staff .tag{margin-left:4px;font-size:10.5px;padding:1px 7px}
+.staff .mkbar{display:flex;gap:8px;padding:8px 18px;background:#fff;border-bottom:1px solid var(--line);align-items:center;flex-wrap:wrap}
+.staff .mkbar button{background:var(--pale);border:0;color:var(--navy);padding:7px 14px;border-radius:99px;font-size:13px;cursor:pointer;min-height:36px;font-weight:600}
+.staff .mkbar button.on{background:var(--navy);color:#fff}.staff .mkbar .sub{flex:1;min-width:200px}
+.staff input.why{margin:8px 0}
+@media(max-width:700px){.staff nav{position:fixed;bottom:0;left:0;right:0;z-index:20;border-top:1px solid var(--line);border-bottom:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}.staff nav button{padding:6px 8px;font-size:12px}.staff .who .nm{display:none}}
+/* tour */
+#tour{position:fixed;inset:0;background:rgba(15,25,45,.5);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
+#tour .box{background:#fff;border-radius:20px;padding:20px;max-width:440px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+#tour h3{color:var(--navy);margin:4px 0 8px}#tour .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand">BlockExDSE<small>Edge-validated settlement prototype v2.0 (simulated)</small></div>
-  <div class="who" id="who"></div>
-</header>
-<div class="mkbar" id="mkbar" style="display:none"></div>
-<nav id="nav"></nav>
-<main id="main"></main>
+<div id="root"></div>
+<div id="sheet"></div>
+<div id="coach"></div>
 <div id="toast"></div>
 <div id="tour"></div>
-
 <script src="/vendor/sign.js"></script>
 <script>
 "use strict";
+/* ═══════════════ BlockExDSE v2.1 dashboard ═══════════════
+   One page, two layouts: the investor app (phone first, the poster design) and the staff console (broker, admin).
+   Change the product name here once the team has chosen it. */
+const BRAND = { name: "RACE", letter: "R", long: "Risk-Adaptive Consensus at the Edge", project: "BlockExDSE v2.1" };
+
 const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => Number(n).toLocaleString();
 const short = h => h ? h.slice(0, 10) + "…" + h.slice(-6) : "–";
 const S = { token: sessionStorage.getItem("bx_token") || "", market: sessionStorage.getItem("bx_mk") || "DSE", me: null, portfolios: null, info: null,
             view: null, tab: "in", otpDemo: "", orders: [], cur: null, side: "BUY", otype: "LIMIT", tk: {}, snap: {}, nodes: [], req: null,
             accounts: [], demo: [], sim: {}, es: null, liveAt: 0, key: null, keyDemo: false, tmpKey: null, review: [],
-            lab: { audit: {}, results: null, tamper: {}, bench: null, benchJob: null, busy: false } };
+            lab: { audit: {}, results: null, tamper: {}, bench: null, benchJob: null, busy: false },
+            // v2.1 investor app
+            lang: localStorage.getItem("bx_lang") || "en", itab: "home", stock: null, hist: {}, histRange: "1M", watch: {}, wallet: null,
+            ofilter: "active", form: { qty: 10, price: null }, guide: { on: false, step: 0 }, mfilter: "all", q: "" };
 const STAGES = ["submitted", "edge_validated", "consensus", "onchain", "matched", "settled"];
 const LABEL = { submitted: "Signed by investor", edge_validated: "Edge checked", consensus: "Validators signed", onchain: "Verified on-chain", matched: "Matched", settled: "Settled" };
-const TABS = {
-  trader: [["trade", "Trade"], ["orders", "Orders"], ["portfolio", "Portfolio"], ["market", "Market"], ["proof", "Proof"], ["roadmap", "Roadmap"]],
-  broker: [["requests", "Requests"], ["review", "Review"], ["orders", "Orders"], ["accounts", "Accounts"], ["market", "Market"], ["proof", "Proof"], ["roadmap", "Roadmap"]],
-  admin:  [["requests", "Requests"], ["review", "Review"], ["orders", "Orders"], ["accounts", "Accounts"], ["market", "Market"], ["proof", "Proof"], ["roadmap", "Roadmap"]],
-};
 const MODE_NAME = { chain_only: "Contract only (no edge)", edge_only: "Gateway check only", fixed3: "Always 3 of 4", fixed4: "Always 4 of 4", racd: "Risk-proportional (3 or 4)" };
 
-/* ───────── helpers ───────── */
+/* ───────── language: English and Bangla (investor screens) ───────── */
+const L = {
+  en: {
+    tagline: "Buy and sell shares safely. Every order is signed on your phone and checked by 4 independent validators before it settles on the blockchain.",
+    sim_only: "Practice system: simulated money and prices", signin: "Sign in", create: "Create account", email: "Email", password: "Password",
+    demo_accts: "Demo accounts (tap one to sign in)", name: "Full name", mobile: "Mobile (Bangladesh)", pw_rule: "Password (8+ characters, a letter and a number)",
+    signup_note: "Simulation only. A real account is opened through a licensed broker with a BO account.", tour: "Demo tour",
+    step2: "Verify your mobile", step2s: "Step 2 of 4. Enter the 6-digit code.", democode: "Demo only: your code is", sms: "A real system would send it by SMS.",
+    newcode: "Send new code", code: "Code", verify: "Verify", step3: "Identity check and signing key", step3s: "Step 3 of 4. Simulated: only a format check is done.",
+    nid: "National ID number (10, 13 or 17 digits)", photo: "Photo (optional)", nid_note: "The ID number is stored only as a one-way hash plus its last 4 digits. The photo never leaves your phone: only its fingerprint is sent.",
+    keynote: "Your signing key was created on this phone. It never leaves it. Without it nobody, not even the broker or the exchange, can trade in your name.",
+    submit_ap: "Submit for approval", waiting: "Waiting for broker approval", step4s: "Step 4 of 4. You go straight to trading once a broker approves you.",
+    broker_tip: "Demo tip: in another window sign in as broker@blockexdse.demo / Broker@123 and approve this request.",
+    notapproved: "Not approved", again: "You can submit again.",
+    home: "Home", markets: "Markets", trade: "Trade", orders: "Orders", wallet: "Wallet",
+    market_chip: "demo market", key_ok: "Key on this phone", key_no: "No key on this phone",
+    pv: "Portfolio value (demo)", today: "today vs reference", hist_note: "Chart: illustrative history",
+    buy: "Buy", sell: "Sell", buy_o: "BUY", sell_o: "SELL", add_money: "Add money", withdraw: "Withdraw",
+    start_title: "New to investing?", start_text: "Make your first practice trade in 6 easy steps. We explain every field.", start_btn: "Start guided trade",
+    live_order: "Live order", no_orders: "No orders yet. Your first trade will appear here.", just: "just now",
+    watchlist: "Watchlist", watch_empty: "Tap the star on a stock to follow it here.", holdings: "Holdings", shares: "shares", see_all: "See all",
+    search: "Search company or code", all: "All", sector: "Sector",
+    ref: "Reference", dayrange: "Today's range", band: "Allowed band", volume: "Volume", buyers: "Buyers", sellers: "Sellers", price: "Price", qty: "Qty",
+    recent: "Recent trades", none_yet: "None yet.", follow: "Follow", following: "Following", chart_1d: "Today", chart_1m: "30 days",
+    ill: "Illustrative history (simulated), not real market data.", today_trades: "Simulated trades today", no_trades_today: "No trades today yet: showing the reference price.",
+    new_order: "New order", checked_by: "checked by 4 edge validators", stock: "Stock", quantity: "Quantity", limit: "Limit", market_o: "Market",
+    limit_help: "Limit: you choose the highest price you will pay (or the lowest you will accept when selling). Market: you take the best price available now.",
+    best_seller: "Best seller now", best_buyer: "Best buyer now", none_side: "none", allowed: "Allowed",
+    you_pay: "You pay about", you_get: "You receive about", available: "Available", avail_sh: "You own",
+    risk_t: "RACD risk score", routine: "Routine", escalated: "Escalated", needs: "needs", approvals: "approvals", of: "of", not3: "not",
+    risk_routine: "Normal-size order near the usual price: 3 of 4 validators must approve.",
+    risk_esc: "Large or unusual order: all 4 validators must approve.",
+    out_band: "This price is outside the allowed band. The validators and the contract will refuse it.", too_big: "Above the order size limit. The validators will refuse it.",
+    no_cash: "Not enough cash for this order.", no_shares: "You do not own enough shares to sell.", go_wallet: "Add money",
+    sign_submit: "Sign on phone & submit", signed_with: "Signed on this phone with your key", nokey_trade: "This phone does not hold your signing key. Open your profile to import it.",
+    sent: "Signed on this phone and sent to the 4 validators", no_side_mkt: "No sellers right now, so a market order would not fill.",
+    mkt_note: "You sign a protective limit at the band edge. It fills what is on the book now; the rest is cancelled.",
+    s_signed: "Signed", s_edge: "Edge checks", s_votes: "Votes", s_chain: "On-chain", s_match: "Matched", s_settle: "Settled",
+    offline: "offline", quorum_met: "quorum met", anchored: "hash anchored", waiting_match: "waiting for a seller", waiting_match_s: "waiting for a buyer",
+    active: "Active", completed: "Completed", cancel: "Sign & cancel", cancel_ok: "Cancelled. The contract released your locked money or shares.",
+    st_submitted: "Checking", st_edge_validated: "Checking", st_consensus: "Approved", st_open: "Waiting", st_partial: "Part filled", st_matched: "Matched",
+    st_settled: "Settled", st_rejected: "Refused", st_cancelled: "Cancelled", st_part_filled: "Part filled, rest cancelled", st_held: "Held for review",
+    p_settled: "Done. The shares and money changed hands in one blockchain transaction.", p_open: "On the order book. It settles automatically when someone takes the other side.",
+    p_partial: "Part of it has settled. The rest is still on the order book.", p_rejected: "Refused", p_held: "This large order is one approval short, so a broker reviews it.",
+    p_cancelled: "Cancelled with your signature. Locked money or shares were released.", p_checking: "Being checked by the validators…",
+    details: "Details", validators: "Validators", tx: "Transaction", receipt: "Receipt", bought: "bought", from: "from",
+    cash_av: "Cash you can use", locked: "Locked in open orders", practice: "Practice money only: no real payment is made.", history: "History",
+    no_hist: "No deposits or withdrawals yet.", added_via: "Added via", sent_to: "Withdrawn to",
+    am_title: "Add money (practice)", pay_with: "Pay with", amount: "Amount", am_note: "Simulated payment: no money moves. The broker confirms it and your cash is credited on the blockchain.",
+    confirm_pay: "Confirm practice payment", min_max: "Between", and: "and", wd_title: "Withdraw", send_to: "Send to", free_cash: "Free cash",
+    wd_note: "You sign this withdrawal on your phone. The contract checks your signature; nobody else can take your money out.", sign_wd: "Sign & withdraw",
+    done_dep: "Money added", done_wd: "Withdrawal sent", ref_id: "Reference", close: "Close",
+    profile: "Profile", id_end: "ID ending", language: "Language", key: "Signing key", backup: "Show key to back it up", hidekey: "Hide key",
+    key_have: "This phone holds the key for your account. Every order, cancel and withdrawal is signed here.",
+    key_demo: "Demo account: this is a published test key. An account you create gets its own key, made on your phone.",
+    key_backup: "Back the key up. If this browser's storage is cleared, the key is gone and nobody can restore it.",
+    key_missing: "This phone does not hold your signing key. Paste the key you backed up.", import: "Import key",
+    guided: "Guided first trade", guided_s: "Walk through a practice trade step by step", check: "Check the system yourself",
+    run_audit: "Run the independent audit", audit_s: "Re-checks every signature, approval and balance from the blockchain alone",
+    audit_ok: "Audit passed", audit_bad: "Audit found problems", how: "How it works", roadmap: "What is built and what is planned", signout: "Sign out",
+    how1: "You sign the order on your own phone. Nobody can trade in your name.",
+    how2: "4 edge validators check the rules (price band, size, your account) and sign.",
+    how3: "The RACD risk score decides how many must agree: 3 of 4 normally, all 4 for large or unusual orders.",
+    how4: "The smart contract checks every signature itself, locks the money or shares, and settles the trade in one step.",
+    g1t: "Pick a company", g1: "Start with a company you know. We picked one for you; you can change it. Practice money only: real investing can lose money.",
+    g2t: "Buy or sell", g2: "Buy means you pay money and receive shares. Sell means you give shares and receive money.",
+    g3t: "How many shares", g3: "Start small. 10 shares is a good first trade. The cost appears below.",
+    g4t: "Your price", g4: "Limit price = the most you will pay for one share. We filled in the current price. Prices outside the allowed band are refused.",
+    g5t: "The safety check", g5: "RACE scores every order. Normal orders need 3 of 4 validators; large or unusual ones need all 4. The black line shows your order.",
+    g6t: "Sign and send", g6: "Your phone signs the order with your private key, then the validators check it. Tap the button.",
+    g7t: "Watch it settle", g7: "Each dot lights up as your order moves: signed, checked, approved, on the blockchain, settled. Well done!",
+    g7w: "Your order is approved and on the blockchain. It now waits on the order book; when someone takes the other side it settles automatically. Well done!",
+    next: "Next", back: "Back", finish: "Finish", skip: "Skip", step: "Step",
+    session_end: "Session ended. Please sign in again.", approved_msg: "Approved. Your account is registered on the blockchain.",
+    contact_ok: "Mobile verified.", submitted: "Submitted. A broker will review it.", copied: "Copied",
+    no_gateway: "Cannot reach the gateway on port 9001. Is the system running?", no_sign: "The signing module (vendor/sign.js) did not load, so orders cannot be signed.",
+  },
+  bn: {
+    tagline: "নিরাপদে শেয়ার কিনুন ও বেচুন। প্রতিটি অর্ডার আপনার ফোনেই সই হয় এবং ব্লকচেইনে নিষ্পত্তির আগে ৪টি স্বাধীন ভ্যালিডেটর তা যাচাই করে।",
+    sim_only: "অনুশীলন সিস্টেম: টাকা ও দাম কাল্পনিক", signin: "সাইন ইন", create: "অ্যাকাউন্ট খুলুন", email: "ইমেইল", password: "পাসওয়ার্ড",
+    demo_accts: "ডেমো অ্যাকাউন্ট (ট্যাপ করে সাইন ইন করুন)", name: "পূর্ণ নাম", mobile: "মোবাইল (বাংলাদেশ)", pw_rule: "পাসওয়ার্ড (৮+ অক্ষর, একটি অক্ষর ও একটি সংখ্যা)",
+    signup_note: "শুধু সিমুলেশন। আসল অ্যাকাউন্ট খোলা হয় লাইসেন্সধারী ব্রোকারের মাধ্যমে BO অ্যাকাউন্ট দিয়ে।", tour: "ডেমো ট্যুর",
+    step2: "মোবাইল যাচাই করুন", step2s: "ধাপ ২/৪। ৬ সংখ্যার কোডটি দিন।", democode: "শুধু ডেমো: আপনার কোড", sms: "আসল সিস্টেমে এটি SMS-এ যাবে।",
+    newcode: "নতুন কোড পাঠান", code: "কোড", verify: "যাচাই করুন", step3: "পরিচয় যাচাই ও সই করার চাবি", step3s: "ধাপ ৩/৪। সিমুলেশন: শুধু ফরম্যাট যাচাই হয়।",
+    nid: "জাতীয় পরিচয়পত্র নম্বর (১০, ১৩ বা ১৭ সংখ্যা)", photo: "ছবি (ঐচ্ছিক)", nid_note: "NID নম্বর শুধু একমুখী হ্যাশ ও শেষ ৪ সংখ্যা হিসেবে রাখা হয়। ছবি ফোন থেকে বের হয় না: শুধু তার ফিঙ্গারপ্রিন্ট পাঠানো হয়।",
+    keynote: "আপনার সই করার চাবি এই ফোনেই তৈরি হয়েছে এবং এখানেই থাকে। এটি ছাড়া কেউ, ব্রোকার বা এক্সচেঞ্জও, আপনার নামে লেনদেন করতে পারে না।",
+    submit_ap: "অনুমোদনের জন্য জমা দিন", waiting: "ব্রোকারের অনুমোদনের অপেক্ষা", step4s: "ধাপ ৪/৪। ব্রোকার অনুমোদন দিলেই আপনি লেনদেন শুরু করতে পারবেন।",
+    broker_tip: "ডেমো টিপ: অন্য উইন্ডোতে broker@blockexdse.demo / Broker@123 দিয়ে সাইন ইন করে অনুমোদন দিন।",
+    notapproved: "অনুমোদিত হয়নি", again: "আবার জমা দিতে পারেন।",
+    home: "হোম", markets: "বাজার", trade: "ট্রেড", orders: "অর্ডার", wallet: "ওয়ালেট",
+    market_chip: "ডেমো বাজার", key_ok: "চাবি এই ফোনে আছে", key_no: "এই ফোনে চাবি নেই",
+    pv: "পোর্টফোলিওর মূল্য (ডেমো)", today: "আজ, রেফারেন্সের তুলনায়", hist_note: "চার্ট: দৃষ্টান্তমূলক ইতিহাস",
+    buy: "কিনুন", sell: "বেচুন", buy_o: "ক্রয়", sell_o: "বিক্রয়", add_money: "টাকা যোগ", withdraw: "উত্তোলন",
+    start_title: "বিনিয়োগে নতুন?", start_text: "সহজ ৬ ধাপে প্রথম অনুশীলন ট্রেড করুন। প্রতিটি ঘর আমরা বুঝিয়ে দেব।", start_btn: "গাইডসহ ট্রেড শুরু",
+    live_order: "চলমান অর্ডার", no_orders: "এখনও কোনো অর্ডার নেই। প্রথম ট্রেড এখানে দেখা যাবে।", just: "এইমাত্র",
+    watchlist: "নজরতালিকা", watch_empty: "কোনো শেয়ারের তারকায় ট্যাপ করলে তা এখানে দেখাবে।", holdings: "আপনার শেয়ার", shares: "শেয়ার", see_all: "সব দেখুন",
+    search: "কোম্পানি বা কোড খুঁজুন", all: "সব", sector: "খাত",
+    ref: "রেফারেন্স দাম", dayrange: "আজকের সীমা", band: "অনুমোদিত সীমা", volume: "লেনদেনের পরিমাণ", buyers: "ক্রেতা", sellers: "বিক্রেতা", price: "দাম", qty: "পরিমাণ",
+    recent: "সাম্প্রতিক লেনদেন", none_yet: "এখনও নেই।", follow: "নজরে রাখুন", following: "নজরে আছে", chart_1d: "আজ", chart_1m: "৩০ দিন",
+    ill: "দৃষ্টান্তমূলক ইতিহাস (সিমুলেশন), আসল বাজারের তথ্য নয়।", today_trades: "আজকের সিমুলেটেড লেনদেন", no_trades_today: "আজ এখনও লেনদেন হয়নি: রেফারেন্স দাম দেখানো হচ্ছে।",
+    new_order: "নতুন অর্ডার", checked_by: "৪টি এজ ভ্যালিডেটর যাচাই করে", stock: "শেয়ার", quantity: "পরিমাণ", limit: "লিমিট", market_o: "মার্কেট",
+    limit_help: "লিমিট: আপনি সর্বোচ্চ কত দাম দেবেন (বিক্রিতে সর্বনিম্ন কত নেবেন) তা ঠিক করেন। মার্কেট: এখনকার সেরা দামে লেনদেন হয়।",
+    best_seller: "এখনকার সেরা বিক্রেতা", best_buyer: "এখনকার সেরা ক্রেতা", none_side: "নেই", allowed: "অনুমোদিত",
+    you_pay: "আনুমানিক খরচ", you_get: "আনুমানিক পাবেন", available: "ব্যবহারযোগ্য", avail_sh: "আপনার আছে",
+    risk_t: "RACD ঝুঁকি স্কোর", routine: "সাধারণ", escalated: "উচ্চ ঝুঁকি", needs: "লাগবে", approvals: "অনুমোদন", of: "এর মধ্যে", not3: "নয়",
+    risk_routine: "স্বাভাবিক আকারের, স্বাভাবিক দামের অর্ডার: ৪টির মধ্যে ৩টি ভ্যালিডেটরের অনুমোদন লাগবে।",
+    risk_esc: "বড় বা অস্বাভাবিক অর্ডার: ৪টি ভ্যালিডেটরের সবার অনুমোদন লাগবে।",
+    out_band: "এই দাম অনুমোদিত সীমার বাইরে। ভ্যালিডেটর ও কন্ট্র্যাক্ট এটি বাতিল করবে।", too_big: "অর্ডারের আকার সীমার বেশি। ভ্যালিডেটররা এটি বাতিল করবে।",
+    no_cash: "এই অর্ডারের জন্য যথেষ্ট টাকা নেই।", no_shares: "বিক্রির মতো যথেষ্ট শেয়ার আপনার নেই।", go_wallet: "টাকা যোগ করুন",
+    sign_submit: "ফোনে সই করে পাঠান", signed_with: "আপনার চাবি দিয়ে এই ফোনেই সই হয়", nokey_trade: "এই ফোনে আপনার সই করার চাবি নেই। প্রোফাইল থেকে চাবি ইমপোর্ট করুন।",
+    sent: "এই ফোনে সই হয়ে ৪টি ভ্যালিডেটরের কাছে পাঠানো হয়েছে", no_side_mkt: "এখন কোনো বিক্রেতা নেই, তাই মার্কেট অর্ডার পূরণ হবে না।",
+    mkt_note: "আপনি সীমার প্রান্তে একটি সুরক্ষা-দামে সই করেন। এখন বইয়ে যা আছে তা পূরণ হয়; বাকিটা বাতিল হয়।",
+    s_signed: "সই", s_edge: "এজ যাচাই", s_votes: "ভোট", s_chain: "অন-চেইন", s_match: "মিলেছে", s_settle: "নিষ্পন্ন",
+    offline: "অফলাইন", quorum_met: "কোরাম পূর্ণ", anchored: "হ্যাশ সংরক্ষিত", waiting_match: "বিক্রেতার অপেক্ষায়", waiting_match_s: "ক্রেতার অপেক্ষায়",
+    active: "চলমান", completed: "সম্পন্ন", cancel: "সই করে বাতিল", cancel_ok: "বাতিল হয়েছে। কন্ট্র্যাক্ট আপনার আটকে থাকা টাকা বা শেয়ার ফেরত দিয়েছে।",
+    st_submitted: "যাচাই চলছে", st_edge_validated: "যাচাই চলছে", st_consensus: "অনুমোদিত", st_open: "অপেক্ষমাণ", st_partial: "আংশিক পূরণ", st_matched: "মিলেছে",
+    st_settled: "নিষ্পন্ন", st_rejected: "বাতিল", st_cancelled: "বাতিলকৃত", st_part_filled: "আংশিক পূরণ, বাকিটা বাতিল", st_held: "পর্যালোচনায়",
+    p_settled: "সম্পন্ন। একটি ব্লকচেইন লেনদেনেই শেয়ার ও টাকা হাতবদল হয়েছে।", p_open: "অর্ডার বইয়ে আছে। কেউ বিপরীত দিকে এলে নিজে থেকেই নিষ্পন্ন হবে।",
+    p_partial: "কিছু অংশ নিষ্পন্ন হয়েছে। বাকিটা এখনও অর্ডার বইয়ে আছে।", p_rejected: "বাতিল", p_held: "এই বড় অর্ডারে একটি অনুমোদন কম, তাই একজন ব্রোকার পর্যালোচনা করবেন।",
+    p_cancelled: "আপনার সইয়ে বাতিল হয়েছে। আটকে থাকা টাকা বা শেয়ার ফেরত এসেছে।", p_checking: "ভ্যালিডেটররা যাচাই করছে…",
+    details: "বিস্তারিত", validators: "ভ্যালিডেটর", tx: "লেনদেন", receipt: "রসিদ", bought: "কিনেছেন", from: "থেকে",
+    cash_av: "ব্যবহারযোগ্য টাকা", locked: "চলমান অর্ডারে আটকে আছে", practice: "শুধু অনুশীলনের টাকা: কোনো আসল পেমেন্ট হয় না।", history: "ইতিহাস",
+    no_hist: "এখনও কোনো জমা বা উত্তোলন নেই।", added_via: "যোগ হয়েছে", sent_to: "উত্তোলন",
+    am_title: "টাকা যোগ (অনুশীলন)", pay_with: "যেভাবে দেবেন", amount: "পরিমাণ", am_note: "সিমুলেটেড পেমেন্ট: কোনো টাকা আসলে যায় না। ব্রোকার নিশ্চিত করলে ব্লকচেইনে আপনার টাকা জমা হয়।",
+    confirm_pay: "অনুশীলন পেমেন্ট নিশ্চিত করুন", min_max: "সীমা", and: "থেকে", wd_title: "উত্তোলন", send_to: "যেখানে পাঠাবেন", free_cash: "ব্যবহারযোগ্য টাকা",
+    wd_note: "এই উত্তোলন আপনি নিজের ফোনে সই করেন। কন্ট্র্যাক্ট আপনার সই যাচাই করে; অন্য কেউ আপনার টাকা তুলতে পারে না।", sign_wd: "সই করে উত্তোলন",
+    done_dep: "টাকা যোগ হয়েছে", done_wd: "উত্তোলন পাঠানো হয়েছে", ref_id: "রেফারেন্স", close: "বন্ধ",
+    profile: "প্রোফাইল", id_end: "NID শেষ ৪ সংখ্যা", language: "ভাষা", key: "সই করার চাবি", backup: "ব্যাকআপের জন্য চাবি দেখান", hidekey: "চাবি লুকান",
+    key_have: "এই ফোনে আপনার অ্যাকাউন্টের চাবি আছে। প্রতিটি অর্ডার, বাতিল ও উত্তোলন এখানেই সই হয়।",
+    key_demo: "ডেমো অ্যাকাউন্ট: এটি একটি প্রকাশিত পরীক্ষামূলক চাবি। আপনি নতুন অ্যাকাউন্ট খুললে আপনার ফোনেই নিজের চাবি তৈরি হবে।",
+    key_backup: "চাবির ব্যাকআপ রাখুন। ব্রাউজারের ডেটা মুছে গেলে চাবি হারাবে, কেউ তা ফেরত দিতে পারবে না।",
+    key_missing: "এই ফোনে আপনার সই করার চাবি নেই। ব্যাকআপ করা চাবিটি পেস্ট করুন।", import: "চাবি ইমপোর্ট",
+    guided: "গাইডসহ প্রথম ট্রেড", guided_s: "ধাপে ধাপে একটি অনুশীলন ট্রেড", check: "নিজেই সিস্টেম যাচাই করুন",
+    run_audit: "স্বাধীন অডিট চালান", audit_s: "শুধু ব্লকচেইন থেকে প্রতিটি সই, অনুমোদন ও ব্যালান্স আবার যাচাই করে",
+    audit_ok: "অডিট সফল", audit_bad: "অডিটে সমস্যা পাওয়া গেছে", how: "কীভাবে কাজ করে", roadmap: "কী তৈরি হয়েছে, কী পরিকল্পনায়", signout: "সাইন আউট",
+    how1: "অর্ডার আপনি নিজের ফোনেই সই করেন। আপনার নামে কেউ লেনদেন করতে পারে না।",
+    how2: "৪টি এজ ভ্যালিডেটর নিয়ম যাচাই করে (দামের সীমা, আকার, আপনার অ্যাকাউন্ট) এবং সই দেয়।",
+    how3: "RACD ঝুঁকি স্কোর ঠিক করে কতজনের সম্মতি লাগবে: সাধারণত ৪টির মধ্যে ৩টি, বড় বা অস্বাভাবিক অর্ডারে সব ৪টি।",
+    how4: "স্মার্ট কন্ট্র্যাক্ট নিজেই প্রতিটি সই যাচাই করে, টাকা বা শেয়ার আটকে রাখে এবং এক ধাপেই লেনদেন নিষ্পন্ন করে।",
+    g1t: "একটি কোম্পানি বাছুন", g1: "চেনা কোম্পানি দিয়ে শুরু করুন। আমরা একটি বেছে দিয়েছি, চাইলে বদলাতে পারেন। এটি অনুশীলনের টাকা: আসল বিনিয়োগে লোকসান হতে পারে।",
+    g2t: "কিনবেন না বেচবেন", g2: "কেনা মানে টাকা দিয়ে শেয়ার পাওয়া। বেচা মানে শেয়ার দিয়ে টাকা পাওয়া।",
+    g3t: "কতগুলো শেয়ার", g3: "অল্প দিয়ে শুরু করুন। প্রথম ট্রেডে ১০টি শেয়ার ভালো। খরচ নিচে দেখাবে।",
+    g4t: "আপনার দাম", g4: "লিমিট দাম = একটি শেয়ারের জন্য সর্বোচ্চ যা দেবেন। এখনকার দাম বসানো আছে। সীমার বাইরের দাম বাতিল হয়।",
+    g5t: "নিরাপত্তা যাচাই", g5: "RACE প্রতিটি অর্ডারের স্কোর করে। সাধারণ অর্ডারে ৪টির মধ্যে ৩টি, বড় বা অস্বাভাবিক অর্ডারে সব ৪টি ভ্যালিডেটর লাগে। কালো দাগটি আপনার অর্ডার।",
+    g6t: "সই করে পাঠান", g6: "আপনার ফোন আপনার গোপন চাবি দিয়ে অর্ডারে সই করে, তারপর ভ্যালিডেটররা যাচাই করে। বোতামটি চাপুন।",
+    g7t: "নিষ্পত্তি দেখুন", g7: "অর্ডার যেমন এগোয়, প্রতিটি বিন্দু জ্বলে ওঠে: সই, যাচাই, অনুমোদন, ব্লকচেইন, নিষ্পত্তি। অভিনন্দন!",
+    g7w: "আপনার অর্ডার অনুমোদিত হয়ে ব্লকচেইনে উঠেছে। এখন এটি অর্ডার বইয়ে অপেক্ষা করছে; কেউ বিপরীত দিকে এলেই নিজে থেকে নিষ্পন্ন হবে। অভিনন্দন!",
+    next: "পরের ধাপ", back: "আগের ধাপ", finish: "শেষ", skip: "বাদ দিন", step: "ধাপ",
+    session_end: "সেশন শেষ। আবার সাইন ইন করুন।", approved_msg: "অনুমোদিত। আপনার অ্যাকাউন্ট ব্লকচেইনে নিবন্ধিত হয়েছে।",
+    contact_ok: "মোবাইল যাচাই হয়েছে।", submitted: "জমা হয়েছে। একজন ব্রোকার পর্যালোচনা করবেন।", copied: "কপি হয়েছে",
+    no_gateway: "পোর্ট 9001-এ গেটওয়ে পাওয়া যাচ্ছে না। সিস্টেম চালু আছে কি?", no_sign: "সই করার মডিউল (vendor/sign.js) লোড হয়নি, তাই অর্ডারে সই করা যাবে না।",
+  },
+};
+const t = k => (L[S.lang] && L[S.lang][k]) || L.en[k] || k;
+const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
+const loc = () => S.lang === "bn" ? "bn-BD" : "en-IN";
+/* "3 of 4" and the approval sentences, in the word order of each language */
+function ofN(a, n) { return S.lang === "bn" ? `${num(n)}টির মধ্যে ${num(a)}টি` : `${a} of ${n}`; }
+function needQ(r, q, n) {
+  if (S.lang === "bn") return r ? `<b>${t("escalated")}:</b> ${num(q.risky)}টি অনুমোদন লাগবে, ${num(q.routine)}টি নয়` : `<b>${t("routine")}:</b> ${ofN(q.routine, n)} অনুমোদন লাগবে`;
+  return r ? `<b>${t("escalated")}:</b> needs ${q.risky} approvals, not ${q.routine}` : `<b>${t("routine")}:</b> needs ${q.routine} of ${n} approvals`;
+}
+function setLang(l) { S.lang = l; localStorage.setItem("bx_lang", l); document.documentElement.lang = l === "bn" ? "bn" : "en"; document.body.classList.toggle("bn", l === "bn"); route(); }
+
+/* ───────── numbers ───────── */
 const MK = () => S.info.markets[S.market];
 function money(m, n) { const f = S.info.markets[m].fmt; return f.prefix + (n / f.div).toLocaleString(undefined, { minimumFractionDigits: f.dec, maximumFractionDigits: f.dec }) + f.suffix; }
 function px(m, n) { return fmt(n) + S.info.markets[m].fmt.price_suffix; }
+/* investor screens: Tk with Bangladeshi grouping (2,45,300), Bangla digits in Bangla mode; pounds for the LSE */
+function cash$(m, n, dec) {
+  const f = S.info.markets[m].fmt, v = n / f.div;
+  if (m === "DSE") return (S.lang === "bn" ? "৳" : "Tk ") + v.toLocaleString(loc(), { maximumFractionDigits: dec ?? 0 });
+  return "£" + v.toLocaleString(S.lang === "bn" ? "bn-BD" : "en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function price$(m, n) { return m === "DSE" ? cash$(m, n) : num(n) + "p"; }
+function num(n) { return Number(n).toLocaleString(loc()); }
+function pct(c) { return (c > 0 ? "+" : "") + Number(c).toLocaleString(loc(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%"; }
+function pcHTML(c) { return `<span class="pc ${c > 0 ? "up" : c < 0 ? "dn" : "fl"} ${c > 0 ? "up" : c < 0 ? "dn" : ""}">${c > 0 ? "▲" : c < 0 ? "▼" : ""} ${pct(Math.abs(c)).replace("+", "")}</span>`; }
+function chgHTML(c) { return `<span class="${c > 0 ? "up" : c < 0 ? "dn" : "sub"}">${c > 0 ? "+" : ""}${c.toFixed(2)}%</span>`; }
+
+/* ───────── API ───────── */
 async function api(path, opt = {}) {
   const headers = { "Content-Type": "application/json" };
   if (S.token) headers.Authorization = "Bearer " + S.token;
   const r = await fetch(path, { ...opt, headers, body: opt.body ? JSON.stringify(opt.body) : undefined });
   let j = {}; try { j = await r.json(); } catch (e) {}
   if (!r.ok) {
-    if (r.status === 401 && S.token && !path.includes("/auth/login")) { signOutLocal(); toast("Session ended. Please sign in again."); }
+    if (r.status === 401 && S.token && !path.includes("/auth/login")) { signOutLocal(); toast(t("session_end")); }
     const d = j.detail; throw new Error(typeof d === "string" ? d : (Array.isArray(d) ? "Please check the form fields." : r.statusText));
   }
   return j;
 }
-let toastT; function toast(msg) { const t = $("#toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => t.style.display = "none", 4200); }
+let toastT; function toast(msg) { const el = $("#toast"); el.textContent = msg; el.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = "none", 4200); }
 function signOutLocal() {
   S.token = ""; S.tab = "in"; S.otpDemo = ""; S.me = null; S.portfolios = null; S.view = null; S.cur = null; S.key = null; S.keyDemo = false; S.review = [];
+  S.itab = "home"; S.watch = {}; S.wallet = null; S.guide = { on: false, step: 0 }; closeSheet(); hideCoach();
   sessionStorage.removeItem("bx_token"); sessionStorage.removeItem("bx_demo_key"); route();
 }
-function setToken(t) { S.token = t; sessionStorage.setItem("bx_token", t); }
-document.addEventListener("click", e => { const h = e.target.closest(".hash"); if (h && h.dataset.full && navigator.clipboard) navigator.clipboard.writeText(h.dataset.full).then(() => toast("Copied: " + short(h.dataset.full))); });
+function setToken(tk) { S.token = tk; sessionStorage.setItem("bx_token", tk); }
+document.addEventListener("click", e => { const h = e.target.closest(".hash"); if (h && h.dataset.full && navigator.clipboard) navigator.clipboard.writeText(h.dataset.full).then(() => toast(t("copied") + ": " + short(h.dataset.full))); });
 const H = h => h ? `<span class="hash mono" data-full="${esc(h)}" title="Click to copy">${esc(short(h))}</span>` : "–";
 function busy(btn, on) { if (btn) btn.disabled = on; }
-function chgHTML(c) { return `<span class="${c > 0 ? "up" : c < 0 ? "dn" : "sub"}">${c > 0 ? "+" : ""}${c.toFixed(2)}%</span>`; }
 
 /* ───────── the investor's signing key (stays on this device) ───────── */
 const keyStore = {
@@ -153,21 +492,640 @@ function domainOf(m) {                      // computed here from the chain id a
   if (d.toLowerCase() !== String(cfg.domain).toLowerCase()) throw new Error("Safety check failed: the signing domain does not match this contract.");
   return d;
 }
+async function loadMe() { S.me = await api("/api/me"); S.portfolios = S.me.portfolios || null; loadKey(); }
+async function act(btn, fn, okMsg) {
+  busy(btn, true);
+  try { await fn(); toast(okMsg); await loadMe(); route(); } catch (e) { const el = $("#err"); if (el) el.textContent = e.message; else toast(e.message); }
+  busy(btn, false);
+}
 
 /* ───────── routing ───────── */
 function route() {
   const u = S.me && S.me.user;
-  renderWho();
-  $("#mkbar").style.display = "none";
-  if (!u) { S.view = "guest"; $("#nav").innerHTML = ""; return mountGuest(); }
-  if (u.role === "trader" && u.status !== "active") { S.view = "onboard"; $("#nav").innerHTML = ""; return mountOnboard(); }
-  const tabs = TABS[u.role]; if (!tabs.some(t => t[0] === S.view)) S.view = tabs[0][0];
-  renderNav();
-  renderMarketBar();
-  ({ trade: mountTrade, orders: mountOrders, portfolio: mountPortfolio, market: mountMarket, roadmap: mountRoadmap, requests: mountRequests,
-     accounts: mountAccounts, review: mountReview, proof: mountProof })[S.view]();
+  document.body.classList.toggle("bn", S.lang === "bn" && (!u || u.role === "trader"));
+  if (!u) { S.view = "guest"; setShell("guest"); return mountGuest(); }
+  if (u.role === "trader" && u.status !== "active") { S.view = "onboard"; setShell("guest"); return mountOnboard(); }
+  if (u.role === "trader") { S.view = "inv"; setShell("inv"); renderInv(); connectStream(); tick(); return; }
+  setShell("staff");
+  const tabs = TABS[u.role]; if (!tabs.some(x => x[0] === S.view)) S.view = tabs[0][0];
+  renderNav(); renderMarketBar(); renderWho();
+  ({ orders: mountOrders, market: mountMarket, roadmap: mountRoadmap, requests: mountRequests, accounts: mountAccounts, review: mountReview, proof: mountProof })[S.view]();
   connectStream(); tick();
 }
+function setShell(kind) {
+  if (document.body.dataset.shell === kind) return;
+  document.body.dataset.shell = kind; document.body.className = kind === "staff" ? "staff" : kind === "inv" ? "inv" : "guest";
+  if (S.lang === "bn" && kind !== "staff") document.body.classList.add("bn");
+  $("#root").innerHTML = kind === "staff"
+    ? `<header><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)} · staff console (simulated)</small></div></div><div class="who" id="who"></div></header><div class="mkbar" id="mkbar"></div><nav id="nav"></nav><main id="main"></main>`
+    : kind === "inv" ? `<div class="shell"><div id="itop"></div><div id="main"></div></div><div class="tabs"><div class="in" id="itabs"></div></div>`
+    : `<div class="gwrap" id="main"></div>`;
+}
+
+/* ───────── live market data (stream with polling fallback) ───────── */
+function connectStream() {
+  if (S.es && S.es.mk === S.market) return;
+  if (S.es) { S.es.close(); S.es = null; }
+  if (!window.EventSource || !S.token) return;
+  const es = new EventSource("/api/stream/" + S.market); es.mk = S.market;
+  es.onmessage = e => { try { S.snap[es.mk] = JSON.parse(e.data); S.liveAt = Date.now(); refreshLive(); } catch (x) {} };
+  S.es = es;
+}
+const isLive = () => Date.now() - S.liveAt < 3500;
+function snap() { return S.snap[S.market] || null; }
+function lastOf(m, tk) { const sn = S.snap[m], v = sn && sn.tickers[tk]; return v ? v.last : S.info.markets[m].tickers[tk].ref; }
+function selTicker() { const x = S.tk[S.market]; return x && MK().tickers[x] ? x : Object.keys(MK().tickers)[0]; }
+function expectPrice(tk, side) {
+  const sn = snap(), v = sn && sn.tickers[tk]; if (!v) return null;
+  const l = side === "BUY" ? v.asks : v.bids; return l.length ? l[0][0] : null;
+}
+function riskOf(tk, qty, price, otype) {    // the contract's integer rule (BlockExDSE.riskScore), repeated here only as a preview
+  const cfg = MK(), x = cfg.tickers[tk], ref = x.ref, bps = x.band_bps, mkt = otype === "MARKET";
+  const n = qty * (mkt ? ref : price);
+  const nPart = Math.min(Math.floor(n * 10000 / cfg.risk_notional), 10000);
+  let dPart = 0, dev = 0;
+  if (!mkt && bps > 0) { dev = Math.floor(Math.abs(price - ref) * 10000 / ref); dPart = Math.min(Math.floor(dev * 20000 / bps), 10000); }
+  const score = Math.floor((nPart + dPart) / 2);
+  return { n, dev, score, esc: score >= 5000, out: price * 10000 < ref * (10000 - bps) || price * 10000 > ref * (10000 + bps), big: qty > cfg.max_qty, band: bps / 100 };
+}
+
+/* ═══════════════ icons ═══════════════ */
+const I = {
+  home: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.2 2.8 11h2.7v9h5v-6h3v6h5v-9h2.7z"/></svg>',
+  markets: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5.5-5.5 4 4L21 7"/><path d="M15 7h6v6"/></svg>',
+  trade: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M7 4 3.5 7.5M7 4l3.5 3.5M17 20V4m0 16-3.5-3.5M17 20l3.5-3.5"/></svg>',
+  orders: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 6h14M5 12h14M5 18h9"/></svg>',
+  wallet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 9h14a4 4 0 0 1 4 4v0"/><circle cx="16.5" cy="13.5" r="1.4" fill="currentColor"/></svg>',
+  key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="7.5" cy="12" r="3.8"/><path d="M11.3 12H21m-3 0v3m-3-3v2.4"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg>',
+  star: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#8FAADC" stroke-width="2" stroke-linejoin="round"><path d="m12 3.5 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 17l-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/></svg>',
+  starOn: '<svg viewBox="0 0 24 24" width="24" height="24" fill="#ED7D31" stroke="#ED7D31" stroke-width="2" stroke-linejoin="round"><path d="m12 3.5 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 17l-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/></svg>',
+  back: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  check: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  bigcheck: '<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  x: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" width="13" height="13" fill="#fff"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+  buy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v13m0 0-5-5m5 5 5-5M5 20h14"/></svg>',
+  sell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V4m0 0-5 5m5-5 5 5M5 20h14"/></svg>',
+  add: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg>',
+  out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h12m0 0-4.5-4.5M16 12l-4.5 4.5M20 5v14"/></svg>',
+  shield: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.3 3 7.6 7 9 4-1.4 7-4.7 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10" stroke-linecap="round"/></svg>',
+};
+const PAY_COLOR = { bkash: "#E2136E", nagad: "#F6921E", rocket: "#8C3494", bank: "#1F3864", card: "#2F5597" };
+
+/* ═══════════════ guest: sign in / sign up ═══════════════ */
+function langBtn() { return `<button class="lang" id="bLang">${S.lang === "bn" ? "EN" : "বাংলা"}</button>`; }
+function bindLang() { const b = $("#bLang"); if (b) b.onclick = () => setLang(S.lang === "bn" ? "en" : "bn"); }
+async function mountGuest() {
+  $("#main").innerHTML = `<div class="top"><span></span><div class="topr">${langBtn()}<button class="lang" id="bTour">${t("tour")}</button></div></div>
+    <div class="ghero"><div class="logo">${BRAND.letter}</div><h1>${esc(BRAND.name)}</h1><p>${t("tagline")}</p>
+      <div class="pills3"><span class="chip"><span class="dot"></span>DSE · LSE</span><span class="chip">${I.key.replace("<svg", '<svg width="14" height="14"')} ${t("key_ok").split(" ")[0]}…</span><span class="chip">${t("sim_only")}</span></div></div>
+    <div class="card"><div class="seg"><button id="tIn" class="${S.tab === "in" ? "on" : ""}">${t("signin")}</button><button id="tUp" class="${S.tab === "up" ? "on" : ""}">${t("create")}</button></div><div id="gform"></div></div>`;
+  $(".pills3 .chip:nth-child(2)").innerHTML = `${I.key.replace("<svg", '<svg width="14" height="14"')} ${S.lang === "bn" ? "ফোনে সই" : "Signed on your phone"}`;
+  bindLang(); $("#bTour").onclick = () => openTour(0);
+  $("#tIn").onclick = () => { S.tab = "in"; mountGuest(); }; $("#tUp").onclick = () => { S.tab = "up"; mountGuest(); };
+  S.tab === "in" ? formSignIn() : formSignUp();
+}
+async function formSignIn() {
+  $("#gform").innerHTML = `<label>${t("email")}</label><input id="em" type="email" autocomplete="username" placeholder="you@example.com">
+    <label>${t("password")}</label><input id="pw" type="password" autocomplete="current-password">
+    <div id="err" class="err"></div><button class="btn" id="go">${t("signin")}</button>
+    <div class="sub" style="margin-top:14px;font-weight:600">${t("demo_accts")}</div><div class="dchips" id="chips"></div>`;
+  $("#go").onclick = () => doLogin($("#em").value, $("#pw").value, $("#go"));
+  $("#pw").onkeydown = e => { if (e.key === "Enter") $("#go").click(); };
+  try { S.demo = await api("/api/demo-accounts"); } catch (e) {}
+  if (!$("#chips")) return;
+  $("#chips").innerHTML = S.demo.map((d, i) => `<button class="chip" data-i="${i}">${esc(d.label)} · ${esc(d.role)}</button>`).join("");
+  $$("#chips .chip").forEach(c => c.onclick = () => { const d = S.demo[+c.dataset.i]; doLogin(d.email, d.password, null); });
+}
+function keepDemoKey(r) { if (r.demo_key) sessionStorage.setItem("bx_demo_key", r.demo_key); else sessionStorage.removeItem("bx_demo_key"); }
+async function doLogin(email, password, btn) {
+  busy(btn, true);
+  try { const r = await api("/api/auth/login", { method: "POST", body: { email, password } }); setToken(r.token); keepDemoKey(r); await loadMe(); S.itab = "home"; route(); }
+  catch (e) { const el = $("#err"); if (el) el.textContent = e.message; else toast(e.message); }
+  busy(btn, false);
+}
+function formSignUp() {
+  $("#gform").innerHTML = `<div class="demo-note">${t("signup_note")}</div>
+    <label>${t("name")}</label><input id="nm" autocomplete="name">
+    <label>${t("email")}</label><input id="em" type="email" autocomplete="email">
+    <label>${t("mobile")}</label><input id="mo" type="tel" placeholder="01712345678" autocomplete="tel">
+    <label>${t("pw_rule")}</label><input id="pw" type="password" autocomplete="new-password">
+    <div id="err" class="err"></div><button class="btn" id="go">${t("create")}</button>`;
+  $("#go").onclick = async () => {
+    busy($("#go"), true);
+    try {
+      const r = await api("/api/auth/signup", { method: "POST", body: { name: $("#nm").value, email: $("#em").value, mobile: $("#mo").value, password: $("#pw").value } });
+      setToken(r.token); sessionStorage.removeItem("bx_demo_key"); S.otpDemo = r.otp_demo; await loadMe(); route();
+    } catch (e) { $("#err").textContent = e.message; }
+    busy($("#go"), false);
+  };
+}
+
+/* ═══════════════ onboarding wizard ═══════════════ */
+function mountOnboard() {
+  const u = S.me.user, st = u.status;
+  const idx = { otp_pending: 1, kyc_pending: 2, rejected: 2, approval_pending: 3 }[st] ?? 1;
+  const bar = [0, 1, 2, 3].map(i => `<div class="${i < idx ? "ok" : i === idx ? "on" : ""}"></div>`).join("");
+  let body = "", addr = "";
+  if (st === "otp_pending") body = `<h3 style="color:var(--navy);margin:0">${t("step2")}</h3><p class="sub">${t("step2s")}</p>
+    ${S.otpDemo ? `<div class="demo-note">${t("democode")} <b class="mono" style="font-size:20px">${esc(S.otpDemo)}</b><br>${t("sms")}</div>` : ""}
+    <label>${t("code")}</label><input id="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" style="font-size:22px;letter-spacing:6px;text-align:center">
+    <div id="err" class="err"></div><button class="btn" id="go">${t("verify")}</button><button class="btn ghost" id="again" style="margin-top:8px">${t("newcode")}</button>`;
+  else if (st === "kyc_pending" || st === "rejected") {
+    addr = BXSign.addressOf(ensureKey());
+    body = `<h3 style="color:var(--navy);margin:0">${t("step3")}</h3><p class="sub">${t("step3s")}</p>
+    ${st === "rejected" ? `<div class="warnbox">${t("notapproved")}: ${esc(u.reject_reason)}. ${t("again")}</div>` : ""}
+    <label>${t("nid")}</label><input id="nid" inputmode="numeric" autocomplete="off">
+    <label>${t("photo")}</label><input id="ph" type="file" accept="image/*">
+    <p class="sub">${t("nid_note")}</p>
+    <div class="infobox" id="keynote">${I.key.replace("<svg", '<svg width="16" height="16" style="vertical-align:-3px"')} ${t("keynote")}<div class="sub" style="margin-top:4px">${H(addr)}</div></div>
+    <div id="err" class="err"></div><button class="btn" id="go">${t("submit_ap")}</button>`;
+  } else body = `<h3 style="color:var(--navy);margin:0"><span class="spin"></span>${t("waiting")}</h3><p class="sub">${t("step4s")} ${t("id_end")} <b>${esc(u.nid_last4)}</b>.</p>
+    <div class="demo-note">${t("broker_tip")}</div>`;
+  $("#main").innerHTML = `<div class="top"><div class="brand"><div class="logo">${BRAND.letter}</div>${esc(BRAND.name)}</div><div class="topr">${langBtn()}<button class="lang" id="bOut2">${t("signout")}</button></div></div>
+    <div class="card"><div class="prog">${bar}</div>${body}</div>`;
+  bindLang(); $("#bOut2").onclick = async () => { try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {} signOutLocal(); };
+  if (st === "otp_pending") {
+    $("#go").onclick = () => act($("#go"), () => api("/api/auth/otp/verify", { method: "POST", body: { code: $("#otp").value } }), t("contact_ok"));
+    $("#again").onclick = async () => { try { const r = await api("/api/auth/otp/resend", { method: "POST" }); S.otpDemo = r.otp_demo; mountOnboard(); } catch (e) { $("#err").textContent = e.message; } };
+  } else if (st === "kyc_pending" || st === "rejected") {
+    $("#go").onclick = () => act($("#go"), async () => {
+      let ph = null; const f = $("#ph").files[0];
+      if (f && window.crypto && crypto.subtle) { const d = await crypto.subtle.digest("SHA-256", await f.arrayBuffer()); ph = [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, "0")).join(""); }
+      return api("/api/kyc", { method: "POST", body: { nid: $("#nid").value, photo_hash: ph, wallet: addr } });
+    }, t("submitted"));
+  }
+}
+
+/* ═══════════════ investor app ═══════════════ */
+const ITABS = [["home", "home"], ["markets", "markets"], ["trade", "trade"], ["orders", "orders"], ["wallet", "wallet"]];
+function renderInv() {
+  const u = S.me.user, initials = u.name.split(/\s+/).map(x => x[0]).join("").slice(0, 2).toUpperCase();
+  $("#itop").innerHTML = `<div class="top"><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)}</small></div></div>
+      <div class="topr">${langBtn()}<button class="avatar" id="bMe" title="${esc(t("profile"))}">${esc(initials)}</button></div></div>
+    <div class="chiprow"><button class="chip" id="cMk"><span class="dot ${isLive() ? "" : "off"}" id="liveDot"></span>${esc(S.market)} ${t("market_chip")} ⇄</button>
+      <span class="chip" id="cKey" style="${S.key ? "" : "color:var(--bad)"}">${I.key.replace("<svg", '<svg width="15" height="15"')} ${S.key ? t("key_ok") : t("key_no")}</span></div>`;
+  bindLang(); $("#bMe").onclick = () => goTab("me");
+  $("#cMk").onclick = () => { const ks = Object.keys(S.info.markets); S.market = ks[(ks.indexOf(S.market) + 1) % ks.length]; sessionStorage.setItem("bx_mk", S.market); S.cur = null; S.form.price = null; route(); };
+  $("#cKey").onclick = () => goTab("me");
+  const tabOf = S.itab === "stock" ? "markets" : S.itab;
+  const nActive = S.orders.filter(isActive).length;
+  $("#itabs").innerHTML = ITABS.map(([k, ic]) => `<button class="tab ${tabOf === k ? "on" : ""}" data-t="${k}">${I[ic]}${t(k)}${k === "orders" && nActive ? `<span class="cnt">${nActive}</span>` : ""}</button>`).join("");
+  $$("#itabs .tab").forEach(b => b.onclick = () => goTab(b.dataset.t));
+  ({ home: mountHome, markets: mountMarkets, stock: mountStock, trade: mountTrade, orders: mountIOrders, wallet: mountWallet, me: mountMe })[S.itab]();
+  if (S.guide.on) showCoach();
+}
+function goTab(k) { if (S.guide.on && k !== "trade") endGuide(); S.itab = k; window.scrollTo(0, 0); renderInv(); tick(); }
+function refreshLive() {
+  if (S.view === "inv") {
+    const d = $("#liveDot"); if (d) d.className = "dot " + (isLive() ? "" : "off");
+    if (S.itab === "home") refreshHome(); else if (S.itab === "markets") refreshMarkets(); else if (S.itab === "stock") refreshStock(); else if (S.itab === "trade") syncTrade();
+    return;
+  }
+  if ($("#strip")) { $("#strip").innerHTML = stripHTML(); $$("#strip .trow").forEach(r => r.onclick = () => { S.tk[S.market] = r.dataset.t; refreshLive(); }); }
+  if ($("#ladder")) $("#ladder").innerHTML = ladderHTML();
+  if ($("#tape")) $("#tape").innerHTML = tapeHTML();
+  if ($("#liveDot")) $("#liveDot").className = "live " + (isLive() ? "on" : "");
+}
+
+/* ───────── portfolio maths ───────── */
+function pf(m) {
+  const p = S.portfolios && S.portfolios[m]; if (!p) return null;
+  const tks = S.info.markets[m].tickers; let val = p.cash + p.locked_cash, refv = val; const rows = [];
+  for (const [k, q0] of Object.entries(p.shares)) {
+    const q = q0 + (p.locked_shares[k] || 0); if (!q) continue;
+    const last = lastOf(m, k), ref = tks[k].ref; val += q * last; refv += q * ref;
+    rows.push({ k, q, last, ref, value: q * last, chg: (last - ref) / ref * 100, locked: p.locked_shares[k] || 0 });
+  }
+  return { val, refv, chg: refv ? (val - refv) / refv * 100 : 0, rows, cash: p.cash, locked: p.locked_cash };
+}
+async function loadHist(m, tk) {
+  const k = m + ":" + tk; if (S.hist[k]) return S.hist[k];
+  try { S.hist[k] = await api(`/api/history/${m}/${tk}`); } catch (e) { S.hist[k] = null; }
+  return S.hist[k];
+}
+async function loadAllHist(m) { await Promise.all(Object.keys(S.info.markets[m].tickers).map(tk => loadHist(m, tk))); }
+function spark(vals, w, h, color, area) {
+  if (!vals || vals.length < 2) vals = [1, 1];
+  const mn = Math.min(...vals), mx = Math.max(...vals), sp = mx - mn || 1;
+  const pts = vals.map((v, i) => [(i / (vals.length - 1)) * (w - 4) + 2, h - 3 - ((v - mn) / sp) * (h - 6)]);
+  const d = "M" + pts.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" L");
+  const id = "g" + Math.random().toString(36).slice(2, 7);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">${area ? `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".28"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${d} L${w - 2} ${h} L2 ${h}Z" fill="url(#${id})"/>` : ""}<path d="${d}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function portfolioSeries(m) {
+  const p = S.portfolios && S.portfolios[m]; if (!p) return null;
+  const rows = Object.entries(p.shares).map(([k, q]) => [k, q + (p.locked_shares[k] || 0)]).filter(r => r[1]);
+  const hs = rows.map(([k]) => S.hist[m + ":" + k]); if (hs.some(h => !h)) return null;
+  const n = hs.length ? hs[0].daily.length : 0, base = p.cash + p.locked_cash;
+  const out = []; for (let i = 0; i < n; i++) out.push(base + rows.reduce((s, [k, q], j) => s + q * hs[j].daily[i].close, 0));
+  const v = pf(m); if (v) out.push(v.val);
+  return out;
+}
+
+/* ───────── order helpers ───────── */
+const ACTIVE = ["submitted", "edge_validated", "consensus", "open", "partial", "held"];
+const isActive = o => ACTIVE.includes(o.status);
+function stepState(o) {
+  const st = o.stages || {}, fail = o.status === "rejected", held = o.status === "held";
+  const done = [true, !!(st.edge_validated || st.consensus || o.place_tx), !!(st.consensus || o.place_tx), !!o.place_tx,
+                !!(st.matched || st.settled || (o.trades && o.trades.length)), o.status === "settled"];
+  let cur = done.indexOf(false); const cls = done.map(d => d ? "done" : "");
+  if (cur >= 0) { if (fail) cls[cur] = "fail"; else if (held) cls[cur] = "hold"; else if (!["cancelled", "part_filled"].includes(o.status)) cls[cur] = "now"; }
+  if (["cancelled", "part_filled"].includes(o.status) && cur >= 0) cls[cur] = "fail";
+  return { cls, done, cur };
+}
+function stepsHTML(o) {
+  const lab = [t("s_signed"), t("s_edge"), o && o.votes ? ofN(o.votes.agree, S.info.validators) : t("s_votes"), t("s_chain"), t("s_match"), t("s_settle")];
+  if (!o) return `<div class="steps">${lab.map(l => `<div class="st"><i></i>${l}</div>`).join("")}</div>`;
+  const s = stepState(o), n = s.done.filter(Boolean).length, w = Math.max(0, n - 1) / 5 * 100;
+  return `<div class="steps"><div class="bar" style="width:calc((100% - 36px) * ${w / 100})"></div>${lab.map((l, i) => `<div class="st ${s.cls[i]}"><i>${s.cls[i] === "done" ? I.check : s.cls[i] === "fail" ? I.x : s.cls[i] === "hold" ? I.pause : ""}</i>${esc(l)}</div>`).join("")}</div>`;
+}
+function vchips(o) {
+  const n = S.info.validators, det = (o && o.votes && o.votes.detail) || [];
+  return `<div class="vals">${Array.from({ length: n }, (_, i) => { const d = det.find(x => x.node === i + 1);
+    const cls = !d ? "" : d.agree ? "y" : d.verdict === "not-asked" ? "" : "n"; return `<div class="v ${cls}" title="${esc(d ? d.reason || d.verdict || "" : "")}">V${i + 1}${cls === "y" ? " ✓" : ""}</div>`; }).join("")}</div>`;
+}
+function statusTag(o) {
+  const cls = { settled: "ok", rejected: "bad", cancelled: "bad", part_filled: "bad", held: "wait", open: "wait", partial: "wait" }[o.status] || "";
+  return `<span class="tag ${cls}">${esc(t("st_" + o.status))}</span>`;
+}
+function riskTag(o) { return o.risk && o.risk.level ? `<span class="tag ${o.risk.level === "ESCALATED" ? "esc" : ""}">${o.risk.level === "ESCALATED" ? t("escalated") : t("routine")} · s ${num(o.risk.score_bps)}</span>` : ""; }
+function plainOf(o) {
+  if (o.status === "rejected") return `${t("p_rejected")}: ${esc(o.error || "")}`;
+  if (o.status === "settled") return t("p_settled");
+  if (o.status === "open") return t("p_open");
+  if (o.status === "partial") return t("p_partial");
+  if (o.status === "held") return t("p_held");
+  if (o.status === "cancelled" || o.status === "part_filled") return t("p_cancelled");
+  return t("p_checking");
+}
+function orderLine(o) { return `<b class="${o.side === "BUY" ? "b" : "s"}">${o.side === "BUY" ? t("buy_o") : t("sell_o")}</b> ${num(o.qty)} ${esc(o.ticker)} ${o.otype === "MARKET" ? "· " + t("market_o") : "@ " + price$(o.market, o.price)}`; }
+function liveOrderHTML(o) {
+  if (!o) return `<div class="card"><div class="empty">${t("no_orders")}</div>${stepsHTML(null)}</div>`;
+  const off = ((o.votes && o.votes.detail) || []).filter(d => !d.agree && d.verdict !== "not-asked").map(d => "V" + d.node);
+  const anchored = o.trades && o.trades.length && o.trades.every(x => x.record_hash);
+  const wait = o.status === "open" || o.status === "partial" ? (o.side === "BUY" ? t("waiting_match") : t("waiting_match_s")) : "";
+  return `<div class="card"><div class="ord"><span>${orderLine(o)}</span>${riskTag(o) || statusTag(o)}</div>${stepsHTML(o)}${vchips(o)}
+    <div class="foot"><span>${off.length ? `${off.join(", ")} ${t("offline")}${o.place_tx ? " · " + t("quorum_met") : ""}` : wait || esc(plainOf(o))}</span>${anchored ? `<b>${t("anchored")}</b>` : o.status === "rejected" ? `<span class="dn">${t("st_rejected")}</span>` : ""}</div>
+    ${o.status === "rejected" || o.status === "held" ? `<div class="oc plain" style="box-shadow:none;margin:8px 0 0;padding:8px 10px;background:${o.status === "held" ? "var(--warnbg)" : "var(--badbg)"}">${esc(plainOf(o))}</div>` : ""}</div>`;
+}
+function latestOrder() { return S.orders.find(x => x.id === S.cur) || S.orders.filter(o => o.market === S.market)[0] || S.orders[0] || null; }
+
+/* ───────── home ───────── */
+function mountHome() {
+  $("#main").innerHTML = `<div class="card hero" id="hero"></div>
+    <div class="qa"><button data-a="buy">${I.buy}${t("buy")}</button><button data-a="sell">${I.sell}${t("sell")}</button><button data-a="add">${I.add}${t("add_money")}</button><button data-a="out">${I.out}${t("withdraw")}</button></div>
+    <div id="startcard"></div>
+    <div class="sec"><b>${t("live_order")}</b><a data-go="orders">${t("see_all")}</a></div><div id="liveord"></div>
+    <div class="sec"><b>${t("watchlist")}</b><a data-go="markets">${t("markets")}</a></div><div class="card" id="watch"></div>
+    <div class="sec"><b>${t("holdings")}</b><span>${esc(S.market)}</span></div><div class="card" id="holds"></div>`;
+  $$(".qa button").forEach(b => b.onclick = () => {
+    const a = b.dataset.a;
+    if (a === "buy" || a === "sell") { S.side = a.toUpperCase(); goTab("trade"); }
+    else if (a === "add") { goTab("wallet"); openDeposit(); } else { goTab("wallet"); openWithdraw(); }
+  });
+  $$("[data-go]").forEach(b => b.onclick = () => goTab(b.dataset.go));
+  refreshHome();
+  loadAllHist(S.market).then(() => { if (S.itab === "home") refreshHome(); });
+}
+function refreshHome() {
+  if (!$("#hero")) return;
+  const v = pf(S.market), ser = portfolioSeries(S.market);
+  $("#hero").innerHTML = v ? `<div class="lbl">${t("pv")} · ${esc(S.market)}</div><div class="val">${cash$(S.market, v.val)}</div>
+      <div class="chg ${v.chg < 0 ? "neg" : ""}">${v.chg >= 0 ? "▲" : "▼"} ${pct(Math.abs(v.chg)).replace("+", "")} ${t("today")}</div>
+      <div class="note2">${t("hist_note")}</div>${spark(ser, 130, 46, "#A8E6C1", false)}` : `<div class="lbl">${t("pv")}</div><div class="val"><span class="spin"></span></div>`;
+  const none = !S.orders.some(o => !o.sim);
+  $("#startcard").innerHTML = none && !S.guide.on ? `<div class="card" style="border:1.5px dashed var(--sky)"><b style="color:var(--navy);font-size:16px">${t("start_title")}</b><div class="sub" style="margin:4px 0 10px;font-size:13.5px">${t("start_text")}</div><button class="btn" id="bGuide">${t("start_btn")}</button></div>` : "";
+  if ($("#bGuide")) $("#bGuide").onclick = startGuide;
+  $("#liveord").innerHTML = liveOrderHTML(latestOrder());
+  const wl = (S.watch[S.market] || []).filter(k => MK().tickers[k]);
+  $("#watch").innerHTML = wl.length ? wl.map(stockRow).join("") : `<div class="empty">${t("watch_empty")}</div>`;
+  $("#holds").innerHTML = v && v.rows.length ? v.rows.map(r => `<div class="lrow" data-s="${esc(r.k)}"><div class="l"><div class="tk">${esc(r.k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(MK().tickers[r.k].name)}</div><small>${num(r.q)} ${t("shares")}${r.locked ? ` · ${num(r.locked)} 🔒` : ""}</small></div></div>
+      <div class="r"><b>${cash$(S.market, r.value)}</b><br>${pcHTML(r.chg)}</div></div>`).join("") : `<div class="empty">—</div>`;
+  $$("#watch .lrow, #holds .lrow").forEach(r => r.onclick = () => openStock(r.dataset.s));
+}
+function stockRow(k) {
+  const m = S.market, x = MK().tickers[k], sn = snap(), v = sn && sn.tickers[k], last = v ? v.last : x.ref, chg = v ? v.chg : 0, h = S.hist[m + ":" + k];
+  const vals = h ? h.daily.map(d => d.close).concat([last]) : null;
+  return `<div class="lrow" data-s="${esc(k)}"><div class="l"><div class="tk">${esc(k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(x.name)}</div><small>${esc(k)} · ${esc(x.sector || "")}</small></div></div>
+    <div style="flex:none">${vals ? spark(vals.slice(-20), 58, 26, vals[vals.length - 1] < vals[Math.max(0, vals.length - 20)] ? "#C0392B" : "#2E9E5B", false) : ""}</div>
+    <div class="r"><b>${price$(m, last)}</b><br>${pcHTML(chg)}</div></div>`;
+}
+
+/* ───────── markets ───────── */
+function mountMarkets() {
+  const sectors = [...new Set(Object.values(MK().tickers).map(x => x.sector).filter(Boolean))];
+  const mks = Object.keys(S.info.markets);
+  $("#main").innerHTML = `<div class="seg">${mks.map(m => `<button data-m="${m}" class="${m === S.market ? "on" : ""}">${esc(m)} · ${esc(S.info.markets[m].name.replace(" Stock Exchange", ""))}</button>`).join("")}</div>
+    <div class="search">${I.search}<input id="q" placeholder="${esc(t("search"))}" value="${esc(S.q)}" autocomplete="off"></div>
+    <div class="hscroll" id="mf"><button class="chip ${S.mfilter === "all" ? "on" : ""}" data-f="all">${t("all")}</button><button class="chip ${S.mfilter === "watch" ? "on" : ""}" data-f="watch">★ ${t("watchlist")}</button>${sectors.map(s => `<button class="chip ${S.mfilter === s ? "on" : ""}" data-f="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+    <div class="card" id="mlist"></div><div class="sub" style="text-align:center">${esc(MK().hours)}</div>`;
+  $$(".seg button[data-m]").forEach(b => b.onclick = () => { S.market = b.dataset.m; sessionStorage.setItem("bx_mk", S.market); S.mfilter = "all"; route(); });
+  $("#q").oninput = () => { S.q = $("#q").value; refreshMarkets(); };
+  $$("#mf .chip").forEach(b => b.onclick = () => { S.mfilter = b.dataset.f; $$("#mf .chip").forEach(c => c.classList.toggle("on", c === b)); refreshMarkets(); });
+  refreshMarkets();
+  loadAllHist(S.market).then(() => { if (S.itab === "markets") refreshMarkets(); });
+}
+function refreshMarkets() {
+  if (!$("#mlist")) return;
+  const q = S.q.trim().toLowerCase(), wl = S.watch[S.market] || [];
+  const ks = Object.entries(MK().tickers).filter(([k, x]) => (!q || k.toLowerCase().includes(q) || x.name.toLowerCase().includes(q)) &&
+    (S.mfilter === "all" || (S.mfilter === "watch" ? wl.includes(k) : x.sector === S.mfilter))).map(e => e[0]);
+  $("#mlist").innerHTML = ks.map(stockRow).join("") || `<div class="empty">—</div>`;
+  $$("#mlist .lrow").forEach(r => r.onclick = () => openStock(r.dataset.s));
+}
+function openStock(k) { S.stock = k; S.tk[S.market] = k; S.itab = "stock"; window.scrollTo(0, 0); renderInv(); }
+
+/* ───────── stock page ───────── */
+function mountStock() {
+  const k = S.stock, x = MK().tickers[k]; if (!x) { S.itab = "markets"; return mountMarkets(); }
+  const on = (S.watch[S.market] || []).includes(k);
+  $("#main").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><button class="back" id="bBack">${I.back} ${t("markets")}</button>
+      <button class="star" id="bStar" title="${esc(on ? t("following") : t("follow"))}">${on ? I.starOn : I.star}</button></div>
+    <div style="margin:2px 2px 10px"><div class="sub" style="font-weight:700">${esc(k)} · ${esc(x.sector)}</div><div style="font-size:20px;font-weight:800;color:var(--navy)">${esc(x.name)}</div><div class="sub">${esc(x.about)}</div></div>
+    <div class="card"><div id="sprice"></div><div class="seg sm" style="margin:10px 0 6px;max-width:220px"><button data-r="1D" class="${S.histRange === "1D" ? "on" : ""}">${t("chart_1d")}</button><button data-r="1M" class="${S.histRange === "1M" ? "on" : ""}">${t("chart_1m")}</button></div>
+      <div id="chart"></div><div class="sub" id="chartnote"></div></div>
+    <div class="card"><div class="stats" id="sstats"></div><div id="srange"></div></div>
+    <div class="card"><div class="book" id="sbook"></div></div>
+    <div class="sec"><b>${t("recent")}</b></div><div class="card" id="stape"></div><div style="height:70px"></div>
+    <div class="sticky"><div class="in row2"><button class="btn buy" id="sBuy">${t("buy")}</button><button class="btn sell" id="sSell">${t("sell")}</button></div></div>`;
+  $("#bBack").onclick = () => goTab("markets");
+  $("#bStar").onclick = async () => { try { S.watch = await api("/api/watchlist", { method: "POST", body: { market: S.market, ticker: k, on: !on } }); mountStock(); } catch (e) { toast(e.message); } };
+  $$("[data-r]").forEach(b => b.onclick = () => { S.histRange = b.dataset.r; mountStock(); });
+  $("#sBuy").onclick = () => { S.side = "BUY"; S.form.price = null; goTab("trade"); };
+  $("#sSell").onclick = () => { S.side = "SELL"; S.form.price = null; goTab("trade"); };
+  refreshStock(); loadHist(S.market, k).then(() => { if (S.itab === "stock") refreshStock(); });
+}
+function refreshStock() {
+  if (!$("#sprice")) return;
+  const m = S.market, k = S.stock, x = MK().tickers[k], sn = snap(), v = sn && sn.tickers[k];
+  const last = v ? v.last : x.ref, chg = v ? v.chg : 0, h = S.hist[m + ":" + k];
+  $("#sprice").innerHTML = `<div class="big">${price$(m, last)}</div><div>${pcHTML(chg)} <span class="sub">${t("today")}</span></div>`;
+  let vals, note;
+  if (S.histRange === "1M") { vals = h ? h.daily.map(d => d.close).concat([last]) : null; note = t("ill"); }
+  else { const tr = h ? h.today.map(p => p.price) : []; const live = (sn ? sn.tape : []).filter(q => q.ticker === k).map(q => q.price).reverse();
+    vals = [x.ref].concat(live.length ? live : tr); note = vals.length > 1 ? t("today_trades") : t("no_trades_today"); if (vals.length < 2) vals = [x.ref, x.ref]; }
+  $("#chart").innerHTML = vals ? `<div style="width:100%">${spark(vals, 340, 150, vals[vals.length - 1] < vals[0] ? "#C0392B" : "#2F5597", true).replace('width="340"', 'width="100%"').replace('height="150"', 'height="150" preserveAspectRatio="none"')}</div>` : `<div style="height:150px;display:flex;align-items:center;justify-content:center"><span class="spin"></span></div>`;
+  $("#chartnote").textContent = note;
+  const lo = x.lo, hi = x.hi, posOf = p => Math.max(0, Math.min(100, (p - lo) / (hi - lo) * 100));
+  $("#sstats").innerHTML = `<div><small>${t("ref")}</small><b>${price$(m, x.ref)}</b></div><div><small>${t("dayrange")}</small><b>${v && v.low != null ? `${price$(m, v.low)} – ${price$(m, v.high)}` : "—"}</b></div>
+    <div><small>${t("band")} ±${num(x.band)}%</small><b>${price$(m, lo)} – ${price$(m, hi)}</b></div><div><small>${t("volume")}</small><b>${num(v ? v.volume : 0)}</b></div>`;
+  $("#srange").innerHTML = `<div class="rangebar"><i style="left:${posOf(last)}%"></i></div><div class="foot"><span>${price$(m, lo)}</span><span>${t("allowed")}</span><span>${price$(m, hi)}</span></div>`;
+  const bids = v ? v.bids : [], asks = v ? v.asks : [], mx = Math.max(1, ...bids.map(a => a[1]), ...asks.map(a => a[1]));
+  $("#sbook").innerHTML = `<div><div class="h"><span>${t("buyers")}</span><span>${t("qty")}</span></div>${bids.map(a => `<div class="lv bid"><i style="width:${a[1] / mx * 100}%"></i><span class="up">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>
+    <div><div class="h"><span>${t("sellers")}</span><span>${t("qty")}</span></div>${asks.map(a => `<div class="lv ask"><i style="width:${a[1] / mx * 100}%"></i><span class="dn">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>`;
+  const tape = (sn ? sn.tape : []).filter(q => q.ticker === k).slice(0, 6);
+  $("#stape").innerHTML = tape.map(q => `<div class="lrow" style="cursor:default;padding:7px 0"><span>${num(q.qty)} @ <b>${price$(m, q.price)}</b></span><span class="sub">${new Date(q.t).toLocaleTimeString(loc())}</span></div>`).join("") || `<div class="empty">${t("none_yet")}</div>`;
+}
+
+/* ───────── trade ───────── */
+function defaultPrice(tk) { const e = expectPrice(tk, S.side); return e != null ? e : lastOf(S.market, tk); }
+function mountTrade() {
+  const cfg = MK(), tk = selTicker();
+  if (S.form.ticker !== tk || S.form.market !== S.market || !S.form.price) { S.form.ticker = tk; S.form.market = S.market; S.form.price = defaultPrice(tk); }
+  $("#main").innerHTML = `<div class="sec"><b>${t("new_order")}</b><span>${t("checked_by")}</span></div>
+    <div class="card" id="tcard">
+      <div class="seg side" id="side"><button class="${S.side === "BUY" ? "on" : ""}" data-s="BUY">${t("buy")}</button><button class="sell ${S.side === "SELL" ? "on" : ""}" data-s="SELL">${t("sell")}</button></div>
+      <div class="f" id="f-tk" style="margin-bottom:8px"><small>${t("stock")}</small><select id="tk">${Object.entries(cfg.tickers).map(([k, v]) => `<option value="${esc(k)}" ${k === tk ? "selected" : ""}>${esc(k)} · ${esc(v.name)}</option>`).join("")}</select></div>
+      <div class="seg sm" id="otype" style="max-width:260px"><button class="${S.otype === "LIMIT" ? "on" : ""}" data-o="LIMIT">${t("limit")}</button><button class="${S.otype === "MARKET" ? "on" : ""}" data-o="MARKET">${t("market_o")}</button></div>
+      <div class="row2" style="margin-bottom:8px">
+        <div class="f" id="f-qty"><small>${t("quantity")}</small><input id="qty" type="number" inputmode="numeric" min="1" value="${esc(S.form.qty)}"></div>
+        <div class="f" id="f-px"><small>${S.otype === "MARKET" ? t("market_o") : t("limit")} (${esc(cfg.currency === "GBX" ? "p" : "Tk")})<button class="help" id="hLim" type="button">?</button></small><input id="px" type="number" inputmode="numeric" min="1" value="${S.otype === "MARKET" ? "" : esc(S.form.price)}" ${S.otype === "MARKET" ? "disabled placeholder=\"best\"" : ""}></div>
+      </div>
+      <div class="hint" id="hint"></div><div id="cost"></div><div id="risk"></div><div id="warn"></div>
+      <button class="btn ${S.side === "BUY" ? "buy" : "sell"}" id="go">${I.key} ${t("sign_submit")}</button>
+      <div class="sub" style="margin-top:8px;text-align:center" id="keyline">${S.key ? `${t("signed_with")} ${H(S.me.user.wallet)}` : `<span class="dn">${t("nokey_trade")}</span>`}</div>
+    </div>
+    <div class="sec"><b>${t("live_order")}</b><span id="curId"></span></div><div id="liveord"></div>`;
+  $$("#side button").forEach(b => b.onclick = () => { S.side = b.dataset.s; S.form.price = defaultPrice($("#tk").value); mountTrade(); });
+  $$("#otype button").forEach(b => b.onclick = () => { S.otype = b.dataset.o; mountTrade(); });
+  $("#tk").onchange = () => { S.tk[S.market] = $("#tk").value; S.form.ticker = $("#tk").value; S.form.price = defaultPrice($("#tk").value); mountTrade(); };
+  $("#qty").oninput = () => { S.form.qty = $("#qty").value; syncTrade(); };
+  if (S.otype === "LIMIT") $("#px").oninput = () => { S.form.price = $("#px").value; syncTrade(); };
+  $("#hLim").onclick = () => toast(t("limit_help"));
+  $("#go").onclick = submitOrder;
+  if (S.prefill) {
+    const p = S.prefill; S.prefill = null; S.side = p.side; S.otype = p.otype || "LIMIT"; if (p.ticker) { S.tk[S.market] = p.ticker; S.form.ticker = p.ticker; }
+    S.form.qty = p.qty; S.form.price = p.price || defaultPrice(p.ticker); return mountTrade();
+  }
+  syncTrade();
+}
+function syncTrade() {
+  if (!$("#risk")) return;
+  const cfg = MK(), m = S.market, tk = $("#tk").value, q = Math.floor(+$("#qty").value), mkt = S.otype === "MARKET";
+  const x = cfg.tickers[tk], p = mkt ? (S.side === "BUY" ? x.hi : x.lo) : Math.floor(+$("#px").value);
+  const best = expectPrice(tk, S.side), pfm = S.portfolios && S.portfolios[m];
+  $("#hint").innerHTML = `${S.side === "BUY" ? t("best_seller") : t("best_buyer")}: <b>${best != null ? price$(m, best) : t("none_side")}</b> · ${t("ref")} ${price$(m, x.ref)} · ${t("allowed")} ${price$(m, x.lo)}–${price$(m, x.hi)}`;
+  let warn = "", block = !S.key;
+  if (!(q > 0) || (!mkt && !(p > 0))) { block = true; $("#risk").innerHTML = ""; $("#cost").innerHTML = ""; $("#warn").innerHTML = ""; busy($("#go"), true); return; }
+  const r = riskOf(tk, q, p, S.otype), estPx = mkt ? (best ?? x.ref) : p, total = q * estPx;
+  const have = pfm ? (S.side === "BUY" ? pfm.cash : (pfm.shares[tk] || 0)) : null;
+  $("#cost").innerHTML = `<div class="cost"><span>${S.side === "BUY" ? t("you_pay") : t("you_get")}<br><b>${cash$(m, total)}</b></span><span style="text-align:right">${S.side === "BUY" ? t("available") : t("avail_sh")}<br><b>${have == null ? "…" : S.side === "BUY" ? cash$(m, have) : num(have) + " " + t("shares")}</b></span></div>`;
+  const qn = cfg.quorum, n = S.info.validators, pin = Math.min(r.score / 100, 100);
+  $("#risk").innerHTML = `<div class="risk ${r.esc ? "esc" : ""}"><div class="rt"><span>${t("risk_t")}</span><span>${num(r.score)} / ${num(10000)}</span></div>
+    <div class="meter"><div class="thr"></div><div class="pin" style="left:${pin}%"></div></div>
+    <div class="msg">${needQ(r.esc, qn, n)}</div>
+    <div class="sub" style="margin-top:3px">${r.esc ? t("risk_esc") : t("risk_routine")}</div></div>`;
+  if (r.out && !mkt) { warn = `<div class="warnbox">${t("out_band")}</div>`; block = true; }
+  else if (r.big) { warn = `<div class="warnbox">${t("too_big")}</div>`; block = true; }
+  else if (mkt && best == null) { warn = `<div class="warnbox soft">${t("no_side_mkt")}</div>`; }
+  else if (have != null && S.side === "BUY" && (mkt ? q * x.hi : total) > have) { warn = `<div class="warnbox">${t("no_cash")} <button class="btn sm ghost" id="toW" style="margin-left:6px">${t("go_wallet")}</button></div>`; block = true; }
+  else if (have != null && S.side === "SELL" && q > have) { warn = `<div class="warnbox">${t("no_shares")}</div>`; block = true; }
+  if (mkt && !warn) warn = `<div class="sub" style="margin-bottom:10px">${t("mkt_note")}</div>`;
+  $("#warn").innerHTML = warn; if ($("#toW")) $("#toW").onclick = () => { goTab("wallet"); openDeposit(); };
+  if (!$("#go").dataset.sending) busy($("#go"), block);
+  const o = S.orders.find(z => z.id === S.cur) || null;
+  $("#liveord").innerHTML = liveOrderHTML(o); $("#curId").textContent = o ? o.id : "";
+  if (S.guide.on && S.guide.step === GUIDE.length - 1 && o && o.status !== S.guide.seen) { S.guide.seen = o.status; showCoach(); }
+}
+async function submitOrder() {
+  const b = $("#go"); b.dataset.sending = "1"; busy(b, true);
+  try {
+    const cfg = MK(), tk = $("#tk").value, q = Math.floor(+$("#qty").value);
+    const price = S.otype === "LIMIT" ? Math.floor(+$("#px").value) : (S.side === "BUY" ? cfg.tickers[tk].hi : cfg.tickers[tk].lo);
+    if (!S.key) throw new Error(t("nokey_trade"));
+    const order = { trader: S.me.user.wallet, ticker: tk, qty: q, price, side: S.side, otype: S.otype, nonce: BXSign.randomNonce(), expiry: Math.floor(Date.now() / 1000) + 1800 };
+    const sig = BXSign.sign(S.key, BXSign.orderDigest(domainOf(S.market), order));      // signed here; only the signature leaves the device
+    const r = await api("/api/order", { method: "POST", body: { market: S.market, ticker: tk, qty: q, price, side: S.side, otype: S.otype, nonce: order.nonce, expiry: order.expiry, sig } });
+    S.cur = r.id; toast(t("sent"));
+    S.orders = await api("/api/orders").catch(() => S.orders);
+    if (S.guide.on) { S.guide.step = 6; showCoach(); }
+    syncTrade(); $("#liveord").scrollIntoView({ behavior: "smooth", block: "center" });
+  } catch (e) { toast(e.message); }
+  setTimeout(() => { delete b.dataset.sending; syncTrade(); }, 600);
+}
+
+/* ───────── guided first trade ───────── */
+const GUIDE = [["g1t", "g1", "#f-tk"], ["g2t", "g2", "#side"], ["g3t", "g3", "#f-qty"], ["g4t", "g4", "#f-px"], ["g5t", "g5", "#risk"], ["g6t", "g6", "#go"], ["g7t", "g7", "#liveord"]];
+function startGuide() {
+  const tks = Object.keys(MK().tickers), sn = snap(), hasAsk = k => sn && sn.tickers[k] && sn.tickers[k].asks.length;
+  const pick = hasAsk("GP") ? "GP" : tks.find(hasAsk) || (tks.includes("GP") ? "GP" : tks[0]);
+  const qty = hasAsk(pick) ? Math.max(1, Math.min(10, sn.tickers[pick].asks[0][1])) : 10;
+  S.guide = { on: true, step: 0 }; S.side = "BUY"; S.otype = "LIMIT"; S.tk[S.market] = pick; S.form = { qty, price: null, ticker: null }; S.cur = null;
+  S.itab = "trade"; window.scrollTo(0, 0); renderInv();
+}
+function hideCoach() { const c = $("#coach"); if (c) c.style.display = "none"; $$(".glow").forEach(x => x.classList.remove("glow")); const sh = $(".shell"); if (sh) sh.style.paddingBottom = ""; }
+function endGuide() { S.guide = { on: false, step: 0 }; hideCoach(); }
+function showCoach() {
+  if (S.itab !== "trade") return hideCoach();
+  const i = S.guide.step, [tt, tx, sel] = GUIDE[i], c = $("#coach");
+  $$(".glow").forEach(x => x.classList.remove("glow"));
+  const el = $(sel); if (el) { el.classList.add("glow"); setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "center" }), 60); }
+  const sh = $(".shell"); if (sh) sh.style.paddingBottom = "260px";
+  const last = i === GUIDE.length - 1, signStep = i === 5;
+  const co = last && S.orders.find(z => z.id === S.cur), body = co && (co.status === "open" || co.status === "partial") ? t("g7w") : t(tx);
+  c.innerHTML = `<div class="cb"><div class="cs"><span>${t("guided")} · ${t("step")} ${num(i + 1)}/${num(GUIDE.length)}</span><span>${esc(BRAND.name)}</span></div><h4>${t(tt)}</h4><p>${body}</p>
+    <div class="cbtn">${i > 0 && !last ? `<button class="pv" id="cPv">${t("back")}</button>` : ""}<button class="nx" id="cNx" ${signStep && !S.key ? "disabled" : ""}>${last ? t("finish") : signStep ? t("sign_submit") : t("next")}</button>${last ? "" : `<button class="x" id="cX">${t("skip")}</button>`}</div></div>`;
+  c.style.display = "block";
+  if ($("#cPv")) $("#cPv").onclick = () => { S.guide.step--; showCoach(); };
+  if ($("#cX")) $("#cX").onclick = endGuide;
+  $("#cNx").onclick = () => { if (last) return endGuide(); if (signStep) { if (!$("#go").disabled) submitOrder(); else toast(($("#warn") && $("#warn").textContent) || t("nokey_trade")); return; } S.guide.step++; showCoach(); };
+}
+
+/* ───────── orders ───────── */
+function mountIOrders() {
+  $("#main").innerHTML = `<div class="sec"><b>${t("orders")}</b><span>DSE · LSE</span></div>
+    <div class="seg" id="of"><button data-f="active" class="${S.ofilter === "active" ? "on" : ""}">${t("active")}</button><button data-f="done" class="${S.ofilter === "done" ? "on" : ""}">${t("completed")}</button><button data-f="all" class="${S.ofilter === "all" ? "on" : ""}">${t("all")}</button></div><div id="olist2"></div>`;
+  $$("#of button").forEach(b => b.onclick = () => { S.ofilter = b.dataset.f; mountIOrders(); });
+  refreshIOrders();
+}
+function refreshIOrders() {
+  const el = $("#olist2"); if (!el) return;
+  if (el.querySelector("details[open]") || (document.activeElement && el.contains(document.activeElement) && document.activeElement.tagName === "SUMMARY")) return;
+  const list = S.orders.filter(o => S.ofilter === "all" || (S.ofilter === "active" ? isActive(o) : !isActive(o)));
+  el.innerHTML = list.map(o => {
+    const s = stepState(o), canCx = o.status === "open" || o.status === "partial";
+    return `<div class="oc"><div class="t1"><b>${orderLine(o)}</b>${statusTag(o)}</div>
+      <div class="t2">${esc(o.id)} · ${esc(o.market)} · ${new Date(o.ts).toLocaleString(loc(), { dateStyle: "short", timeStyle: "short" })} · ${num(o.filled)}/${num(o.qty)}${o.risk && o.risk.level ? " · " + (o.risk.level === "ESCALATED" ? t("escalated") : t("routine")) : ""}</div>
+      <div class="mini">${s.cls.map(c => `<i class="${c === "done" ? "d" : c === "fail" ? "f" : c === "hold" ? "h" : ""}"></i>`).join("")}</div>
+      <div class="plain">${esc(plainOf(o))}</div>
+      <details><summary>${t("details")}</summary><div class="dl">${o.votes ? `<div>${t("validators")}: ${num(o.votes.agree)}/${num(o.votes.required ?? 0)}${o.votes.compliance ? " + reviewer" : ""}</div>${vchips(o)}` : ""}
+        ${o.place_tx ? `<div>${t("tx")}: ${H(o.place_tx)}</div>` : ""}${(o.trades || []).map(x => `<div>${t("receipt")} #${x.trade_id}: ${num(x.qty)} @ ${price$(o.market, x.price)} · ${H(x.tx)} · ${t("anchored")} ${H("0x" + x.record_hash)}</div>`).join("")}</div></details>
+      ${canCx ? `<button class="btn ghost sm cx" data-id="${esc(o.id)}" style="margin-top:8px">${t("cancel")}</button>` : ""}</div>`;
+  }).join("") || `<div class="card"><div class="empty">${t("no_orders")}</div></div>`;
+  $$("#olist2 .cx").forEach(b => b.onclick = async () => { busy(b, true); try { await cancelOrder(b.dataset.id); toast(t("cancel_ok")); } catch (e) { toast(e.message); busy(b, false); } });
+}
+
+/* ───────── wallet ───────── */
+function mountWallet() {
+  const mks = Object.keys(S.info.markets);
+  $("#main").innerHTML = `<div class="sec"><b>${t("wallet")}</b><span>${t("practice")}</span></div><div id="wbal"></div>
+    <div class="row2" style="margin-bottom:14px"><button class="btn" id="bDep">${I.add} ${t("add_money")}</button><button class="btn ghost" id="bWd">${I.out} ${t("withdraw")}</button></div>
+    <div class="sec"><b>${t("history")}</b></div><div class="card" id="whist"><span class="spin"></span></div>`;
+  $("#bDep").onclick = () => openDeposit(); $("#bWd").onclick = () => openWithdraw();
+  refreshWallet(); loadWallet();
+}
+async function loadWallet() { try { S.wallet = await api("/api/wallet"); } catch (e) {} if (S.itab === "wallet") refreshWallet(); }
+function refreshWallet() {
+  if (!$("#wbal")) return;
+  $("#wbal").innerHTML = Object.keys(S.info.markets).map(m => { const p = S.portfolios && S.portfolios[m];
+    return `<div class="card wcard"><div><div class="sub" style="font-weight:700">${esc(m)} · ${t("cash_av")}</div><div class="amt">${p ? cash$(m, p.cash) : "…"}</div>${p && p.locked_cash ? `<div class="sub">${t("locked")}: ${cash$(m, p.locked_cash)}</div>` : ""}</div><div class="tag">${esc(S.info.markets[m].currency === "GBX" ? "GBP" : "BDT")}</div></div>`; }).join("");
+  const h = S.wallet ? S.wallet.history : null;
+  $("#whist").innerHTML = !h ? `<span class="spin"></span>` : h.length ? h.map(x => `<div class="hist"><div class="ic ${x.type === "deposit" ? "in" : "out"}">${x.type === "deposit" ? "+" : "−"}</div>
+      <div class="m"><b>${x.type === "deposit" ? t("added_via") : t("sent_to")} ${esc(x.method_name)}</b><small>${new Date(x.t).toLocaleString(loc(), { dateStyle: "medium", timeStyle: "short" })} · ${esc(x.id)} · ${H(x.tx)}</small></div>
+      <div class="a ${x.type === "deposit" ? "up" : "dn"}">${x.type === "deposit" ? "+" : "−"}${cash$(x.market, x.amount)}</div></div>`).join("") : `<div class="empty">${t("no_hist")}</div>`;
+}
+function openSheet(html) { const s = $("#sheet"); s.innerHTML = `<div class="bg"></div><div class="pn"><div class="grab"></div>${html}</div>`; s.style.display = "block"; $("#sheet .bg").onclick = closeSheet; }
+function closeSheet() { const s = $("#sheet"); if (s) { s.style.display = "none"; s.innerHTML = ""; } }
+function unitOf(m) { return S.info.markets[m].fmt.div; }
+function moneyForm(kind, m) {
+  const w = S.info.markets[m].wallet, methods = w.methods, div = unitOf(m), p = S.portfolios && S.portfolios[m];
+  const quick = m === "DSE" ? [1000, 5000, 10000, 50000] : [50, 100, 500, 1000];
+  const sel = (S.payMethod && methods.includes(S.payMethod)) ? S.payMethod : methods[0]; S.payMethod = sel;
+  const names = { bkash: "bKash", nagad: "Nagad", rocket: "Rocket", bank: S.lang === "bn" ? "ব্যাংক" : "Bank", card: S.lang === "bn" ? "ডেবিট কার্ড" : "Debit card" };
+  return `<h3>${kind === "dep" ? t("am_title") : t("wd_title")}</h3>
+    <div class="seg sm" style="margin:8px 0 4px">${Object.keys(S.info.markets).map(x => `<button data-wm="${x}" class="${x === m ? "on" : ""}">${esc(x)}</button>`).join("")}</div>
+    <label>${kind === "dep" ? t("pay_with") : t("send_to")}</label><div class="pm">${methods.map(x => `<button data-pm="${x}" class="${x === sel ? "on" : ""}"><i style="background:${PAY_COLOR[x] || "#888"}"></i>${esc(names[x] || x)}</button>`).join("")}</div>
+    <label>${t("amount")} (${m === "DSE" ? "Tk" : "£"})</label><input id="amt" type="number" inputmode="decimal" min="1" placeholder="${quick[1]}">
+    <div class="quick">${quick.map(q => `<button data-q="${q}">${m === "DSE" ? "Tk " + q.toLocaleString("en-IN") : "£" + q}</button>`).join("")}</div>
+    <div class="sub" style="margin-top:8px">${kind === "dep" ? `${t("min_max")} ${cash$(m, w.min)} ${t("and")} ${cash$(m, w.max)}` : `${t("free_cash")}: <b>${p ? cash$(m, p.cash) : "…"}</b>`}</div>
+    <div class="infobox" style="margin-top:12px">${kind === "dep" ? t("am_note") : `${I.key.replace("<svg", '<svg width="15" height="15" style="vertical-align:-3px"')} ${t("wd_note")}`}</div>
+    <div id="err" class="err"></div><button class="btn ${kind === "dep" ? "ok" : ""}" id="mgo">${kind === "dep" ? t("confirm_pay") : I.key + " " + t("sign_wd")}</button>`;
+}
+function bindMoney(kind, m) {
+  $$("#sheet [data-wm]").forEach(b => b.onclick = () => (kind === "dep" ? openDeposit : openWithdraw)(b.dataset.wm));
+  $$("#sheet [data-pm]").forEach(b => b.onclick = () => { S.payMethod = b.dataset.pm; $$("#sheet [data-pm]").forEach(x => x.classList.toggle("on", x === b)); });
+  $$("#sheet [data-q]").forEach(b => b.onclick = () => { $("#amt").value = b.dataset.q; });
+  $("#mgo").onclick = async () => {
+    const btn = $("#mgo"), v = +$("#amt").value, amount = Math.round(v * unitOf(m));
+    if (!(amount > 0)) { $("#err").textContent = t("amount") + "?"; return; }
+    busy(btn, true); $("#err").textContent = "";
+    try {
+      let r;
+      if (kind === "dep") r = await api("/api/wallet/deposit", { method: "POST", body: { market: m, amount, method: S.payMethod } });
+      else {
+        if (!S.key) throw new Error(t("nokey_trade"));
+        const nonce = BXSign.randomNonce(), expiry = Math.floor(Date.now() / 1000) + 600;
+        const sig = BXSign.sign(S.key, BXSign.withdrawDigest(domainOf(m), S.me.user.wallet, amount, nonce, expiry));   // signed on this device
+        r = await api("/api/wallet/withdraw", { method: "POST", body: { market: m, amount, method: S.payMethod, nonce, expiry, sig } });
+      }
+      if (S.portfolios) S.portfolios[m] = r.balance;
+      openSheet(`<div style="text-align:center"><div class="okmark">${I.bigcheck}</div><h3>${kind === "dep" ? t("done_dep") : t("done_wd")}</h3>
+        <div class="big" style="margin:6px 0">${cash$(m, r.entry.amount)}</div><div class="sub">${esc(r.entry.method_name)} · ${t("ref_id")} ${esc(r.entry.id)}</div>
+        <div class="sub" style="margin:4px 0 14px">${t("tx")} ${H(r.entry.tx)} · block ${num(r.entry.block)}</div><button class="btn" id="mclose">${t("close")}</button></div>`);
+      $("#mclose").onclick = closeSheet; loadWallet(); if (S.itab === "home") refreshHome();
+    } catch (e) { const el = $("#err"); if (el) el.textContent = e.message; busy(btn, false); }
+  };
+}
+function openDeposit(m) { m = m || S.market; openSheet(moneyForm("dep", m)); bindMoney("dep", m); }
+function openWithdraw(m) { m = m || S.market; openSheet(moneyForm("wd", m)); bindMoney("wd", m); }
+
+/* ───────── me ───────── */
+function mountMe() {
+  const u = S.me.user;
+  $("#main").innerHTML = `<button class="back" id="bBack">${I.back} ${t("home")}</button>
+    <div class="card" style="display:flex;gap:12px;align-items:center"><div class="avatar" style="width:54px;height:54px;font-size:19px">${esc(u.name.split(/\s+/).map(x => x[0]).join("").slice(0, 2).toUpperCase())}</div>
+      <div style="min-width:0"><div style="font-weight:800;font-size:17px;color:var(--navy)">${esc(u.name)}</div><div class="sub">${esc(u.email)}${u.nid_last4 ? ` · ${t("id_end")} ${esc(u.nid_last4)}` : ""}</div><div class="sub">${H(u.wallet)}</div></div></div>
+    <div class="card"><div class="mrow" style="cursor:default"><b>${t("language")}</b><div class="seg sm" style="margin:0;width:170px"><button data-l="en" class="${S.lang === "en" ? "on" : ""}">English</button><button data-l="bn" class="${S.lang === "bn" ? "on" : ""}">বাংলা</button></div></div>
+      <div class="mrow" id="rGuide"><div><b>${t("guided")}</b><br><span>${t("guided_s")}</span></div>›</div>
+      <div class="mrow" id="rTour"><div><b>${t("tour")}</b></div>›</div></div>
+    <div class="sec"><b>${t("key")}</b></div><div class="card" id="keycard"></div>
+    <div class="sec"><b>${t("check")}</b></div><div class="card"><div class="mrow" id="rAudit"><div>${I.shield.replace("<svg", '<svg style="vertical-align:-5px;color:var(--blue)"')} <b>${t("run_audit")} · ${esc(S.market)}</b><br><span>${t("audit_s")}</span></div>›</div><div id="iaudit"></div></div>
+    <div class="sec"><b>${t("how")}</b></div><div class="card how"><div>${t("how1")}</div><div>${t("how2")}</div><div>${t("how3")}</div><div>${t("how4")}</div></div>
+    <div class="sec"><b>${t("roadmap")}</b></div><div class="card" id="iroad"></div>
+    <button class="btn ghost" id="bOut" style="margin-top:6px">${t("signout")}</button>`;
+  $("#bBack").onclick = () => goTab("home");
+  $$("[data-l]").forEach(b => b.onclick = () => setLang(b.dataset.l));
+  $("#rGuide").onclick = startGuide; $("#rTour").onclick = () => openTour(0);
+  $("#rAudit").onclick = async () => { $("#iaudit").innerHTML = `<span class="spin"></span>`; try { const rep = await api("/api/audit/" + S.market);
+    $("#iaudit").innerHTML = `<div class="${rep.ok ? "pass" : "fail"}" style="margin-top:6px">${rep.ok ? t("audit_ok") : t("audit_bad")}</div><div class="sub">${num(rep.orders)} orders · ${num(rep.trades)} trades · ${num(rep.signatures_checked)} signatures</div>` +
+      rep.checks.map(c => `<div class="sub" style="padding:3px 0"><span class="${c.ok ? "pass" : "fail"}">${c.ok ? "✓" : "✗"}</span> ${esc(c.name)}</div>`).join(""); } catch (e) { $("#iaudit").textContent = e.message; } };
+  $("#bOut").onclick = async () => { try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {} signOutLocal(); };
+  $("#iroad").innerHTML = Object.entries(ROAD).map(([k, v], i) => `<details ${i === 0 ? "" : ""}><summary style="cursor:pointer;font-weight:700;color:${["var(--ok)", "var(--warn)", "var(--mut)"][i]};padding:6px 0">${esc(k)} (${v.length})</summary>${v.map(x => `<div class="sub" style="padding:3px 0 3px 10px">• ${esc(x)}</div>`).join("")}</details>`).join("");
+  renderKeyCard();
+}
+function renderKeyCard() {
+  const u = S.me.user, el = $("#keycard"); if (!el) return;
+  if (S.key) {
+    el.innerHTML = `<div class="sub" style="font-size:13.5px;color:var(--ink)">${t("key_have")}</div>
+      <div class="${S.keyDemo ? "demo-note" : "infobox"}" style="margin-top:8px">${S.keyDemo ? t("key_demo") : t("key_backup")}</div>
+      <button class="btn ghost sm" id="kShow">${t("backup")}</button><div class="keybox mono" id="kOut"></div>`;
+    $("#kShow").onclick = () => { const o = $("#kOut"); o.textContent = o.textContent ? "" : S.key; $("#kShow").textContent = o.textContent ? t("hidekey") : t("backup"); };
+  } else {
+    el.innerHTML = `<div class="warnbox soft">${t("key_missing")}</div><input id="kIn" class="mono" autocomplete="off" spellcheck="false" placeholder="0x…"><button class="btn sm" id="kImp" style="margin-top:8px">${t("import")}</button>`;
+    $("#kImp").onclick = () => {
+      const k = $("#kIn").value.trim();
+      if (!BXSign.validKey(k)) return toast("That is not a valid key.");
+      if (BXSign.addressOf(k).toLowerCase() !== String(u.wallet).toLowerCase()) return toast("This key belongs to another address.");
+      keyStore.set(u.email, k.startsWith("0x") ? k : "0x" + k); S.tmpKey = k; loadKey(); toast("Key imported on this device."); renderInv();
+    };
+  }
+}
+async function cancelOrder(id) {
+  const o = S.orders.find(x => x.id === id);
+  if (!o || !o.chain_id) throw new Error("This order is not on the ledger.");
+  if (!S.key) throw new Error(t("nokey_trade"));
+  const sig = BXSign.sign(S.key, BXSign.cancelDigest(domainOf(o.market), o.chain_id));   // the contract cancels only with the investor's signature
+  await api(`/api/orders/${id}/cancel`, { method: "POST", body: { sig } });
+}
+
+/* ═══════════════ staff console (broker and admin) ═══════════════ */
+const TABS = {
+  broker: [["requests", "Requests"], ["review", "Review"], ["orders", "Orders"], ["accounts", "Accounts"], ["market", "Market"], ["proof", "Proof"], ["roadmap", "Roadmap"]],
+  admin:  [["requests", "Requests"], ["review", "Review"], ["orders", "Orders"], ["accounts", "Accounts"], ["market", "Market"], ["proof", "Proof"], ["roadmap", "Roadmap"]],
+};
 function renderNav() {
   const u = S.me.user, tabs = TABS[u.role];
   $("#nav").innerHTML = tabs.map(t => `<button data-v="${t[0]}" class="${S.view === t[0] ? "on" : ""}">${t[1]}${t[0] === "review" && S.review.length ? `<span class="cnt">${S.review.length}</span>` : ""}</button>`).join("");
@@ -185,106 +1143,6 @@ function renderWho() {
   $("#bTour").onclick = () => openTour(0);
   if (u) $("#bOut").onclick = async () => { try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {} signOutLocal(); };
 }
-
-/* ───────── guest: sign in / sign up ───────── */
-async function mountGuest() {
-  $("#main").innerHTML = `<div class="grid"><div class="card" style="max-width:480px;margin:0 auto;width:100%;grid-column:1/-1">
-    <div class="seg" style="margin-bottom:12px"><button id="tIn" class="${S.tab === "in" ? "on buy" : ""}">Sign in</button><button id="tUp" class="${S.tab === "up" ? "on buy" : ""}">Create account</button></div>
-    <div id="gform"></div></div></div>`;
-  $("#tIn").onclick = () => { S.tab = "in"; mountGuest(); }; $("#tUp").onclick = () => { S.tab = "up"; mountGuest(); };
-  S.tab === "in" ? formSignIn() : formSignUp();
-}
-async function formSignIn() {
-  $("#gform").innerHTML = `<label>Email</label><input id="em" type="email" autocomplete="username" placeholder="you@example.com">
-    <label>Password</label><input id="pw" type="password" autocomplete="current-password">
-    <div id="err" class="sub" style="color:var(--bad);margin-top:6px;min-height:18px"></div>
-    <button class="btn" id="go" style="margin-top:6px">Sign in</button>
-    <div class="note" style="margin-top:14px"><b>Demo accounts</b> (this is a simulation; tap one to sign in)<div class="chips" id="chips"></div></div>`;
-  $("#go").onclick = () => doLogin($("#em").value, $("#pw").value, $("#go"));
-  $("#pw").onkeydown = e => { if (e.key === "Enter") $("#go").click(); };
-  try { S.demo = await api("/api/demo-accounts"); } catch (e) {}
-  if (!$("#chips")) return;
-  $("#chips").innerHTML = S.demo.map((d, i) => `<button class="chip" data-i="${i}">${esc(d.label)} · ${esc(d.role)}</button>`).join("");
-  $("#chips").querySelectorAll(".chip").forEach(c => c.onclick = () => { const d = S.demo[+c.dataset.i]; doLogin(d.email, d.password, null); });
-}
-function keepDemoKey(r) { if (r.demo_key) sessionStorage.setItem("bx_demo_key", r.demo_key); else sessionStorage.removeItem("bx_demo_key"); }
-async function doLogin(email, password, btn) {
-  busy(btn, true);
-  try { const r = await api("/api/auth/login", { method: "POST", body: { email, password } }); setToken(r.token); keepDemoKey(r); await loadMe(); route(); }
-  catch (e) { const el = $("#err"); if (el) el.textContent = e.message; else toast(e.message); }
-  busy(btn, false);
-}
-function formSignUp() {
-  $("#gform").innerHTML = `<div class="note demo">Simulation only. Real accounts are opened through a licensed broker and a BO account; nothing here is real.</div>
-    <label>Full name</label><input id="nm" autocomplete="name">
-    <label>Email</label><input id="em" type="email" autocomplete="email">
-    <label>Mobile (Bangladesh)</label><input id="mo" type="tel" placeholder="01712345678" autocomplete="tel">
-    <label>Password (8+ characters, a letter and a number)</label><input id="pw" type="password" autocomplete="new-password">
-    <div id="err" class="sub" style="color:var(--bad);margin-top:6px;min-height:18px"></div>
-    <button class="btn" id="go">Create account</button>`;
-  $("#go").onclick = async () => {
-    busy($("#go"), true);
-    try {
-      const r = await api("/api/auth/signup", { method: "POST", body: { name: $("#nm").value, email: $("#em").value, mobile: $("#mo").value, password: $("#pw").value } });
-      setToken(r.token); sessionStorage.removeItem("bx_demo_key"); S.otpDemo = r.otp_demo; await loadMe(); route();
-    } catch (e) { $("#err").textContent = e.message; }
-    busy($("#go"), false);
-  };
-}
-
-/* ───────── onboarding wizard ───────── */
-function mountOnboard() {
-  const u = S.me.user, st = u.status;
-  const idx = { otp_pending: 1, kyc_pending: 2, rejected: 2, approval_pending: 3 }[st] ?? 1;
-  const bar = [0, 1, 2, 3].map(i => `<div class="${i < idx ? "ok" : i === idx ? "on" : ""}"></div>`).join("");
-  let body = "", addr = "";
-  if (st === "otp_pending") body = `<h3>Verify your mobile</h3><p class="sub">Step 2 of 4. Enter the 6-digit code.</p>
-    ${S.otpDemo ? `<div class="note demo">Demo only: your code is <b class="mono" style="font-size:18px">${esc(S.otpDemo)}</b><br>A real system would send this by SMS.</div>` : `<div class="note">Tap “Send new code” to get a demo code.</div>`}
-    <label>Code</label><input id="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
-    <div id="err" class="sub" style="color:var(--bad);min-height:18px;margin-top:6px"></div>
-    <button class="btn" id="go">Verify</button><button class="btn ghost" id="again" style="margin-top:8px">Send new code</button>`;
-  else if (st === "kyc_pending" || st === "rejected") {
-    addr = BXSign.addressOf(ensureKey());
-    body = `<h3>Identity check and signing key</h3><p class="sub">Step 3 of 4. Simulated: only a format check is done.</p>
-    ${st === "rejected" ? `<div class="note" style="border-color:var(--bad);color:var(--bad)">Not approved: ${esc(u.reject_reason)}. You can submit again.</div>` : ""}
-    <label>National ID number (10, 13 or 17 digits)</label><input id="nid" inputmode="numeric" autocomplete="off">
-    <label>Photo (optional)</label><input id="ph" type="file" accept="image/*">
-    <p class="sub">The ID number is stored only as a one-way hash plus its last 4 digits. The photo is never uploaded: only its fingerprint (hash) is sent.</p>
-    <div class="note" id="keynote">Your signing key was created on this device. Its address is ${H(addr)}.<br>The key never leaves this browser. Without it nobody, including the broker and the exchange, can place or cancel an order in your name.</div>
-    <div id="err" class="sub" style="color:var(--bad);min-height:18px;margin-top:6px"></div><button class="btn" id="go">Submit for approval</button>`;
-  } else body = `<h3><span class="spin"></span>Waiting for broker approval</h3><p class="sub">Step 4 of 4. You will be taken to trading as soon as a broker approves you. ID ending <b>${esc(u.nid_last4)}</b>.</p>
-    <div class="note demo">Demo tip: in another browser window, sign in as <b>broker@blockexdse.demo</b> / <b>Broker@123</b> and approve this request.</div>`;
-  $("#main").innerHTML = `<div class="card" style="max-width:480px;margin:0 auto"><div class="steps">${bar}</div>${body}</div>`;
-  if (st === "otp_pending") {
-    $("#go").onclick = () => act($("#go"), () => api("/api/auth/otp/verify", { method: "POST", body: { code: $("#otp").value } }), "Contact verified.");
-    $("#again").onclick = async () => { try { const r = await api("/api/auth/otp/resend", { method: "POST" }); S.otpDemo = r.otp_demo; mountOnboard(); } catch (e) { $("#err").textContent = e.message; } };
-  } else if (st === "kyc_pending" || st === "rejected") {
-    $("#go").onclick = () => act($("#go"), async () => {
-      let ph = null; const f = $("#ph").files[0];
-      if (f && window.crypto && crypto.subtle) { const d = await crypto.subtle.digest("SHA-256", await f.arrayBuffer()); ph = [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, "0")).join(""); }
-      return api("/api/kyc", { method: "POST", body: { nid: $("#nid").value, photo_hash: ph, wallet: addr } });
-    }, "Submitted. A broker will review it.");
-  }
-}
-async function act(btn, fn, okMsg) {
-  busy(btn, true);
-  try { await fn(); toast(okMsg); await loadMe(); route(); } catch (e) { const el = $("#err"); if (el) el.textContent = e.message; else toast(e.message); }
-  busy(btn, false);
-}
-async function loadMe() { S.me = await api("/api/me"); S.portfolios = S.me.portfolios || null; loadKey(); }
-
-/* ───────── live market data (stream with polling fallback) ───────── */
-function connectStream() {
-  if (S.es && S.es.mk === S.market) return;
-  if (S.es) { S.es.close(); S.es = null; }
-  if (!window.EventSource || !S.token) return;
-  const es = new EventSource("/api/stream/" + S.market); es.mk = S.market;
-  es.onmessage = e => { try { S.snap[es.mk] = JSON.parse(e.data); S.liveAt = Date.now(); refreshLive(); } catch (x) {} };
-  S.es = es;
-}
-const isLive = () => Date.now() - S.liveAt < 3500;
-function snap() { return S.snap[S.market] || null; }
-function selTicker() { const t = S.tk[S.market]; return t && MK().tickers[t] ? t : Object.keys(MK().tickers)[0]; }
 function stripHTML() {
   const sn = snap(); if (!sn) return `<div class="sub">Loading market data…</div>`;
   const sel = selTicker();
@@ -302,98 +1160,9 @@ function tapeHTML() {
   const sn = snap(); if (!sn) return "";
   return sn.tape.slice(0, 8).map(t => `<div class="item"><b>${esc(t.ticker)}</b> ${fmt(t.qty)} @ ${px(S.market, t.price)} <span class="sub">${esc(t.buyer)} ← ${esc(t.seller)} · ${new Date(t.t).toLocaleTimeString()}</span></div>`).join("") || `<div class="sub">No trades yet.</div>`;
 }
-function refreshLive() {
-  if ($("#strip")) { $("#strip").innerHTML = stripHTML(); $("#strip").querySelectorAll(".trow").forEach(r => r.onclick = () => selectTicker(r.dataset.t)); }
-  if ($("#ladder")) $("#ladder").innerHTML = ladderHTML();
-  if ($("#tape")) $("#tape").innerHTML = tapeHTML();
-  if ($("#liveDot")) $("#liveDot").className = "live " + (isLive() ? "on" : "");
-  if ($("#prev") && S.view === "trade") syncPreview();
-}
-function selectTicker(t) {
-  S.tk[S.market] = t; if ($("#tk")) { $("#tk").value = t; setDefaultPrice(); }
-  refreshLive();
-}
 function marketCard() {
   return `<div class="card"><h2><span class="live" id="liveDot"></span>${esc(MK().code)} live market</h2><div id="strip"></div>
     <h2 style="margin-top:12px">Depth (top 5)</h2><div id="ladder"></div><h2 style="margin-top:12px">Recent trades</h2><div id="tape"></div></div>`;
-}
-
-/* ───────── trade ───────── */
-function expectPrice(t, side) {
-  const sn = snap(), v = sn && sn.tickers[t]; if (!v) return null;
-  const l = side === "BUY" ? v.asks : v.bids; return l.length ? l[0][0] : null;
-}
-function riskOf(t, qty, price, otype) {    // the contract's integer rule (BlockExDSE.riskScore), repeated here only as a preview
-  const cfg = MK(), tk = cfg.tickers[t], ref = tk.ref, bps = tk.band_bps, mkt = otype === "MARKET";
-  const n = qty * (mkt ? ref : price);
-  const nPart = Math.min(Math.floor(n * 10000 / cfg.risk_notional), 10000);
-  let dPart = 0, dev = 0;
-  if (!mkt && bps > 0) { dev = Math.floor(Math.abs(price - ref) * 10000 / ref); dPart = Math.min(Math.floor(dev * 20000 / bps), 10000); }
-  const score = Math.floor((nPart + dPart) / 2);
-  return { n, dev, score, esc: score >= 5000, out: price * 10000 < ref * (10000 - bps) || price * 10000 > ref * (10000 + bps), big: qty > cfg.max_qty, band: bps / 100 };
-}
-function quorumText(r) {
-  const q = MK().quorum, n = S.info.validators;
-  return `<b style="color:${r.esc ? "var(--warn)" : "var(--ok)"}">${r.esc ? `ESCALATED: ${q.risky} of ${n} validators must sign` : `STANDARD: ${q.routine} of ${n} validators must sign`}</b> <span class="sub">(risk score ${Math.round(r.score / 100)} of 100)</span>`;
-}
-function setDefaultPrice() { const t = $("#tk").value, sn = snap(), v = sn && sn.tickers[t]; $("#px").value = v ? v.last : MK().tickers[t].ref; syncPreview(); }
-function syncPreview() {
-  if (!$("#prev")) return;
-  const cfg = MK(), t = $("#tk").value, q = Math.floor(+$("#qty").value); const p = Math.floor(+$("#px").value);
-  if (S.otype === "MARKET") {
-    const e = expectPrice(t, S.side), lim = S.side === "BUY" ? cfg.tickers[t].hi : cfg.tickers[t].lo;
-    if (!(q > 0)) { $("#prev").textContent = "Enter a quantity."; return; }
-    if (q > cfg.max_qty) { $("#prev").innerHTML = `<span style="color:var(--bad)">Above the order size limit of ${fmt(cfg.max_qty)}: the edge validators will refuse it.</span>`; return; }
-    if (e == null) { $("#prev").innerHTML = `<span style="color:var(--warn)">No ${S.side === "BUY" ? "sellers" : "buyers"} right now: a market order would be cancelled unfilled.</span>`; return; }
-    const r = riskOf(t, q, lim, "MARKET");
-    $("#prev").innerHTML = `Best available price <b>${px(S.market, e)}</b>, about ${money(S.market, q * e)} for ${fmt(q)}.<br>${quorumText(r)}<br><span class="sub">You sign a protective limit of ${px(S.market, lim)} (the band edge). It fills what is on the book; the rest is cancelled.</span>`;
-    return;
-  }
-  if (!(q > 0 && p > 0)) { $("#prev").textContent = "Enter a quantity and price."; return; }
-  const r = riskOf(t, q, p, "LIMIT");
-  $("#prev").innerHTML = `Value <b>${money(S.market, r.n)}</b> · ${(r.dev / 100).toFixed(2)}% from reference<br>` +
-    (r.out ? `<span style="color:var(--bad)">Outside the ±${r.band.toFixed(2)}% band for ${esc(t)}: the validators and the contract will both refuse it.</span>` :
-     r.big ? `<span style="color:var(--bad)">Above the order size limit of ${fmt(cfg.max_qty)}: the edge validators will refuse it.</span>` : quorumText(r));
-}
-async function placeOrder() {
-  const cfg = MK(), t = $("#tk").value, q = Math.floor(+$("#qty").value);
-  const price = S.otype === "LIMIT" ? Math.floor(+$("#px").value) : (S.side === "BUY" ? cfg.tickers[t].hi : cfg.tickers[t].lo);
-  if (!S.key) throw new Error("This device does not hold your signing key. Open Portfolio to import it.");
-  if (!(q > 0 && price > 0)) throw new Error("Enter a quantity and a price.");
-  const order = { trader: S.me.user.wallet, ticker: t, qty: q, price, side: S.side, otype: S.otype, nonce: BXSign.randomNonce(), expiry: Math.floor(Date.now() / 1000) + 1800 };
-  const sig = BXSign.sign(S.key, BXSign.orderDigest(domainOf(S.market), order));      // signed here; only the signature leaves the device
-  const r = await api("/api/order", { method: "POST", body: { market: S.market, ticker: t, qty: q, price, side: S.side, otype: S.otype, nonce: order.nonce, expiry: order.expiry, sig } });
-  S.cur = r.id; toast("Order " + r.id + " signed on this device and sent to the edge validators");
-}
-function mountTrade() {
-  const cfg = MK(), tk = Object.entries(cfg.tickers);
-  $("#main").innerHTML = `<div class="grid"><div class="card"><h2>Place order · ${esc(cfg.code)}</h2>
-    <div class="seg" style="margin-bottom:8px"><button id="oL" class="${S.otype === "LIMIT" ? "on buy" : ""}">Limit</button><button id="oM" class="${S.otype === "MARKET" ? "on buy" : ""}">Market</button></div>
-    <div class="seg"><button class="buy ${S.side === "BUY" ? "on" : ""}" id="sB">BUY</button><button class="sell ${S.side === "SELL" ? "on" : ""}" id="sS">SELL</button></div>
-    <label>Ticker</label><select id="tk">${tk.map(([k, v]) => `<option value="${esc(k)}">${esc(k)} · ${esc(v.name)} (ref ${px(cfg.code, v.ref)}, ±${v.band}%)</option>`).join("")}</select>
-    <div class="row"><div><label>Quantity</label><input id="qty" type="number" inputmode="numeric" min="1" value="10"></div>
-    <div><label>${S.otype === "MARKET" ? "Price" : "Limit price"} (${esc(cfg.currency)})</label><input id="px" type="number" inputmode="numeric" min="1" ${S.otype === "MARKET" ? "disabled placeholder=\"best available\"" : ""}></div></div>
-    <div class="note" id="prev" style="margin-top:10px"></div>
-    <button class="btn ${S.side === "BUY" ? "ok" : "bad"}" id="go" style="margin-top:10px" ${S.key ? "" : "disabled"}>Sign and ${S.side === "BUY" ? "buy" : "sell"}${S.otype === "MARKET" ? " at market" : ""}</button>
-    <div class="sub" id="keyline" style="margin-top:8px">${S.key ? `Signed on this device with your key ${H(S.me.user.wallet)}.` : `<span style="color:var(--warn)">This device does not hold your signing key. Open Portfolio to import it.</span>`}</div>
-    <div class="sub" id="bal" style="margin-top:4px"></div></div>${marketCard()}
-    <div class="card" style="grid-column:1/-1"><h2>Settlement pipeline <span id="curId"></span></h2><div id="pipe"></div><div id="detail"></div></div></div>`;
-  $("#tk").value = selTicker();
-  if (S.otype === "LIMIT") setDefaultPrice(); else syncPreview();
-  $("#tk").onchange = () => { S.tk[S.market] = $("#tk").value; if (S.otype === "LIMIT") setDefaultPrice(); else syncPreview(); refreshLive(); };
-  ["qty", "px"].forEach(i => $("#" + i).oninput = syncPreview);
-  $("#sB").onclick = () => { S.side = "BUY"; mountTrade(); }; $("#sS").onclick = () => { S.side = "SELL"; mountTrade(); };
-  $("#oL").onclick = () => { S.otype = "LIMIT"; mountTrade(); }; $("#oM").onclick = () => { S.otype = "MARKET"; mountTrade(); };
-  if (S.prefill) {
-    const p = S.prefill; S.prefill = null; S.side = p.side; S.otype = p.otype || "LIMIT"; if (p.ticker) S.tk[S.market] = p.ticker;
-    mountTrade(); $("#qty").value = p.qty; if (p.price && S.otype === "LIMIT") $("#px").value = p.price; syncPreview(); return;
-  }
-  $("#go").onclick = async () => {
-    busy($("#go"), true);
-    try { await placeOrder(); } catch (e) { toast(e.message); }
-    setTimeout(() => busy($("#go"), !S.key), 500);
-  };
-  refreshLive(); refreshTrade();
 }
 function stageDone(o, s) { return s === "onchain" ? !!o.place_tx : s === "matched" ? !!(o.stages.matched || o.stages.settled) : !!o.stages[s]; }
 function pipeHTML(o) {
@@ -420,14 +1189,6 @@ function detailHTML(o) {
   if (o.trades.length) h += `<h2 style="margin-top:12px">Receipt</h2>` + o.trades.map(t => `<div class="ocard"><b>${esc(t.buyer)}</b> bought ${fmt(t.qty)} ${esc(t.ticker)} @ ${px(o.market, t.price)} from <b>${esc(t.seller)}</b><div class="sub">Trade #${t.trade_id} · block ${t.block} · gas ${fmt(t.gas + t.anchor_gas)}<br>Settlement tx ${H(t.tx)}<br>Anchored record hash ${H("0x" + t.record_hash)}</div></div>`).join("");
   return h;
 }
-function refreshTrade() {
-  const o = S.orders.find(x => x.id === S.cur) || null;
-  if ($("#pipe")) { $("#pipe").innerHTML = pipeHTML(o); $("#detail").innerHTML = detailHTML(o); $("#curId").textContent = o ? o.id : ""; }
-  const p = S.portfolios && S.portfolios[S.market];
-  if ($("#bal") && p) $("#bal").textContent = `${S.market} cash available ${money(S.market, p.cash)}${p.locked_cash ? ` · locked in open buy orders ${money(S.market, p.locked_cash)}` : ""}`;
-}
-
-/* ───────── orders / portfolio / market ───────── */
 function orderCard(o) {
   const mine = S.me.user.role === "trader" && (o.status === "open" || o.status === "partial");
   return `<div class="ocard"><div class="top"><span><b>${esc(o.id)}</b> <span class="${o.side === "BUY" ? "buy-t" : "sell-t"}">${esc(o.side)}</span> ${fmt(o.qty)} ${esc(o.ticker)} ${o.otype === "MARKET" ? "at market" : "@ " + px(o.market, o.price)} <span class="tag">${esc(o.market)}</span><span class="tag">${esc(o.otype)}</span></span><span class="pill s-${esc(o.status)}">${esc(o.status.replace("_", " "))}</span></div>
@@ -436,49 +1197,11 @@ function orderCard(o) {
     ${o.trades.map(t => `<div class="sub">Trade #${t.trade_id}: ${fmt(t.qty)} @ ${px(o.market, t.price)} · tx ${H(t.tx)} · hash ${H("0x" + t.record_hash)}</div>`).join("")}
     ${mine ? `<button class="btn ghost sm cx" data-id="${esc(o.id)}" style="margin-top:8px">Sign and cancel</button>` : ""}</div>`;
 }
-async function cancelOrder(id) {
-  const o = S.orders.find(x => x.id === id);
-  if (!o || !o.chain_id) throw new Error("This order is not on the ledger.");
-  if (!S.key) throw new Error("This device does not hold your signing key.");
-  const sig = BXSign.sign(S.key, BXSign.cancelDigest(domainOf(o.market), o.chain_id));   // the contract cancels only with the investor's signature
-  await api(`/api/orders/${id}/cancel`, { method: "POST", body: { sig } });
-}
 function mountOrders() { $("#main").innerHTML = `<div class="card"><h2>${S.me.user.role === "trader" ? "My orders" : "All orders"} (all markets)</h2><div id="olist"></div></div>`; }
 function refreshOrders() {
   if (!$("#olist")) return;
   $("#olist").innerHTML = S.orders.map(orderCard).join("") || `<div class="sub">No orders yet.</div>`;
   $("#olist").querySelectorAll(".cx").forEach(b => b.onclick = async () => { busy(b, true); try { await cancelOrder(b.dataset.id); toast("Cancel signed; the contract released the locked funds"); } catch (e) { toast(e.message); busy(b, false); } });
-}
-function mountPortfolio() {
-  $("#main").innerHTML = `<div class="grid"><div class="card"><h2>Cash · ${esc(S.market)}</h2><div id="cash" style="font-size:26px;font-weight:700"></div><div class="sub" id="lockc"></div><div class="sub" id="wal" style="margin-top:6px"></div></div>
-    <div class="card"><h2>Holdings · ${esc(S.market)}</h2><div class="scroll" id="hold"></div></div>
-    <div class="card"><h2>Signing key</h2><div id="keycard"></div></div></div>`;
-  renderKeyCard();
-}
-function renderKeyCard() {
-  const u = S.me.user, el = $("#keycard"); if (!el) return;
-  if (S.key) {
-    el.innerHTML = `<div class="sub">This device holds the key for ${H(u.wallet)}. Every order and every cancel is signed here; the gateway receives only the signature, and the contract checks it.</div>
-      ${S.keyDemo ? `<div class="note demo" style="margin-top:8px">Demo account: this key is a published test key, handed over at sign-in. An account you create gets its own key, made on your device.</div>` : `<div class="note" style="margin-top:8px">Back the key up. If this browser's storage is cleared, the key is gone and nobody can restore it.</div>`}
-      <button class="btn ghost sm" id="kShow" style="margin-top:8px">Show key to back it up</button><div class="keybox mono" id="kOut"></div>`;
-    $("#kShow").onclick = () => { const o = $("#kOut"); o.textContent = o.textContent ? "" : S.key; $("#kShow").textContent = o.textContent ? "Hide key" : "Show key to back it up"; };
-  } else {
-    el.innerHTML = `<div class="note" style="border-color:var(--warn);color:var(--txt)">This device does not hold the signing key for ${H(u.wallet)}. Paste the key you backed up to trade from this device.</div>
-      <label>Signing key (64 hex characters)</label><input id="kIn" class="mono" autocomplete="off" spellcheck="false"><button class="btn sm" id="kImp" style="margin-top:8px">Import key</button>`;
-    $("#kImp").onclick = () => {
-      const k = $("#kIn").value.trim();
-      if (!BXSign.validKey(k)) return toast("That is not a valid key.");
-      if (BXSign.addressOf(k).toLowerCase() !== String(u.wallet).toLowerCase()) return toast("This key belongs to another address.");
-      keyStore.set(u.email, k.startsWith("0x") ? k : "0x" + k); S.tmpKey = k; loadKey(); toast("Key imported on this device."); renderKeyCard();
-    };
-  }
-}
-function refreshPortfolio() {
-  const u = S.me.user, p = S.portfolios && S.portfolios[S.market]; if (!p || !$("#cash")) return;
-  $("#cash").textContent = money(S.market, p.cash);
-  $("#lockc").textContent = `Available. Locked in open buy orders: ${money(S.market, p.locked_cash)}`;
-  $("#wal").innerHTML = `Address ${H(u.wallet)} · registered on-chain in tx ${H(u.reg_tx)}`;
-  const cfg = MK(); $("#hold").innerHTML = `<table><tr><th>Ticker</th><th>Available</th><th>Locked in sell orders</th><th>Reference</th><th>Value</th></tr>${Object.entries(p.shares).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${fmt(v)}</td><td>${fmt(p.locked_shares[k] || 0)}</td><td>${px(S.market, cfg.tickers[k].ref)}</td><td>${money(S.market, (v + (p.locked_shares[k] || 0)) * cfg.tickers[k].ref)}</td></tr>`).join("")}</table>`;
 }
 function mountMarket() {
   const admin = S.me.user.role === "admin";
@@ -491,7 +1214,7 @@ function mountMarket() {
 function refreshMarket() {
   if (!$("#nodes")) return;
   const admin = S.me.user.role === "admin", q = MK().quorum;
-  $("#nodes").innerHTML = S.nodes.map(n => n.up ? `<div class="node"><span><span class="dot ${n.faulty ? "f" : "up"}"></span>Validator ${n.node} <span class="sub mono">:${n.port}${n.leader ? " + gateway" : ""}</span>${n.faulty ? ` <span class="tag">faulty</span>` : ""}</span><span class="sub">${n.votes_cast} signed · ${n.refused} refused · ${n.ping_ms} ms ${admin ? `<button class="btn ghost sm" data-n="${n.node}" data-on="${!n.faulty}">${n.faulty ? "heal" : "make faulty"}</button>` : ""}</span></div>` : `<div class="node"><span><span class="dot"></span>Validator ${n.node}</span><span class="sub">DOWN</span></div>`).join("");
+  $("#nodes").innerHTML = S.nodes.map(n => n.up ? `<div class="node"><span><span class="ndot ${n.faulty ? "f" : "up"}"></span>Validator ${n.node} <span class="sub mono">:${n.port}${n.leader ? " + gateway" : ""}</span>${n.faulty ? ` <span class="tag">faulty</span>` : ""}</span><span class="sub">${n.votes_cast} signed · ${n.refused} refused · ${n.ping_ms} ms ${admin ? `<button class="btn ghost sm" data-n="${n.node}" data-on="${!n.faulty}">${n.faulty ? "heal" : "make faulty"}</button>` : ""}</span></div>` : `<div class="node"><span><span class="ndot"></span>Validator ${n.node}</span><span class="sub">DOWN</span></div>`).join("");
   $("#nodes").querySelectorAll("button").forEach(b => b.onclick = async () => { try { await api(`/api/fault/${b.dataset.n}/${b.dataset.on === "true" ? "on" : "off"}`, { method: "POST" }); } catch (e) { toast(e.message); } });
   $("#faultnote").textContent = (admin ? "A faulty validator returns a useless signature. " : "Only the admin can switch a validator to faulty for the demo. ") + `Routine orders still pass with ${q.routine} of ${S.info.validators}. Risky orders need ${q.risky} of ${S.info.validators}; one short, they are held for a reviewer.`;
   if ($("#simBtn")) $("#simBtn").textContent = S.sim[S.market] ? "Stop simulation" : "Start simulation";
@@ -593,18 +1316,19 @@ function refreshProof() {
 
 /* ───────── roadmap ───────── */
 const ROAD = {
-  "Built (works now)": ["Orders signed on the investor's own device (EIP-712); the contract checks the signature", "Four edge validators; the contract recovers and counts their signatures itself", "Risk rule computed by the contract: 3 of 4 signatures for routine orders, 4 of 4 for risky ones", "A risky order one signature short is held for a human reviewer instead of being lost", "Cash and shares locked at order entry, so every matched trade settles", "Price band enforced by the contract; size limit and restricted list enforced at the edge", "Independent audit from the ledger: signatures, quorums, price-time priority, balances, anchors", "Nine attack tests that the contract refuses", "Two simulated exchanges (DSE and LSE); limit and market orders; cancel with the investor's signature", "Live prices, depth and trade tape; sign-up, OTP, identity step and broker approval (simulated)", "Benchmark with fault injection and an energy proxy", "Any EVM chain through configuration; mobile-friendly and installable"],
-  "Demo only (simulated)": ["Reference prices are illustrative, not live market data", "The four validators run on one computer, not at four sites", "Demo accounts use published test keys; a real key belongs in a phone's secure hardware", "Identity checks are format checks; the OTP is shown on screen", "One gateway matches orders and relays transactions (its matching is audited, not yet decentralised)", "The local chain has one node; a real deployment needs four or more", "Orders are accepted at any time; prices are whole numbers"],
-  "Upcoming (not built)": ["Short netting windows, to cut the cash that instant settlement locks up", "Fair ordering, so that a gateway cannot reorder or front-run orders", "Gateway fail-over and validators at separate sites", "A four-validator QBFT ledger and a public test network run", "Energy measured in joules on real edge hardware", "Opening and closing auctions; stop orders", "Licensed market data; watchlists, alerts and charts", "bKash and Nagad deposits; biometric login; IPO applications", "Privacy for order details"],
+  "Built (works now)": ["Orders signed on the investor's own device (EIP-712); the contract checks the signature", "Four edge validators; the contract recovers and counts their signatures itself", "Risk rule computed by the contract: 3 of 4 signatures for routine orders, 4 of 4 for risky ones", "A risky order one signature short is held for a human reviewer instead of being lost", "Cash and shares locked at order entry, so every matched trade settles", "Price band enforced by the contract; size limit and restricted list enforced at the edge", "Independent audit from the ledger: signatures, quorums, price-time priority, balances, anchors", "Nine attack tests that the contract refuses", "Two simulated exchanges (DSE and LSE); limit and market orders; cancel with the investor's signature", "Live prices, depth and trade tape; sign-up, OTP, identity step and broker approval (simulated)", "Benchmark with fault injection and an energy proxy", "Any EVM chain through configuration; mobile-friendly and installable",
+    "v2.1: phone-first investor app in English and Bangla, with a guided first trade", "v2.1: market explorer with stock pages, charts, order book and a watchlist",
+    "v2.1: practice wallet: add money, and withdrawals signed on the investor's phone and re-checked by the contract and the audit"],
+  "Demo only (simulated)": ["Reference prices are illustrative, not live market data", "The four validators run on one computer, not at four sites", "Demo accounts use published test keys; a real key belongs in a phone's secure hardware", "Identity checks are format checks; the OTP is shown on screen", "One gateway matches orders and relays transactions (its matching is audited, not yet decentralised)", "The local chain has one node; a real deployment needs four or more", "Orders are accepted at any time; prices are whole numbers", "Payments (bKash, Nagad, Rocket, bank, card) are simulated; no money moves", "The 30-day price charts are illustrative, not real history"],
+  "Upcoming (not built)": ["Short netting windows, to cut the cash that instant settlement locks up", "Fair ordering, so that a gateway cannot reorder or front-run orders", "Gateway fail-over and validators at separate sites", "A four-validator QBFT ledger and a public test network run", "Energy measured in joules on real edge hardware", "Opening and closing auctions; stop orders", "Licensed live market data and price alerts", "Real bKash, Nagad and bank payment gateways; biometric login; IPO applications", "Privacy for order details"],
 };
 function mountRoadmap() {
   $("#main").innerHTML = `<div class="note" style="margin-bottom:12px">Honest status: only the first column works. The others are simulated or planned, and are shown so the board can see the direction. Nothing here connects to a real exchange.</div><div class="cols">` +
     Object.entries(ROAD).map(([k, v], i) => `<div class="card col"><h3 style="color:${["var(--ok)", "var(--warn)", "var(--mut)"][i]}">${k}</h3>${v.map(x => `<div class="item">${esc(x)}</div>`).join("")}</div>`).join("") + `</div>`;
 }
-
 /* ───────── guided tour ───────── */
 const TOUR = [
-  { t: "Welcome", x: "In BlockExDSE v2 nobody acts alone. You sign each order on your own device, four edge validators check it, and the settlement contract verifies every signature before it locks funds and settles. This tour takes about five minutes. Everything is simulated.", go: null },
+  { t: "Welcome", x: "In " + BRAND.name + " (BlockExDSE v2.1) nobody acts alone. You sign each order on your own device, four edge validators check it, and the settlement contract verifies every signature before it locks funds and settles. This tour takes about five minutes. Everything is simulated.", go: null },
   { t: "1. Create an account", x: "Sign up, enter the demo code shown on screen, then submit an ID number (10 digits, any). At that step your browser creates your signing key. It never leaves the device.", go: ["Open sign-up", async () => { await logoutQuiet(); S.tab = "up"; route(); $("#tour").style.display = "none"; }] },
   { t: "2. Broker approves", x: "A broker approves the request. The address of the key you created is written into both exchange contracts as KYC-verified, with starting cash in each currency.", go: ["Sign in as Broker", () => demoLogin("Broker", "requests")] },
   { t: "3. Alice sells on the DSE", x: "Alice signs a limit sell for 100 GP at 300 BDT. Three of four validators sign it. The contract checks her signature and theirs, locks her shares, and the order rests on the book.", go: ["Sign in as Alice, prefill", () => demoLogin("Alice", "trade", { market: "DSE", side: "SELL", otype: "LIMIT", ticker: "GP", qty: 100, price: 300 })] },
@@ -614,7 +1338,7 @@ const TOUR = [
   { t: "7. A person decides", x: "Open Review as broker or admin and approve the held order. The contract accepts one reviewer signature in place of one validator, and only for a risky order.", go: ["Sign in as Broker, open Review", () => demoLogin("Broker", "review")] },
   { t: "8. Proof", x: "Open Proof as admin. Run the audit, then the nine attack tests. Each attack is refused by the contract, even when all the validator keys are used against it.", go: ["Sign in as Admin, open Proof", () => demoLogin("Admin", "proof")] },
   { t: "9. Switch to London", x: "Switch the exchange to LSE: different tickers, prices in pence, its own contract and its own balances. Alice sells 10 HSBA at 900p.", go: ["Alice on the LSE, prefill", () => demoLogin("Alice", "trade", { market: "LSE", side: "SELL", otype: "LIMIT", ticker: "HSBA", qty: 10, price: 900 })] },
-  { t: "10. See the roadmap", x: "The roadmap separates what is built, what is simulated, and what is still planned.", go: ["Open roadmap", () => { if (S.me) { S.view = "roadmap"; route(); $("#tour").style.display = "none"; } else toast("Sign in first, then open Roadmap."); }] },
+  { t: "10. See the roadmap", x: "The roadmap separates what is built, what is simulated, and what is still planned.", go: ["Open roadmap", () => { if (S.me) { if (S.me.user.role === "trader") S.itab = "me"; else S.view = "roadmap"; route(); $("#tour").style.display = "none"; } else toast("Sign in first, then open Roadmap."); }] },
 ];
 async function logoutQuiet() { if (S.token) { try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {} signOutLocal(); } }
 async function demoLogin(label, view, prefill) {
@@ -623,7 +1347,8 @@ async function demoLogin(label, view, prefill) {
     const d = S.demo.find(x => x.label === label); const r = await api("/api/auth/login", { method: "POST", body: { email: d.email, password: d.password } });
     setToken(r.token); keepDemoKey(r); await loadMe();
     if (prefill && prefill.market) { S.market = prefill.market; sessionStorage.setItem("bx_mk", S.market); }
-    S.view = view; S.prefill = prefill || null; route(); $("#tour").style.display = "none";
+    if (S.me.user.role === "trader") { S.itab = view === "roadmap" ? "me" : view === "trade" ? "trade" : "home"; S.form.price = null; } else S.view = view;
+    S.prefill = prefill || null; route(); $("#tour").style.display = "none";
   } catch (e) { toast(e.message); }
 }
 function openTour(i) {
@@ -634,28 +1359,36 @@ function openTour(i) {
   $("#tn").onclick = () => i === TOUR.length - 1 ? t.style.display = "none" : openTour(i + 1);
 }
 
-/* ───────── polling ───────── */
-let busyTick = false;
+/* ═══════════════ polling ═══════════════ */
+let busyTick = false, tickN = 0, watchFor = "";
 async function tick() {
-  if (busyTick) return; busyTick = true;
+  if (busyTick) return; busyTick = true; tickN++;
   try {
     S.info = S.info || await api("/api/info");
     if (S.token && !S.me) await loadMe();
     const u = S.me && S.me.user; if (!u) { busyTick = false; return; }
     if (S.view === "onboard") {
       const before = u.status; await loadMe();
-      if (S.me.user.status !== before) { if (S.me.user.status === "active") { toast("Approved. Your address is registered on-chain."); S.view = null; } route(); }
+      if (S.me.user.status !== before) { if (S.me.user.status === "active") { toast(t("approved_msg")); S.view = null; S.itab = "home"; } route(); }
+    } else if (S.view === "inv") {
+      const it = S.itab;
+      if (!isLive()) { S.snap[S.market] = await api("/api/market/" + S.market); refreshLive(); }
+      if (watchFor !== S.token) { S.watch = await api("/api/watchlist"); watchFor = S.token; }
+      if (["home", "trade", "orders"].includes(it) || tickN % 4 === 0) S.orders = await api("/api/orders");
+      if (tickN % 2 === 0 || !S.portfolios) { const m = await api("/api/me"); S.portfolios = m.portfolios; }
+      if (it === "wallet" && tickN % 5 === 0) await loadWallet();
+      if (S.itab !== it) { busyTick = false; return; }
+      if (it === "home") refreshHome(); else if (it === "trade") syncTrade(); else if (it === "orders") refreshIOrders(); else if (it === "wallet") refreshWallet();
+      const n = S.orders.filter(isActive).length, tb = $('#itabs .tab[data-t="orders"]');
+      if (tb) { let c = tb.querySelector(".cnt"); if (n && !c) { c = document.createElement("span"); c.className = "cnt"; tb.appendChild(c); } if (c) { if (n) c.textContent = n; else c.remove(); } }
     } else {
       const v = S.view;
-      if (["trade", "market"].includes(v) && !isLive()) { S.snap[S.market] = await api("/api/market/" + S.market); refreshLive(); }
-      if (["trade", "orders"].includes(v)) S.orders = await api("/api/orders");
-      if (v === "trade") { try { const m = await api("/api/me"); S.portfolios = m.portfolios; } catch (e) {} refreshTrade(); }
-      if (v === "orders") refreshOrders();
-      if (v === "portfolio") { const m = await api("/api/me"); S.me = m; S.portfolios = m.portfolios || null; refreshPortfolio(); }
+      if (["market"].includes(v) && !isLive()) { S.snap[S.market] = await api("/api/market/" + S.market); refreshLive(); }
+      if (v === "orders") { S.orders = await api("/api/orders"); refreshOrders(); }
       if (v === "market") { [S.nodes, S.info] = await Promise.all([api("/api/nodes"), api("/api/info")]); if (u.role === "admin") S.sim = await api("/api/admin/sim"); refreshMarket(); }
       if (v === "requests") { S.req = await api("/api/admin/requests"); refreshRequests(); }
       if (v === "accounts") { S.accounts = await api("/api/balances?market=" + S.market); refreshAccounts(); }
-      if (u.role !== "trader") { const n = S.review.length; S.review = await api("/api/review"); if (S.review.length !== n) renderNav(); if (v === "review") refreshReview(); }
+      { const n = S.review.length; S.review = await api("/api/review"); if (S.review.length !== n) renderNav(); if (v === "review") refreshReview(); }
       if (S.lab.benchJob) { const st = await api("/api/admin/bench/" + S.lab.benchJob); S.lab.bench = st; if (st.state !== "running") S.lab.benchJob = null; if (v === "proof") refreshProof(); }
     }
   } catch (e) {}
@@ -663,9 +1396,11 @@ async function tick() {
 }
 
 (async function init() {
-  if (!window.BXSign) { $("#main").innerHTML = `<div class="note">The signing module (vendor/sign.js) did not load, so orders cannot be signed. Check that the file exists and reload.</div>`; return; }
+  document.documentElement.lang = S.lang === "bn" ? "bn" : "en";
+  if (!window.BXSign) { $("#root").innerHTML = `<div class="gwrap"><div class="warnbox">${t("no_sign")}</div></div>`; return; }
   if ("serviceWorker" in navigator && (location.hostname === "localhost" || location.protocol === "https:")) navigator.serviceWorker.register("/sw.js").catch(() => {});
-  try { S.info = await api("/api/info"); if (!S.info.markets[S.market]) S.market = Object.keys(S.info.markets)[0]; if (S.token) await loadMe(); } catch (e) { $("#main").innerHTML = `<div class="note">Cannot reach the gateway on port 9001. Is the system running?</div>`; return; }
+  try { S.info = await api("/api/info"); if (!S.info.markets[S.market]) S.market = Object.keys(S.info.markets)[0]; if (S.token) await loadMe(); }
+  catch (e) { $("#root").innerHTML = `<div class="gwrap"><div class="warnbox">${t("no_gateway")}</div></div>`; return; }
   route(); setInterval(tick, 1000);
 })();
 </script>
