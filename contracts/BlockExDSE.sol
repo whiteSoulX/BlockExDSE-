@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// @title BlockExDSE v2 settlement contract (one is deployed per market)
+/// @title BlockExDSE v2.1 settlement contract (one is deployed per market)
 /// @notice The contract trusts no single party:
 ///   1. every order is signed by the investor (EIP-712), so nobody can place an order in another person's name;
 ///   2. every order carries signatures from the edge validators that checked it, and the contract recovers the
@@ -39,6 +39,7 @@ contract BlockExDSE {
         "Order(address trader,bytes32 ticker,uint256 qty,uint256 price,uint8 side,uint8 otype,uint256 nonce,uint256 expiry)");
     bytes32 public constant ATTEST_TYPEHASH = keccak256("Attestation(bytes32 batchRoot)");
     bytes32 public constant CANCEL_TYPEHASH = keccak256("Cancel(uint256 orderId)");
+    bytes32 public constant WITHDRAW_TYPEHASH = keccak256("Withdraw(address trader,uint256 amount,uint256 nonce,uint256 expiry)");
     uint256 private constant HALF_N = 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0;
     bytes32 public immutable DOMAIN_SEPARATOR;
 
@@ -71,6 +72,8 @@ contract BlockExDSE {
     event TradeSettled(uint256 indexed id, uint256 indexed buyId, uint256 indexed sellId, uint256 qty, uint256 price);
     event HashAnchored(uint256 indexed tradeId, bytes32 recordHash);
     event OrderCancelled(uint256 indexed id, uint256 remainingQty);
+    event CashDeposited(address indexed trader, uint256 amount);       // v2.1: practice top-up (simulated payment)
+    event CashWithdrawn(address indexed trader, uint256 amount);       // v2.1: signed by the investor on their device
 
     modifier onlyAdmin() { require(msg.sender == admin, "not admin"); _; }
     modifier onlyEdge() { require(edgeNode[msg.sender], "not whitelisted edge"); _; }
@@ -116,6 +119,30 @@ contract BlockExDSE {
         require(kyc[t], "no kyc");
         holdings[t][ticker] += qty;
         emit SharesCredited(t, ticker, qty);
+    }
+
+    // ───────────── v2.1 wallet: add money and withdraw (simulated money; the rules are real) ─────────────
+    /// Adding money: the broker confirms the (simulated) payment, then credits the investor's on-chain cash.
+    function depositCash(address t, uint256 amount) external onlyAdmin {
+        require(kyc[t], "no kyc");
+        require(amount > 0, "bad amount");
+        cash[t] += amount;
+        emit CashDeposited(t, amount);
+    }
+    /// Withdrawing: only with the investor's own signature, only from free cash (never from cash locked in orders).
+    function withdrawDigest(address t, uint256 amount, uint256 nonce, uint256 expiry) public view returns (bytes32) {
+        return _digest(keccak256(abi.encode(WITHDRAW_TYPEHASH, t, amount, nonce, expiry)));
+    }
+    function withdrawCash(address t, uint256 amount, uint256 nonce, uint256 expiry, bytes calldata sig) external onlyEdge {
+        require(kyc[t], "no kyc");
+        require(amount > 0, "bad amount");
+        require(block.timestamp <= expiry, "withdrawal expired");
+        require(!usedNonce[t][nonce], "nonce already used");
+        require(_recover(withdrawDigest(t, amount, nonce, expiry), sig) == t, "bad trader signature");
+        require(cash[t] >= amount, "insufficient free cash");
+        usedNonce[t][nonce] = true;
+        cash[t] -= amount;
+        emit CashWithdrawn(t, amount);
     }
 
     // ───────────── hashing (public so that clients and auditors can cross-check) ─────────────
