@@ -33,6 +33,7 @@ const b32 = s => { const o = new Uint8Array(32); o.set(te.encode(String(s)).slic
 const DOMAIN_TYPEHASH = k(te.encode("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"));
 const ORDER_TYPEHASH = k(te.encode("Order(address trader,bytes32 ticker,uint256 qty,uint256 price,uint8 side,uint8 otype,uint256 nonce,uint256 expiry)"));
 const CANCEL_TYPEHASH = k(te.encode("Cancel(uint256 orderId)"));
+const WITHDRAW_TYPEHASH = k(te.encode("Withdraw(address trader,uint256 amount,uint256 nonce,uint256 expiry)"));   // v2.1
 const SIDES = { BUY: 0, SELL: 1 }, OTYPES = { LIMIT: 0, MARKET: 1 };
 
 function checksum(addr20) {               // EIP-55 mixed-case address
@@ -56,6 +57,9 @@ function orderHash(o) {
 function digest(domain, structHash) { return hex(k(new Uint8Array([0x19, 0x01]), bytes(domain), bytes(structHash))); }
 function orderDigest(domain, o) { return digest(domain, orderHash(o)); }
 function cancelDigest(domain, orderId) { return digest(domain, hex(k(CANCEL_TYPEHASH, word(orderId)))); }
+function withdrawDigest(domain, trader, amount, nonce, expiry) {    // v2.1: same as BlockExDSE.withdrawDigest
+  return digest(domain, hex(k(WITHDRAW_TYPEHASH, addrWord(trader), word(amount), word(nonce), word(expiry))));
+}
 function sign(key, dig) {                 // 65 bytes: r, s, v with v = 27 or 28 (low s, as the contract requires)
   const s = secp256k1.sign(bytes(dig), bytes(key), { lowS: true });
   return hex(cat(s.toCompactRawBytes(), new Uint8Array([27 + s.recovery])));
@@ -76,4 +80,4 @@ function randomNonce() {                  // 61 random bits as a decimal string 
   return n.toString();
 }
 
-export { addressOf, cancelDigest, domainSeparator, newKey, orderDigest, orderHash, randomNonce, recover, sign, validKey };
+export { addressOf, cancelDigest, domainSeparator, newKey, orderDigest, orderHash, randomNonce, recover, sign, validKey, withdrawDigest };
