@@ -41,6 +41,8 @@ LEADER_ID = 1
 IS_LEADER = NODE_ID == LEADER_ID
 PEERS = {i: 9000 + i for i in range(1, S.N_VALIDATORS + 1)}
 DEMO_DELAY = float(os.getenv("DEMO_DELAY", "0.35"))   # purely visual pause between stages; 0 for benchmarks
+QUICKSTART = os.getenv("QUICKSTART", "1") != "0"         # v2.1: one-tap practice accounts for visitors (demo days)
+SIM_EVERY = float(os.getenv("SIM_EVERY", "1.6"))          # v2.1: seconds between simulated bot orders
 ROOT = Path(__file__).resolve().parent.parent
 DASH = ROOT / "dashboard"
 
@@ -442,6 +444,7 @@ def admin_decision(d: DecisionIn, staff=Depends(staff_user)):
             for sym in cfg["tickers"]:
                 CLIENTS[m].credit_shares(wallet, sym, cfg["new_shares"])
         AUTH.decide(u, True, staff, wallet=wallet, tx=reg["tx"])
+        notice("joined", name=u["name"].split()[0])
     return {"user": AUTH.public(u), "tx": reg["tx"], "block": reg["block"]}
 
 
@@ -456,6 +459,25 @@ TAPE = {m: deque(maxlen=60) for m in MK}                                 # recen
 STATS = {m: {t: {"last": None, "high": None, "low": None, "volume": 0, "trades": 0} for t in MK[m]["tickers"]} for m in MK}
 SIM = {m: False for m in MK}
 PRICES = {m: {t: deque(maxlen=400) for t in MK[m]["tickers"]} for m in MK}     # v2.1: intraday trade prices for charts
+TURNOVER = {m: {} for m in MK}                                          # v2.1: traded value per ticker
+IDX = {m: deque(maxlen=3000) for m in MK}                                # v2.1: demo index history (t, value)
+NOTICES = deque(maxlen=80)                                               # v2.1: live notice board (events in this market)
+CIRCUIT_SEEN = {}                                                        # last notice time per stock and kind (keeps the board readable)
+
+
+def index_value(m):
+    """Demo index (base 1000 at the reference prices), weighted by each ticker's illustrative weight "w"."""
+    tk = MK[m]["tickers"]
+    tw = sum(v.get("w", 1) for v in tk.values()) or 1
+    return round(1000 * sum(v.get("w", 1) * ((STATS[m][t]["last"] or v["ref"]) / v["ref"]) for t, v in tk.items()) / tw, 2)
+
+
+def notice(kind, market="DSE", **params):
+    NOTICES.appendleft({"t": int(time.time() * 1000), "kind": kind, "market": market, **params})
+
+
+for _m in MK:
+    IDX[_m].append((int(time.time() * 1000), index_value(_m)))
 
 
 def bump():
@@ -475,6 +497,15 @@ def record_trade(m, trade):
     s["high"] = p if s["high"] is None else max(s["high"], p)
     s["low"] = p if s["low"] is None else min(s["low"], p)
     PRICES[m][trade["ticker"]].append((now_ms(), p))
+    TURNOVER[m][trade["ticker"]] = TURNOVER[m].get(trade["ticker"], 0) + trade["qty"] * p
+    IDX[m].append((now_ms(), index_value(m)))
+    lo, hi = limits(m, trade["ticker"])
+    edge = (m, trade["ticker"], p >= hi)
+    if (p >= hi or p <= lo) and time.time() - CIRCUIT_SEEN.get(edge, 0) > 120:    # one notice per stock and side every 2 minutes
+        CIRCUIT_SEEN[edge] = time.time()
+        notice("circuit", m, ticker=trade["ticker"], price=p, up=p >= hi)
+    if trade["qty"] * p >= MK[m]["risk_notional"] // 5:
+        notice("block", m, ticker=trade["ticker"], qty=trade["qty"], price=p, tx=trade["tx"])
     TAPE[m].appendleft({"t": now_ms(), "ticker": trade["ticker"], "qty": trade["qty"], "price": p,
                         "buyer": trade["buyer"], "seller": trade["seller"], "tx": trade["tx"], "block": trade["block"]})
 
@@ -664,6 +695,12 @@ def finish(rec, t0):
     else:
         rec["status"] = "partial" if rec["filled"] else "open"
         STORE.save(rec)
+    # v2.1 notice board: an escalated (4 of 4) order that traded; the demo bots post at most one per stock every 90 s
+    if rec["trades"] and (rec.get("risk") or {}).get("tier") and not rec.get("bench") and \
+            (rec.get("trader_name") not in BOTS or time.time() - CIRCUIT_SEEN.get(("esc", rec["market"], rec["ticker"]), 0) > 90):
+        CIRCUIT_SEEN[("esc", rec["market"], rec["ticker"])] = time.time()
+        notice("escalated", rec["market"], ticker=rec["ticker"], qty=rec["filled"], votes=(rec.get("votes") or {}).get("agree", 0),
+               reviewer=bool((rec.get("votes") or {}).get("compliance")))
 
 
 def settle(rec, sigs: dict, comp_sig: bytes = b""):
@@ -715,6 +752,7 @@ def run_pipeline(rec):
                     rec["held"] = {"since": now_ms(), "have": len(sigs), "need": required,
                                    "sigs": {str(n): S.hx(s) for n, s in sigs.items()}}
                     HELD[rec["id"]] = rec
+                    notice("held", m, ticker=o["ticker"], side=o["side"], qty=o["qty"], have=len(sigs), need=required)
                     return stage(rec, "held")
                 rec["error"], rec["rejected_by"] = f"not enough validator signatures: {len(sigs)} of {required}", "consensus"
                 return stage(rec, "rejected")
@@ -919,11 +957,15 @@ def info():
         markets[m]["quorum"] = {"routine": QUORUM[m][0], "risky": QUORUM[m][1]}
         markets[m]["counts"] = CLIENTS[m].counts()
         markets[m]["tickers"] = {t: {"name": v["name"], "ref": v["ref"], "band": bps_of(m, t) / 100, "band_bps": bps_of(m, t),
-                                     "lo": limits(m, t)[0], "hi": limits(m, t)[1], "sector": v.get("sector", ""), "about": v.get("about", "")}
+                                     "lo": limits(m, t)[0], "hi": limits(m, t)[1], "sector": v.get("sector", ""), "about": v.get("about", ""), "w": v.get("w", 1)}
                                  for t, v in cfg["tickers"].items()}
         markets[m]["wallet"] = cfg.get("wallet", {"methods": [], "min": 0, "max": 0})
+    try:
+        public_url = (ROOT / "logs" / "public_url.txt").read_text(encoding="utf-8").strip()
+    except Exception:
+        public_url = ""
     return {"version": VERSION_TAG, "markets": markets, "chain": CHAIN.info(), "storage": STORE.mode,
-            "validators": len(PEERS), "crypto": crypto_backend()}
+            "validators": len(PEERS), "crypto": crypto_backend(), "quickstart": QUICKSTART, "public_url": public_url}
 
 
 @app.get("/api/market/{code}")
@@ -979,6 +1021,8 @@ def set_fault(pid: int, on: str, _=Depends(admin_user)):
     _leader_only()
     if pid not in PEERS:
         raise HTTPException(404, "Unknown node.")
+    bad = on.lower() not in ("off", "false", "0", "heal")
+    notice("validator", node=pid, faulty=bad)
     if pid == NODE_ID:
         return fault(on)
     return HTTP.post(f"http://127.0.0.1:{PEERS[pid]}/fault/{on}", timeout=2).json()
@@ -1121,6 +1165,170 @@ def price_history(market: str, ticker: str, days: int = 30):
             "today": [{"t": t, "price": px} for t, px in PRICES[market][ticker]]}
 
 
+# ───────────────────────── v2.1: market overview, leaderboard, live board, quick start ─────────────────────────
+def _first(name):
+    return (name or "Investor").split()[0][:16]
+
+
+@app.get("/api/overview/{market}")
+def overview(market: str):
+    """Public market overview, like an exchange home page: demo index, turnover, breadth, sectors, movers, notices."""
+    _leader_only()
+    _visible_market(market)
+    m, rows = market, []
+    for t, v in MK[m]["tickers"].items():
+        st = STATS[m][t]
+        last = st["last"] if st["last"] is not None else v["ref"]
+        rows.append({"ticker": t, "name": v["name"], "sector": v.get("sector", ""), "last": last, "ref": v["ref"],
+                     "chg": round((last - v["ref"]) / v["ref"] * 100, 2), "volume": st["volume"], "trades": st["trades"],
+                     "turnover": TURNOVER[m].get(t, 0)})
+    sectors = {}
+    for r in rows:
+        s_ = sectors.setdefault(r["sector"], {"sector": r["sector"], "n": 0, "chg_sum": 0.0, "turnover": 0, "tickers": []})
+        s_["n"] += 1
+        s_["chg_sum"] += r["chg"]
+        s_["turnover"] += r["turnover"]
+        s_["tickers"].append(r["ticker"])
+    sec = [{"sector": k, "chg": round(v["chg_sum"] / v["n"], 2), "turnover": v["turnover"], "tickers": v["tickers"]} for k, v in sectors.items()]
+    hist = list(IDX[m])
+    if len(hist) > 240:                                          # keep the response small: about 240 points
+        step = len(hist) / 240
+        hist = [hist[int(i * step)] for i in range(240)] + [hist[-1]]
+    now = index_value(m)
+    vals = [v for _, v in IDX[m]]
+    return {"market": m, "v": VERSION["n"],
+            "index": {"name": "Demo index", "base": 1000, "value": now, "chg": round(now - 1000, 2), "chg_pct": round((now - 1000) / 10, 2),
+                      "high": max(vals) if vals else now, "low": min(vals) if vals else now, "history": hist},
+            "summary": {"turnover": sum(r["turnover"] for r in rows), "volume": sum(r["volume"] for r in rows),
+                        "trades": sum(r["trades"] for r in rows), "adv": sum(1 for r in rows if r["chg"] > 0),
+                        "dec": sum(1 for r in rows if r["chg"] < 0), "unch": sum(1 for r in rows if r["chg"] == 0)},
+            "sectors": sorted(sec, key=lambda x: -x["chg"]),
+            "movers": {"gainers": sorted([r for r in rows if r["chg"] > 0], key=lambda r: -r["chg"])[:5],
+                       "losers": sorted([r for r in rows if r["chg"] < 0], key=lambda r: r["chg"])[:5],
+                       "active": sorted([r for r in rows if r["turnover"]], key=lambda r: -r["turnover"])[:5]},
+            "rows": rows,
+            "notices": [n for n in list(NOTICES) if n.get("market") == m][:25],
+            "status": {"open": True, "note": "Demo market: open at all times", "hours": MK[m]["hours"]}}
+
+
+LB = {"at": 0.0, "data": None, "lock": threading.Lock()}
+
+
+def _baseline(u):
+    """Practice value at the start: the starting cash and shares at reference prices, plus money added, minus money taken out."""
+    cfg = MK["DSE"]
+    demo = u["name"] in DEMO_NAMES and u["email"].endswith("@blockexdse.demo")
+    cash0, sh0 = (cfg["demo_cash"], cfg["demo_shares"]) if demo else (cfg["new_cash"], cfg["new_shares"])
+    v = cash0 + sum(sh0 * t["ref"] for t in cfg["tickers"].values())
+    for e in u.get("wallet_log", []):
+        if e["market"] == "DSE":
+            v += e["amount"] if e["type"] == "deposit" else -e["amount"]
+    return v
+
+
+@app.get("/api/leaderboard")
+def leaderboard():
+    """Practice challenge: investors ranked by the change in their DSE practice portfolio. Demo bots are left out."""
+    _leader_only()
+    with LB["lock"]:
+        if LB["data"] is not None and time.time() - LB["at"] < 8:
+            return LB["data"]
+        tks = list(MK["DSE"]["tickers"])
+        last = {t: STATS["DSE"][t]["last"] or MK["DSE"]["tickers"][t]["ref"] for t in tks}
+        rows, players = [], 0
+        ntr = {}
+        for r in ORDERS.values():                                # trades per investor; only investors with a trade are ranked,
+            if r["market"] == "DSE" and r.get("owner") and r.get("trades"):   # so the chain is read for active players only
+                ntr[r["owner"]] = ntr.get(r["owner"], 0) + len(r["trades"])
+        for u in AUTH.wallet_users():
+            if u["role"] != "trader" or u["name"] in BOTS:
+                continue
+            players += 1
+            if not ntr.get(u["id"]):
+                continue
+            try:
+                b = CLIENTS["DSE"].balance(u["wallet"], tks)
+            except Exception:
+                continue
+            val = b["cash"] + b["locked_cash"] + sum((b["shares"][t] + b["locked_shares"][t]) * last[t] for t in tks)
+            base = _baseline(u)
+            rows.append({"id": u["id"], "name": _first(u["name"]), "value": val, "ret": round((val - base) / base * 100, 3) if base else 0.0,
+                         "trades": ntr[u["id"]], "quick": bool(u.get("quick"))})
+        rows.sort(key=lambda r: (-r["ret"], -r["trades"]))
+        for i, r in enumerate(rows):
+            r["rank"] = i + 1
+        LB["data"], LB["at"] = {"market": "DSE", "n": len(rows), "players": players, "rows": rows[:50], "t": now_ms()}, time.time()
+        return LB["data"]
+
+
+@app.get("/api/board/feed")
+def board_feed():
+    """Public feed for the big-screen board: the latest orders, with first names only."""
+    _leader_only()
+    rows = [r for r in ORDERS.values() if not r.get("bench") and r["market"] != "BNC"]
+    rows.sort(key=lambda r: r["id"], reverse=True)
+    keys = ("id", "ts", "market", "ticker", "side", "otype", "qty", "price", "status", "filled", "stages", "place_tx", "risk")
+    out = []
+    for r in rows[:12]:
+        x = {k: r.get(k) for k in keys}
+        x["name"] = _first(r.get("trader_name"))
+        x["votes"] = {"agree": (r.get("votes") or {}).get("agree"), "required": (r.get("votes") or {}).get("required"),
+                      "compliance": bool((r.get("votes") or {}).get("compliance")),
+                      "detail": [{"node": d["node"], "agree": d["agree"], "verdict": d["verdict"]} for d in (r.get("votes") or {}).get("detail", [])]}
+        x["anchored"] = bool(r.get("trades")) and all(t.get("record_hash") for t in r["trades"])
+        out.append(x)
+    return out
+
+
+class QuickIn(BaseModel):
+    name: str
+    wallet: str
+
+
+QUICK_RATE = deque(maxlen=200)
+
+
+@app.post("/api/auth/quickstart")
+def quickstart(b: QuickIn):
+    """Demo days: a visitor taps "Try it now", picks a nickname, and gets a practice account at once.
+    The signing key is still created in the visitor's browser; only its address is sent and registered on-chain."""
+    _leader_only()
+    if not QUICKSTART:
+        raise HTTPException(403, "Quick start is switched off on this system.")
+    now = time.time()
+    while QUICK_RATE and now - QUICK_RATE[0] > 60:
+        QUICK_RATE.popleft()
+    if len(QUICK_RATE) >= 30:
+        raise HTTPException(429, "Many visitors are joining right now. Please try again in a minute.")
+    wallet = (b.wallet or "").strip()
+    if not Web3.is_address(wallet):
+        raise HTTPException(400, "A signing address is required. Reload the page: your browser creates the key.")
+    if any((x.get("wallet_req") or x["wallet"] or "").lower() == wallet.lower() for x in AUTH.users.values()):
+        raise HTTPException(409, "This signing address is already linked to an account.")
+    u = AUTH.quick(b.name)
+    QUICK_RATE.append(now)
+    with APPROVE_LOCK:
+        reg = None
+        wallet = Web3.to_checksum_address(wallet)
+        for m, cfg in MK.items():
+            if cfg.get("hidden"):
+                continue
+            r = CLIENTS[m].register_trader(wallet, cfg["new_cash"])
+            reg = reg or r
+            for sym in cfg["tickers"]:
+                CLIENTS[m].credit_shares(wallet, sym, cfg["new_shares"])
+        u["wallet"], u["reg_tx"], u["decided_by"] = wallet, reg["tx"], "quick start"
+    notice("joined", name=_first(u["name"]))
+    return {"token": AUTH._session(u, ttl=12 * 3600), "user": AUTH.public(u), "tx": reg["tx"]}
+
+
+@app.get("/vendor/{name}")
+def vendor_file(name: str):
+    if name not in ("qrcode.js", "sign.js"):
+        raise HTTPException(404, "not found")
+    return FileResponse(DASH / "vendor" / name, media_type="application/javascript")
+
+
 # ───────────────────────── gateway: market simulator (liquidity bots) ─────────────────────────
 @app.get("/api/admin/sim")
 def sim_status(_=Depends(admin_user)):
@@ -1140,7 +1348,7 @@ def sim_loop():
     """Demo-only order flow: three KYC traders sign and post limit orders around the last price and sometimes send market orders."""
     time.sleep(3)
     while True:
-        time.sleep(1.6)
+        time.sleep(SIM_EVERY)
         try:
             active = [m for m, on in SIM.items() if on]
             if not active or PIPE_LOCK.locked():
@@ -1153,10 +1361,14 @@ def sim_loop():
             step = max(1, round(ref * 0.005))
             side = random.choice(["BUY", "SELL"])
             qty = random.randint(1, 15)
-            if random.random() < 0.25:
+            dev = (last - ref) / ref                    # v2.1: gentle pull back towards the reference price, so the demo
+            pull = -1 if dev > 0.03 else 1 if dev < -0.03 else 0    # market moves like a market instead of pinning at the limits
+            if pull and random.random() < 0.6:
+                side = "SELL" if pull < 0 else "BUY"
+            if random.random() < 0.18:
                 bot_order(bot, m, t, qty, 0, side, "MARKET")
             else:
-                px = last + random.randint(-2, 2) * step
+                px = last + (random.randint(-2, 2) + (pull if random.random() < 0.6 else 0)) * step
                 lo, hi = limits(m, t)
                 bot_order(bot, m, t, qty, min(max(px, lo), hi), side, "LIMIT")
         except Exception:
@@ -1164,6 +1376,9 @@ def sim_loop():
 
 
 if IS_LEADER:
+    for _m in os.getenv("DEMO_SIM", "").split(","):     # v2.1: run.py --demo starts the market simulator on these markets
+        if _m.strip() in SIM:
+            SIM[_m.strip()] = True
     threading.Thread(target=sim_loop, daemon=True).start()
 
 
@@ -1654,6 +1869,13 @@ def manifest():
 @app.get("/sw.js")
 def service_worker():
     return FileResponse(DASH / "sw.js", media_type="text/javascript")
+
+
+@app.get("/icon-{size}.png")
+def icon_png(size: int):
+    if size not in (180, 192, 512):
+        raise HTTPException(404, "not found")
+    return FileResponse(DASH / f"icon-{size}.png", media_type="image/png")
 
 
 @app.get("/icon.svg")

@@ -161,10 +161,22 @@ class AuthStore:
             else:
                 u["status"], u["reject_reason"] = "rejected", (reason or "Identity details could not be verified.")[:200]
 
+    # ---------- v2.1 quick start (demo days: one tap, no OTP, no ID, no broker approval) ----------
+    def quick(self, name):
+        """A practice account for visitors. The caller registers the browser-made address on-chain before using it."""
+        name = re.sub(r"\s+", " ", (name or "").strip())
+        if not 2 <= len(name) <= 24 or not re.match(r"^[\w .'\-\u0980-\u09FF]+$", name):
+            raise AuthError("Choose a nickname of 2 to 24 letters.")
+        with self.lock:
+            self.seq_quick = getattr(self, "seq_quick", 0) + 1
+            u = self._new(name, f"guest{self.seq_quick}.{secrets.token_hex(3)}@quick.demo", "01700000000", secrets.token_urlsafe(18), "trader", "active")
+            u["quick"] = True
+            return u
+
     # ---------- sessions ----------
-    def _session(self, u):
+    def _session(self, u, ttl=None):
         token = secrets.token_urlsafe(32)
-        self.sessions[token] = (u["id"], time.time() + SESSION_TTL)
+        self.sessions[token] = (u["id"], time.time() + (ttl or SESSION_TTL))
         return token
 
     def login(self, email, password):

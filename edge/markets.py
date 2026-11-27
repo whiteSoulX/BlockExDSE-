@@ -39,12 +39,22 @@ MARKETS = {
         "demo_cash": 5_000_000, "demo_shares": 500, "new_cash": 1_000_000, "new_shares": 100,
         # v2.1 practice wallet (simulated payments; amounts in BDT)
         "wallet": {"methods": ["bkash", "nagad", "rocket", "bank"], "min": 500, "max": 500_000},
-        "tickers": {
-            "GP": {"name": "Grameenphone", "ref": 300, "sector": "Telecommunication", "about": "Mobile phone and internet operator"},
-            "BRACBANK": {"name": "BRAC Bank", "ref": 45, "sector": "Bank", "about": "Commercial bank"},
-            "SQURPHARMA": {"name": "Square Pharmaceuticals", "ref": 220, "sector": "Pharmaceuticals", "about": "Medicine maker"},
-            "ROBI": {"name": "Robi Axiata", "ref": 28, "sector": "Telecommunication", "about": "Mobile phone and internet operator"},
-            "BATBC": {"name": "British American Tobacco Bangladesh", "ref": 380, "sector": "Food and allied", "about": "Tobacco products"},
+        "tickers": {                                     # reference prices are ILLUSTRATIVE; "w" = weight in the demo index
+            "GP": {"name": "Grameenphone", "ref": 300, "sector": "Telecommunication", "about": "Mobile phone and internet operator", "w": 18},
+            "ROBI": {"name": "Robi Axiata", "ref": 28, "sector": "Telecommunication", "about": "Mobile phone and internet operator", "w": 6},
+            "BRACBANK": {"name": "BRAC Bank", "ref": 45, "sector": "Bank", "about": "Commercial bank", "w": 6},
+            "CITYBANK": {"name": "The City Bank", "ref": 22, "sector": "Bank", "about": "Commercial bank", "w": 3},
+            "EBL": {"name": "Eastern Bank", "ref": 25, "sector": "Bank", "about": "Commercial bank", "w": 3},
+            "SQURPHARMA": {"name": "Square Pharmaceuticals", "ref": 220, "sector": "Pharmaceuticals", "about": "Medicine maker", "w": 12},
+            "RENATA": {"name": "Renata", "ref": 600, "sector": "Pharmaceuticals", "about": "Medicine maker", "w": 5},
+            "BXPHARMA": {"name": "Beximco Pharmaceuticals", "ref": 90, "sector": "Pharmaceuticals", "about": "Medicine maker", "w": 4},
+            "BATBC": {"name": "British American Tobacco Bangladesh", "ref": 380, "sector": "Food and allied", "about": "Tobacco products", "w": 10},
+            "OLYMPIC": {"name": "Olympic Industries", "ref": 140, "sector": "Food and allied", "about": "Biscuits and snacks", "w": 3},
+            "MARICO": {"name": "Marico Bangladesh", "ref": 2300, "sector": "Food and allied", "about": "Hair care and personal care", "w": 5},
+            "UPGDCL": {"name": "United Power Generation", "ref": 130, "sector": "Fuel and power", "about": "Power generation", "w": 5},
+            "TITASGAS": {"name": "Titas Gas", "ref": 30, "sector": "Fuel and power", "about": "Gas transmission and distribution", "w": 2},
+            "WALTONHIL": {"name": "Walton Hi-Tech", "ref": 500, "sector": "Engineering", "about": "Electronics and appliances", "w": 10},
+            "LHBL": {"name": "LafargeHolcim Bangladesh", "ref": 60, "sector": "Cement", "about": "Cement maker", "w": 8},
         },
     },
     "LSE": {
