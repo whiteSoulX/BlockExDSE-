@@ -9,11 +9,11 @@
 <link rel="apple-touch-icon" href="/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="RACE">
+<meta name="apple-mobile-web-app-title" content="BlockExDSE">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap">
-<title>RACE · BlockExDSE v2.1</title>
+<title>BlockExDSE v2.1</title>
 <style>
 /* v2.1 look: the phone design from the poster. Light, navy and blue, orange only for escalated risk. */
 :root{--navy:#1F3864;--blue:#2F5597;--sky:#8FAADC;--ice:#DAE3F3;--pale:#EEF2FA;--orange:#C55A11;--amber:#ED7D31;--peach:#FBE5D6;
@@ -432,7 +432,7 @@ body.board{background:radial-gradient(1200px 700px at 10% -10%,#2F5597 0%,transp
 /* ═══════════════ BlockExDSE v2.1 dashboard ═══════════════
    One page, two layouts: the investor app (phone first, the poster design) and the staff console (broker, admin).
    Change the product name here once the team has chosen it. */
-const BRAND = { name: "RACE", letter: "R", long: "Risk-Adaptive Consensus at the Edge", project: "BlockExDSE v2.1" };
+const BRAND = { name: "BlockExDSE", letter: "B", long: "Risk-adaptive edge consensus with RACD", project: "v2.1 · blockchain stock exchange" };
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -520,7 +520,7 @@ const L = {
     g2t: "Buy or sell", g2: "Buy means you pay money and receive shares. Sell means you give shares and receive money.",
     g3t: "How many shares", g3: "Start small. 10 shares is a good first trade. The cost appears below.",
     g4t: "Your price", g4: "Limit price = the most you will pay for one share. We filled in the current price. Prices outside the allowed band are refused.",
-    g5t: "The safety check", g5: "RACE scores every order. Normal orders need 3 of 4 validators; large or unusual ones need all 4. The black line shows your order.",
+    g5t: "The safety check", g5: "BlockExDSE scores every order. Normal orders need 3 of 4 validators; large or unusual ones need all 4. The black line shows your order.",
     g6t: "Sign and send", g6: "Your phone signs the order with your private key, then the validators check it. Tap the button.",
     g7t: "Watch it settle", g7: "Each dot lights up as your order moves: signed, checked, approved, on the blockchain, settled. Well done!",
     g7w: "Your order is approved and on the blockchain. It now waits on the order book; when someone takes the other side it settles automatically. Well done!",
@@ -529,7 +529,7 @@ const L = {
     contact_ok: "Mobile verified.", submitted: "Submitted. A broker will review it.", copied: "Copied",
     no_gateway: "Cannot reach the gateway on port 9001. Is the system running?", no_sign: "The signing module (vendor/sign.js) did not load, so orders cannot be signed.",
     // v2.1 market tools and demo-day features
-    idx_name: "RACE demo index", idx_note: "Weighted average of the {n} demo stocks, base 1000. Simulated: this is not the DSEX.", live: "Live",
+    idx_name: "BlockExDSE demo index", idx_note: "Weighted average of the {n} demo stocks, base 1000. Simulated: this is not the DSEX.", live: "Live",
     mkt_open: "Open", status_note: "Demo market: open all day. Real DSE hours: {h}", pulse: "Market today", turnover: "Turnover", trades_n: "Trades",
     adv: "up", dec: "down", unch: "unchanged", heatmap: "Heatmap", heat_note: "Colour shows today's change. Bigger tiles carry more index weight.",
     movers: "Top movers", gainers: "Gainers", losers: "Losers", active_m: "Most active", no_movers: "Nothing yet today.",
@@ -548,8 +548,8 @@ const L = {
     perk1: "Practice money", perk2: "Real blockchain", perk3: "4 validators", nick_bad: "Use 2 to 24 letters or numbers.",
     welcome_t: "Welcome, {name}!", welcome_s: "Your practice account is ready and registered on the blockchain.",
     welcome_get: "You got {cash} practice cash and {n} shares of every company.", explore: "Explore on my own",
-    install: "Install app", ios_t: "Add RACE to your Home Screen", ios_1: "Tap the Share button in Safari", ios_2: "Choose “Add to Home Screen”", ios_3: "Open RACE from your Home Screen",
-    inst_other: "Open your browser menu and choose “Install app” or “Add to Home screen”.", installed: "Installed. Open RACE from your home screen.",
+    install: "Install app", ios_t: "Add BlockExDSE to your Home Screen", ios_1: "Tap the Share button in Safari", ios_2: "Choose “Add to Home Screen”", ios_3: "Open BlockExDSE from your Home Screen",
+    inst_other: "Open your browser menu and choose “Install app” or “Add to Home screen”.", installed: "Installed. Open BlockExDSE from your home screen.",
     share_app: "Share this app", share_s: "Let a friend scan this code to try trading on their phone.",
     board: "Live board", board_s: "For a big screen at the stall", scan: "Scan to trade", scan_s: "Open your camera, scan, pick a nickname. Practice money only.",
     feed: "Live blockchain feed", feed_s: "Every order: signed on a phone, checked by 4 validators, settled on-chain", feed_empty: "Waiting for the first order…",
@@ -623,7 +623,7 @@ const L = {
     g2t: "কিনবেন না বেচবেন", g2: "কেনা মানে টাকা দিয়ে শেয়ার পাওয়া। বেচা মানে শেয়ার দিয়ে টাকা পাওয়া।",
     g3t: "কতগুলো শেয়ার", g3: "অল্প দিয়ে শুরু করুন। প্রথম ট্রেডে ১০টি শেয়ার ভালো। খরচ নিচে দেখাবে।",
     g4t: "আপনার দাম", g4: "লিমিট দাম = একটি শেয়ারের জন্য সর্বোচ্চ যা দেবেন। এখনকার দাম বসানো আছে। সীমার বাইরের দাম বাতিল হয়।",
-    g5t: "নিরাপত্তা যাচাই", g5: "RACE প্রতিটি অর্ডারের স্কোর করে। সাধারণ অর্ডারে ৪টির মধ্যে ৩টি, বড় বা অস্বাভাবিক অর্ডারে সব ৪টি ভ্যালিডেটর লাগে। কালো দাগটি আপনার অর্ডার।",
+    g5t: "নিরাপত্তা যাচাই", g5: "BlockExDSE প্রতিটি অর্ডারের স্কোর করে। সাধারণ অর্ডারে ৪টির মধ্যে ৩টি, বড় বা অস্বাভাবিক অর্ডারে সব ৪টি ভ্যালিডেটর লাগে। কালো দাগটি আপনার অর্ডার।",
     g6t: "সই করে পাঠান", g6: "আপনার ফোন আপনার গোপন চাবি দিয়ে অর্ডারে সই করে, তারপর ভ্যালিডেটররা যাচাই করে। বোতামটি চাপুন।",
     g7t: "নিষ্পত্তি দেখুন", g7: "অর্ডার যেমন এগোয়, প্রতিটি বিন্দু জ্বলে ওঠে: সই, যাচাই, অনুমোদন, ব্লকচেইন, নিষ্পত্তি। অভিনন্দন!",
     g7w: "আপনার অর্ডার অনুমোদিত হয়ে ব্লকচেইনে উঠেছে। এখন এটি অর্ডার বইয়ে অপেক্ষা করছে; কেউ বিপরীত দিকে এলেই নিজে থেকে নিষ্পন্ন হবে। অভিনন্দন!",
@@ -631,7 +631,7 @@ const L = {
     session_end: "সেশন শেষ। আবার সাইন ইন করুন।", approved_msg: "অনুমোদিত। আপনার অ্যাকাউন্ট ব্লকচেইনে নিবন্ধিত হয়েছে।",
     contact_ok: "মোবাইল যাচাই হয়েছে।", submitted: "জমা হয়েছে। একজন ব্রোকার পর্যালোচনা করবেন।", copied: "কপি হয়েছে",
     no_gateway: "পোর্ট 9001-এ গেটওয়ে পাওয়া যাচ্ছে না। সিস্টেম চালু আছে কি?", no_sign: "সই করার মডিউল (vendor/sign.js) লোড হয়নি, তাই অর্ডারে সই করা যাবে না।",
-    idx_name: "RACE ডেমো সূচক", idx_note: "{n}টি ডেমো শেয়ারের ভারযুক্ত গড়, ভিত্তি ১০০০। সিমুলেশন: এটি DSEX নয়।", live: "লাইভ",
+    idx_name: "BlockExDSE ডেমো সূচক", idx_note: "{n}টি ডেমো শেয়ারের ভারযুক্ত গড়, ভিত্তি ১০০০। সিমুলেশন: এটি DSEX নয়।", live: "লাইভ",
     mkt_open: "খোলা", status_note: "ডেমো বাজার: সারাদিন খোলা। আসল DSE-এর সময়: {h}", pulse: "আজকের বাজার", turnover: "লেনদেনের মূল্য", trades_n: "লেনদেন সংখ্যা",
     adv: "বেড়েছে", dec: "কমেছে", unch: "অপরিবর্তিত", heatmap: "হিটম্যাপ", heat_note: "রং আজকের পরিবর্তন দেখায়। বড় ঘরের সূচকে ভার বেশি।",
     movers: "শীর্ষ পরিবর্তন", gainers: "দর বেড়েছে", losers: "দর কমেছে", active_m: "সর্বাধিক লেনদেন", no_movers: "আজ এখনও কিছু নেই।",
@@ -650,8 +650,8 @@ const L = {
     perk1: "অনুশীলনের টাকা", perk2: "আসল ব্লকচেইন", perk3: "৪টি ভ্যালিডেটর", nick_bad: "২ থেকে ২৪টি অক্ষর বা সংখ্যা দিন।",
     welcome_t: "স্বাগতম, {name}!", welcome_s: "আপনার অনুশীলন অ্যাকাউন্ট তৈরি এবং ব্লকচেইনে নিবন্ধিত।",
     welcome_get: "আপনি পেয়েছেন {cash} অনুশীলনের টাকা এবং প্রতিটি কোম্পানির {n}টি করে শেয়ার।", explore: "নিজে ঘুরে দেখি",
-    install: "অ্যাপ ইনস্টল", ios_t: "RACE হোম স্ক্রিনে যোগ করুন", ios_1: "Safari-তে শেয়ার বোতামে ট্যাপ করুন", ios_2: "“Add to Home Screen” বেছে নিন", ios_3: "হোম স্ক্রিন থেকে RACE খুলুন",
-    inst_other: "ব্রাউজারের মেনু খুলে “Install app” বা “Add to Home screen” বেছে নিন।", installed: "ইনস্টল হয়েছে। হোম স্ক্রিন থেকে RACE খুলুন।",
+    install: "অ্যাপ ইনস্টল", ios_t: "BlockExDSE হোম স্ক্রিনে যোগ করুন", ios_1: "Safari-তে শেয়ার বোতামে ট্যাপ করুন", ios_2: "“Add to Home Screen” বেছে নিন", ios_3: "হোম স্ক্রিন থেকে BlockExDSE খুলুন",
+    inst_other: "ব্রাউজারের মেনু খুলে “Install app” বা “Add to Home screen” বেছে নিন।", installed: "ইনস্টল হয়েছে। হোম স্ক্রিন থেকে BlockExDSE খুলুন।",
     share_app: "অ্যাপটি শেয়ার করুন", share_s: "বন্ধুকে এই কোড স্ক্যান করতে দিন, সে তার ফোনে লেনদেন করে দেখতে পারবে।",
     board: "লাইভ বোর্ড", board_s: "স্টলের বড় স্ক্রিনের জন্য", scan: "স্ক্যান করে লেনদেন করুন", scan_s: "ক্যামেরা খুলে স্ক্যান করুন, একটি ডাকনাম দিন। শুধু অনুশীলনের টাকা।",
     feed: "লাইভ ব্লকচেইন ফিড", feed_s: "প্রতিটি অর্ডার: ফোনে সই, ৪টি ভ্যালিডেটরের যাচাই, ব্লকচেইনে নিষ্পত্তি", feed_empty: "প্রথম অর্ডারের অপেক্ষা…",

@@ -1,6 +1,6 @@
 {
-  "name": "RACE · BlockExDSE v2.1",
-  "short_name": "RACE",
+  "name": "BlockExDSE v2.1",
+  "short_name": "BlockExDSE",
   "description": "Practice stock trading on a simulated Dhaka Stock Exchange: orders signed on your phone, checked by four edge validators, settled on a blockchain",
   "start_url": "/",
   "display": "standalone",
