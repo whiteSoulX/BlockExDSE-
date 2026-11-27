@@ -6,6 +6,11 @@
 <meta name="theme-color" content="#1F3864">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RACE">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap">
 <title>RACE · BlockExDSE v2.1</title>
@@ -234,6 +239,184 @@ label{display:block;font-size:12.5px;color:var(--mut);margin:12px 0 5px;font-wei
 #tour{position:fixed;inset:0;background:rgba(15,25,45,.5);display:none;align-items:center;justify-content:center;z-index:70;padding:16px}
 #tour .box{background:#fff;border-radius:20px;padding:20px;max-width:440px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 #tour h3{color:var(--navy);margin:4px 0 8px}#tour .row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+
+/* ───────── v2.1 market tools: ticker tape, index, breadth, heatmap, movers, notices ───────── */
+.tape{overflow:hidden;background:var(--navy);color:#fff;border-radius:12px;margin:0 0 12px;white-space:nowrap;position:relative;-webkit-mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent);mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+.tape .trk{display:inline-flex;padding:8px 0;animation:tape 55s linear infinite;will-change:transform}
+.tape:hover .trk{animation-play-state:paused}
+.tape .ti{font-size:13px;font-weight:600;display:inline-flex;gap:6px;align-items:baseline;padding-right:28px;cursor:pointer}
+.tape .ti b{color:#fff;font-weight:800}.tape .ti .p{opacity:.88}.tape .up{color:#86E3AE}.tape .dn{color:#FFA394}.tape .fl{color:#C9D4EA}
+@keyframes tape{to{transform:translateX(-50%)}}
+.ldot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:1px;box-shadow:0 0 0 0 rgba(46,158,91,.5);animation:lp 1.8s infinite}
+.ldot.off{background:#c3c9d4;animation:none}
+@keyframes lp{70%{box-shadow:0 0 0 7px rgba(46,158,91,0)}100%{box-shadow:0 0 0 0 rgba(46,158,91,0)}}
+.idx .ih{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.idx .iv{font-size:28px;font-weight:800;letter-spacing:-.6px;color:var(--navy)}
+.idx .ic{font-size:13.5px;font-weight:700}
+.idx .ist{text-align:right;font-size:12px;color:var(--mut)}.idx .ist b{display:block;color:var(--ok);font-size:14px}
+.idx .ichart{margin:8px -4px 4px;height:120px}
+.sum3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.sum3 div{background:var(--pale);border-radius:12px;padding:7px 10px;min-width:0}.sum3 small{display:block;font-size:11px;color:var(--mut);font-weight:600}.sum3 b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.breadth{display:flex;height:8px;border-radius:5px;overflow:hidden;gap:2px;margin:10px 0 6px}
+.breadth i{display:block;min-width:3px}.breadth .a{background:var(--ok)}.breadth .u{background:#C9D2E3}.breadth .d{background:var(--bad)}
+.heat{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));grid-auto-rows:62px;gap:6px}
+.hx{border:0;border-radius:12px;padding:7px 8px;text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden;transition:transform .12s}
+.hx:hover{transform:scale(1.03)}.hx b{font-size:12.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hx span{font-size:12.5px;font-weight:700}
+.hx small{font-size:10px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hx.w2{grid-column:span 2}.hx.flash{animation:fl .9s}
+@keyframes fl{0%{box-shadow:0 0 0 3px var(--amber)}100%{box-shadow:0 0 0 0 transparent}}
+.mv{display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer}.mv+.mv{border-top:1px solid var(--line)}
+.mv .tk{width:38px;height:38px;border-radius:11px;background:var(--pale);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;flex:none}
+.mv .m{flex:1;min-width:0}.mv .m b{font-size:14px}.mv .m small{display:block;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mv .r{text-align:right}
+.nt{display:flex;gap:10px;padding:9px 0;align-items:flex-start}.nt+.nt{border-top:1px solid var(--line)}
+.nt .ni{width:30px;height:30px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
+.nt .nb{flex:1;min-width:0;font-size:13.5px}.nt .nb small{display:block;color:var(--mut);font-size:11.5px;margin-top:1px}
+.nt.new{animation:slidein .5s ease-out}@keyframes slidein{from{opacity:0;transform:translateY(-6px)}}
+.k-circuit{background:var(--warnbg);color:#8a5a00}.k-block{background:var(--ice);color:var(--navy)}.k-held{background:var(--warnbg);color:#8a5a00}
+.k-escalated{background:var(--peach);color:var(--orange)}.k-joined{background:var(--okbg);color:var(--ok)}.k-validator{background:var(--badbg);color:var(--bad)}.k-validator.ok{background:var(--okbg);color:var(--ok)}
+.mpanel{display:none}.mpanel.on{display:block}
+.lhead{display:none}
+.xc{display:none}
+/* challenge and badges */
+.lb{display:flex;align-items:center;gap:10px;padding:8px 0}.lb+.lb{border-top:1px solid var(--line)}
+.lb .rk{width:28px;height:28px;border-radius:50%;background:var(--pale);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;flex:none}
+.lb .rk.g1{background:#F7D774;color:#5c4400}.lb .rk.g2{background:#DCE1EA;color:#3c4656}.lb .rk.g3{background:#EBC09B;color:#5a3412}
+.lb .nm{flex:1;min-width:0;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lb .nm small{font-weight:600;color:var(--mut);font-size:11.5px;margin-left:4px}
+.lb.me{background:var(--pale);border-radius:12px;padding:8px 8px;margin:0 -8px}
+.myrank{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(120deg,var(--navy),var(--blue));color:#fff;border-radius:14px;padding:10px 14px;margin-bottom:8px}
+.myrank b{font-size:22px}.myrank small{display:block;font-size:11.5px;opacity:.8}
+.badges{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.bd{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font-size:10.5px;font-weight:600;color:var(--mut);cursor:pointer;background:none;border:0;padding:0}
+.bd i{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#EEF0F4;color:#B0B7C3;font-style:normal;font-size:20px;filter:grayscale(1)}
+.bd.on{color:var(--navy)}.bd.on i{background:linear-gradient(135deg,#FFE4A8,#F6B94A);color:#6b3e00;filter:none;box-shadow:0 3px 10px rgba(237,125,49,.3)}
+.bd.pop i{animation:pop2 .7s}@keyframes pop2{40%{transform:scale(1.25)}}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:80;width:100%;height:100%}
+/* try it now */
+.try{background:linear-gradient(140deg,#1F3864,#2F5597);color:#fff}
+.try h2{margin:0;font-size:19px}.try p{margin:5px 0 12px;font-size:13.5px;opacity:.9}
+.tryrow{display:flex;gap:8px}.tryrow input{flex:1;border:0;font-size:16px}.tryrow .btn{width:auto;flex:none;background:var(--amber);padding:0 18px}
+.try .perks{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.try .perks span{background:rgba(255,255,255,.14);border-radius:99px;padding:4px 10px;font-size:12px;font-weight:600}
+.try .err{color:#FFD0C8}
+.orline{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:12.5px;margin:2px 0 12px}.orline::before,.orline::after{content:"";flex:1;height:1px;background:var(--line)}
+.inst{display:inline-flex;align-items:center;gap:6px}
+.qrbox{background:#fff;border-radius:16px;padding:12px;display:flex;justify-content:center}.qrbox svg{width:100%;height:auto;max-width:260px;display:block}
+.urlline{font-size:12.5px;word-break:break-all;text-align:center;margin-top:8px}
+.ptitle{display:none;font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.3px}
+.nbrand,.nfoot{display:none}
+.tt{display:flex;justify-content:space-between;gap:6px}
+@media (min-width:760px){.phonepad{display:none}}
+.bookc .lv{cursor:pointer}.bookc .lv:hover{outline:1.5px solid var(--sky)}
+
+/* ───────── responsive: tablet and desktop ───────── */
+.pg{display:flex;flex-direction:column}
+.pg>.col{display:contents}
+.pg>.col>*{order:var(--o,50)}
+.pg.trade>.c1,.pg.trade>.c2{display:none}
+@media (min-width:760px){
+  .inv .shell{max-width:none;margin:0 0 0 92px;padding:18px 24px 40px}
+  .inv #itop,.inv #main{max-width:1500px;margin-left:auto;margin-right:auto}
+  .tabs{top:0;bottom:0;right:auto;width:92px;border-top:0;border-right:1px solid var(--line);padding:14px 8px;overflow-y:auto}
+  .tabs .in{flex-direction:column;justify-content:flex-start;gap:4px;max-width:none}
+  .tab{flex:none;min-height:66px;border-radius:14px}
+  .tab.on{background:var(--pale)}
+  .tab .cnt{left:58%}
+  .sticky{position:static;padding:0;background:none;margin-bottom:12px}
+  .sticky .in{max-width:none}
+  #toast{bottom:24px}
+  #coach{left:auto;right:24px;bottom:24px;width:400px;padding:0}
+  #sheet .pn{top:50%;bottom:auto;left:50%;right:auto;transform:translate(-50%,-50%);width:min(520px,92vw);border-radius:24px;max-height:88vh;animation:pop .18s ease-out;padding:22px 24px}
+  #sheet .grab{display:none}
+  @keyframes pop{from{opacity:0;transform:translate(-50%,-46%)}}
+  .pg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 16px;align-items:start}
+  .pg>.col{display:block;min-width:0}
+  .pg.home{grid-template-rows:auto 1fr}
+  .pg.home>.c1{grid-column:1;grid-row:1}.pg.home>.c2{grid-column:2;grid-row:1/span 2}.pg.home>.c3{grid-column:1;grid-row:2}
+  .pg.trade{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+  .pg.trade>.c2{display:block;order:2}.pg.trade>.c3{order:1}
+  .pg.orders,.pg.one{display:block}
+  .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}.olist .oc,.olist .card{margin:0}
+  .wbals{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:12px}.wbals .card{margin:0}
+  .wbtns{max-width:520px}
+  .badges{grid-template-columns:repeat(5,1fr)}
+  .ichart{height:150px!important}
+}
+@media (min-width:760px) and (max-width:999px){.pg.markets{display:block}}
+@media (min-width:1000px){
+  .pg.markets{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+  .pg.markets .mseg{display:none}
+  .pg.markets .mpanel{display:block}
+  .lhead{display:flex;font-size:11.5px;color:var(--mut);font-weight:700;padding:0 0 6px;border-bottom:1px solid var(--line)}
+  .lhead span,.xc{flex:none;width:86px;text-align:right}
+  .lhead .l0{flex:1;text-align:left;width:auto}.lhead .sp{width:66px}
+  #mlist .xc{display:block;font-size:13px;color:var(--ink)}
+  #mlist .lrow{padding:8px 0}
+}
+@media (min-width:1200px){
+  .inv .shell{margin-left:236px;padding:20px 30px 40px}
+  .tabs{width:236px;padding:18px 14px;display:flex;flex-direction:column}
+  .tabs .in{flex:1;flex-direction:column}
+  .nbrand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;color:var(--navy);padding:4px 8px 18px}
+  .nbrand small{display:block;font-size:11px;color:var(--mut);font-weight:600}
+  .tab{flex-direction:row;justify-content:flex-start;gap:12px;font-size:14.5px;padding:0 14px;min-height:48px;color:var(--mut)}
+  .tab svg{width:22px;height:22px}.tab.on{color:var(--blue)}
+  .tab .cnt{position:static;margin-left:auto}
+  .nfoot{display:block;margin-top:auto;padding-top:12px;border-top:1px solid var(--line)}
+  .nfoot .btn{min-height:42px;font-size:13.5px;margin-top:8px;text-decoration:none}
+  .nfoot .sub{padding:0 6px}
+  .inv .top .brand{display:none}.ptitle{display:block}
+  .pg.home{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr)}
+  .pg.home{grid-template-rows:auto}.pg.home>.c1,.pg.home>.c2,.pg.home>.c3{grid-row:1;grid-column:auto}
+  .pg.trade{grid-template-columns:270px minmax(0,1.25fr) minmax(340px,1fr)}
+  .pg.trade>.c1{display:block}.pg.trade>.c2{order:0}.pg.trade>.c3{order:0}
+  .pg.stock{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){.tape{overflow-x:auto}.tape .trk{animation:none}.ldot{animation:none}*{scroll-behavior:auto!important}}
+
+/* ───────── big-screen live board (#board) ───────── */
+body.board{background:radial-gradient(1200px 700px at 10% -10%,#2F5597 0%,transparent 60%),linear-gradient(160deg,#14264A,#1F3864);color:#fff;min-height:100vh}
+.bw{padding:18px 22px;min-height:100vh;display:flex;flex-direction:column;gap:12px}
+.bh{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.bh .brand{color:#fff}.bh .brand small{color:#B8C7E6}.bh .logo{background:linear-gradient(135deg,#fff,#DAE3F3);color:var(--navy)}
+.bh .bmeta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:#C9D4EA}
+.bh .bpill{background:rgba(255,255,255,.1);border-radius:99px;padding:6px 12px;font-weight:700}
+.bh .clock{font-size:20px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+.board .tape{background:rgba(255,255,255,.08);margin:0}
+.board .tape .ti{font-size:15px}
+.bg3{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1.2fr) minmax(300px,.85fr);gap:12px;flex:1;min-height:0}
+.bcol{display:flex;flex-direction:column;gap:12px;min-height:0;min-width:0}
+.bc{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px 16px;min-width:0}
+.bc h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#B8C7E6;display:flex;justify-content:space-between;gap:8px}
+.bc h3 span{text-transform:none;letter-spacing:0;font-weight:600}
+.board .sub{color:#B8C7E6}.board .up{color:#7BE0A5}.board .dn{color:#FF9C8F}
+.board .idx .iv{color:#fff}.board .foot,.board .empty,.board .idx .ist{color:#B8C7E6}.board .idx .ist b{color:#7BE0A5}
+.board .iv{font-size:52px;font-weight:800;letter-spacing:-1.2px;line-height:1.05;font-variant-numeric:tabular-nums}
+.board .ic{font-size:18px;font-weight:700}
+.board .sum3 div{background:rgba(255,255,255,.08)}.board .sum3 small{color:#B8C7E6}.board .sum3 b{font-size:18px}
+.board .breadth .u{background:rgba(255,255,255,.25)}
+.board .heat{grid-auto-rows:64px}
+.bfeed{display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.fr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:rgba(255,255,255,.06);border-radius:14px;padding:9px 12px}
+.fr.new{animation:frin .8s ease-out}@keyframes frin{from{background:rgba(237,125,49,.45);transform:translateX(-8px)}}
+.fr .av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-weight:800}
+.fr .ft{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.fr .ft .b{color:#9CC0FF}.fr .ft .s{color:#FFA394}
+.fr .fs{font-size:12px;color:#B8C7E6;display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px}
+.fr .vv{display:flex;gap:4px}.fr .vv i{font-style:normal;font-size:11px;font-weight:800;border-radius:6px;padding:2px 6px;background:rgba(255,255,255,.1);color:#8C9BB8}
+.fr .vv i.y{background:rgba(123,224,165,.2);color:#7BE0A5}.fr .vv i.n{background:rgba(255,156,143,.2);color:#FF9C8F}
+.fr .st2{font-size:12px;font-weight:800;border-radius:99px;padding:4px 10px;background:rgba(255,255,255,.12);white-space:nowrap}
+.fr .st2.ok{background:rgba(123,224,165,.2);color:#7BE0A5}.fr .st2.wait{background:rgba(247,215,116,.18);color:#F7D774}.fr .st2.bad{background:rgba(255,156,143,.2);color:#FF9C8F}.fr .st2.esc{background:rgba(237,125,49,.25);color:#FFB27A}
+.board .lb+.lb{border-top-color:rgba(255,255,255,.1)}.board .lb .rk{background:rgba(255,255,255,.12);color:#fff}.board .lb .nm small{color:#B8C7E6}
+.board .lb .rk.g1{background:#F7D774;color:#5c4400}.board .lb .rk.g2{background:#DCE1EA;color:#3c4656}.board .lb .rk.g3{background:#EBC09B;color:#5a3412}
+.board .nt+.nt{border-top-color:rgba(255,255,255,.1)}.board .nt .nb small{color:#B8C7E6}
+.bqr{background:#fff;color:var(--navy);text-align:center}
+.bqr h3{color:var(--navy);justify-content:center;font-size:20px;letter-spacing:0;text-transform:none}
+.bqr .qrbox{padding:4px}.bqr .qrbox svg{max-width:230px}
+.bqr .sub{color:var(--mut)}
+.bwarn{background:var(--warnbg);color:#6b4a00;border-radius:12px;padding:8px 10px;font-size:12.5px;margin-top:8px;text-align:left}
+@media (min-width:1300px) and (min-height:900px){.bw{height:100vh;overflow:hidden}.bcol{overflow:hidden}}
+@media (max-height:899px){.bw{padding:12px 16px;gap:10px}.board .iv{font-size:40px}.board .ichart{height:96px!important}.bqr .qrbox svg{max-width:170px}
+  .bc{padding:11px 13px}.fr{padding:7px 10px}.fr .av{width:30px;height:30px}.board .heat{grid-auto-rows:50px}.board .hx small{display:none}}
+@media (max-width:1100px){.bg3{grid-template-columns:1fr 1fr}.bg3>.bcol:last-child{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}}
+@media (max-width:700px){.bg3{grid-template-columns:1fr}.board .iv{font-size:40px}}
 </style>
 </head>
 <body>
@@ -242,6 +425,7 @@ label{display:block;font-size:12.5px;color:var(--mut);margin:12px 0 5px;font-wei
 <div id="coach"></div>
 <div id="toast"></div>
 <div id="tour"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
 <script src="/vendor/sign.js"></script>
 <script>
 "use strict";
@@ -255,13 +439,15 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => Number(n).toLocaleString();
 const short = h => h ? h.slice(0, 10) + "…" + h.slice(-6) : "–";
-const S = { token: sessionStorage.getItem("bx_token") || "", market: sessionStorage.getItem("bx_mk") || "DSE", me: null, portfolios: null, info: null,
+const S = { token: sessionStorage.getItem("bx_token") || localStorage.getItem("bx_qtoken") || "", market: sessionStorage.getItem("bx_mk") || "DSE", me: null, portfolios: null, info: null,
             view: null, tab: "in", otpDemo: "", orders: [], cur: null, side: "BUY", otype: "LIMIT", tk: {}, snap: {}, nodes: [], req: null,
             accounts: [], demo: [], sim: {}, es: null, liveAt: 0, key: null, keyDemo: false, tmpKey: null, review: [],
             lab: { audit: {}, results: null, tamper: {}, bench: null, benchJob: null, busy: false },
             // v2.1 investor app
             lang: localStorage.getItem("bx_lang") || "en", itab: "home", stock: null, hist: {}, histRange: "1M", watch: {}, wallet: null,
-            ofilter: "active", form: { qty: 10, price: null }, guide: { on: false, step: 0 }, mfilter: "all", q: "" };
+            ofilter: "active", form: { qty: 10, price: null }, guide: { on: false, step: 0 }, mfilter: "all", q: "",
+            // demo-day features: market overview, leaderboard, live board
+            ov: {}, lb: null, bfeed: [], prevOrd: null, mpanel: "stocks", mvtab: "gainers", welcome: null };
 const STAGES = ["submitted", "edge_validated", "consensus", "onchain", "matched", "settled"];
 const LABEL = { submitted: "Signed by investor", edge_validated: "Edge checked", consensus: "Validators signed", onchain: "Verified on-chain", matched: "Matched", settled: "Settled" };
 const MODE_NAME = { chain_only: "Contract only (no edge)", edge_only: "Gateway check only", fixed3: "Always 3 of 4", fixed4: "Always 4 of 4", racd: "Risk-proportional (3 or 4)" };
@@ -342,6 +528,34 @@ const L = {
     session_end: "Session ended. Please sign in again.", approved_msg: "Approved. Your account is registered on the blockchain.",
     contact_ok: "Mobile verified.", submitted: "Submitted. A broker will review it.", copied: "Copied",
     no_gateway: "Cannot reach the gateway on port 9001. Is the system running?", no_sign: "The signing module (vendor/sign.js) did not load, so orders cannot be signed.",
+    // v2.1 market tools and demo-day features
+    idx_name: "RACE demo index", idx_note: "Weighted average of the {n} demo stocks, base 1000. Simulated: this is not the DSEX.", live: "Live",
+    mkt_open: "Open", status_note: "Demo market: open all day. Real DSE hours: {h}", pulse: "Market today", turnover: "Turnover", trades_n: "Trades",
+    adv: "up", dec: "down", unch: "unchanged", heatmap: "Heatmap", heat_note: "Colour shows today's change. Bigger tiles carry more index weight.",
+    movers: "Top movers", gainers: "Gainers", losers: "Losers", active_m: "Most active", no_movers: "Nothing yet today.",
+    notices: "Live notice board", notices_note: "Real events from this system only: price limits, block trades, escalations, validators, new players.", no_notices: "No notices yet.",
+    stocks: "Stocks", news: "Notices", code: "Code", last: "Last", change: "Change", ago_s: "{n}s ago", ago_m: "{n} min ago", ago_h: "{n} h ago",
+    chal: "Practice challenge", players: "{n} players", chal_join: "Make one trade to join the leaderboard.", your_rank: "Your rank", you: "you",
+    chal_empty: "No one has traded yet. Be the first!", chal_rule: "Ranked by return on the practice portfolio since joining. Simulated money.", trades_w: "trades",
+    badges: "Achievements", b_unlocked: "Achievement unlocked",
+    b_first_order: "First order", b_first_order_d: "Sign and send your first order", b_first_trade: "First trade", b_first_trade_d: "Get an order settled on the blockchain",
+    b_escalated: "Big league", b_escalated_d: "Trade a large order that needs all 4 validators", b_market: "Market taker", b_market_d: "Place a market order",
+    b_watch3: "Watcher", b_watch3_d: "Follow 3 stocks", b_funded: "Funded", b_funded_d: "Add practice money", b_bangla: "Bangla", b_bangla_d: "Use the app in Bangla",
+    b_audit: "Auditor", b_audit_d: "Run the independent audit", b_lse: "Globetrotter", b_lse_d: "Trade on the London demo market", b_cancel: "Changed my mind", b_cancel_d: "Cancel an order with your signature",
+    cel_buy: "Trade settled! You bought {q} {tk}.", cel_sell: "Trade settled! You sold {q} {tk}.",
+    try_t: "Try it now: no sign-up", try_s: "Pick a nickname and trade with practice money in seconds. Your signing key is created on this phone.",
+    nick: "Your nickname", try_go: "Start trading", try_wait: "Creating your account on the blockchain…", or_sign: "or sign in",
+    perk1: "Practice money", perk2: "Real blockchain", perk3: "4 validators", nick_bad: "Use 2 to 24 letters or numbers.",
+    welcome_t: "Welcome, {name}!", welcome_s: "Your practice account is ready and registered on the blockchain.",
+    welcome_get: "You got {cash} practice cash and {n} shares of every company.", explore: "Explore on my own",
+    install: "Install app", ios_t: "Add RACE to your Home Screen", ios_1: "Tap the Share button in Safari", ios_2: "Choose “Add to Home Screen”", ios_3: "Open RACE from your Home Screen",
+    inst_other: "Open your browser menu and choose “Install app” or “Add to Home screen”.", installed: "Installed. Open RACE from your home screen.",
+    share_app: "Share this app", share_s: "Let a friend scan this code to try trading on their phone.",
+    board: "Live board", board_s: "For a big screen at the stall", scan: "Scan to trade", scan_s: "Open your camera, scan, pick a nickname. Practice money only.",
+    feed: "Live blockchain feed", feed_s: "Every order: signed on a phone, checked by 4 validators, settled on-chain", feed_empty: "Waiting for the first order…",
+    local_warn: "Phones cannot open this address. Start the system with --public (internet link) or --lan (same Wi-Fi).",
+    trade_list: "Stocks", order_book: "Order book", tap_price: "Tap a price to use it", page_home: "Overview",
+    sim_banner: "Practice system: simulated money, prices and payments", copy_link: "Share link", show_all: "Show all {n}", show_less: "Show fewer", trade_1: "trade",
   },
   bn: {
     tagline: "নিরাপদে শেয়ার কিনুন ও বেচুন। প্রতিটি অর্ডার আপনার ফোনেই সই হয় এবং ব্লকচেইনে নিষ্পত্তির আগে ৪টি স্বাধীন ভ্যালিডেটর তা যাচাই করে।",
@@ -417,9 +631,37 @@ const L = {
     session_end: "সেশন শেষ। আবার সাইন ইন করুন।", approved_msg: "অনুমোদিত। আপনার অ্যাকাউন্ট ব্লকচেইনে নিবন্ধিত হয়েছে।",
     contact_ok: "মোবাইল যাচাই হয়েছে।", submitted: "জমা হয়েছে। একজন ব্রোকার পর্যালোচনা করবেন।", copied: "কপি হয়েছে",
     no_gateway: "পোর্ট 9001-এ গেটওয়ে পাওয়া যাচ্ছে না। সিস্টেম চালু আছে কি?", no_sign: "সই করার মডিউল (vendor/sign.js) লোড হয়নি, তাই অর্ডারে সই করা যাবে না।",
+    idx_name: "RACE ডেমো সূচক", idx_note: "{n}টি ডেমো শেয়ারের ভারযুক্ত গড়, ভিত্তি ১০০০। সিমুলেশন: এটি DSEX নয়।", live: "লাইভ",
+    mkt_open: "খোলা", status_note: "ডেমো বাজার: সারাদিন খোলা। আসল DSE-এর সময়: {h}", pulse: "আজকের বাজার", turnover: "লেনদেনের মূল্য", trades_n: "লেনদেন সংখ্যা",
+    adv: "বেড়েছে", dec: "কমেছে", unch: "অপরিবর্তিত", heatmap: "হিটম্যাপ", heat_note: "রং আজকের পরিবর্তন দেখায়। বড় ঘরের সূচকে ভার বেশি।",
+    movers: "শীর্ষ পরিবর্তন", gainers: "দর বেড়েছে", losers: "দর কমেছে", active_m: "সর্বাধিক লেনদেন", no_movers: "আজ এখনও কিছু নেই।",
+    notices: "লাইভ নোটিশ বোর্ড", notices_note: "শুধু এই সিস্টেমের আসল ঘটনা: দামের সীমা, ব্লক লেনদেন, উচ্চ ঝুঁকি, ভ্যালিডেটর, নতুন খেলোয়াড়।", no_notices: "এখনও কোনো নোটিশ নেই।",
+    stocks: "শেয়ার", news: "নোটিশ", code: "কোড", last: "সর্বশেষ", change: "পরিবর্তন", ago_s: "{n} সেকেন্ড আগে", ago_m: "{n} মিনিট আগে", ago_h: "{n} ঘণ্টা আগে",
+    chal: "অনুশীলন প্রতিযোগিতা", players: "{n} জন খেলোয়াড়", chal_join: "লিডারবোর্ডে আসতে একটি লেনদেন করুন।", your_rank: "আপনার অবস্থান", you: "আপনি",
+    chal_empty: "এখনও কেউ লেনদেন করেনি। আপনিই প্রথম হোন!", chal_rule: "যোগ দেওয়ার পর থেকে অনুশীলন পোর্টফোলিওর রিটার্ন অনুযায়ী ক্রম। টাকা কাল্পনিক।", trades_w: "লেনদেন",
+    badges: "অর্জন", b_unlocked: "নতুন অর্জন",
+    b_first_order: "প্রথম অর্ডার", b_first_order_d: "প্রথম অর্ডারে সই করে পাঠান", b_first_trade: "প্রথম লেনদেন", b_first_trade_d: "একটি অর্ডার ব্লকচেইনে নিষ্পন্ন করুন",
+    b_escalated: "বড় খেলোয়াড়", b_escalated_d: "৪টি ভ্যালিডেটরের অনুমোদন লাগে এমন বড় অর্ডারে লেনদেন করুন", b_market: "মার্কেট অর্ডার", b_market_d: "একটি মার্কেট অর্ডার দিন",
+    b_watch3: "নজরদার", b_watch3_d: "৩টি শেয়ার নজরে রাখুন", b_funded: "টাকা যোগ", b_funded_d: "অনুশীলনের টাকা যোগ করুন", b_bangla: "বাংলা", b_bangla_d: "অ্যাপটি বাংলায় ব্যবহার করুন",
+    b_audit: "নিরীক্ষক", b_audit_d: "স্বাধীন অডিট চালান", b_lse: "বিশ্বযাত্রী", b_lse_d: "লন্ডনের ডেমো বাজারে লেনদেন করুন", b_cancel: "মত বদল", b_cancel_d: "সই করে একটি অর্ডার বাতিল করুন",
+    cel_buy: "লেনদেন নিষ্পন্ন! আপনি {q}টি {tk} কিনেছেন।", cel_sell: "লেনদেন নিষ্পন্ন! আপনি {q}টি {tk} বেচেছেন।",
+    try_t: "এখনই চেষ্টা করুন: সাইন-আপ ছাড়াই", try_s: "একটি ডাকনাম দিন, কয়েক সেকেন্ডেই অনুশীলনের টাকায় লেনদেন শুরু করুন। আপনার সই করার চাবি এই ফোনেই তৈরি হয়।",
+    nick: "আপনার ডাকনাম", try_go: "লেনদেন শুরু", try_wait: "ব্লকচেইনে আপনার অ্যাকাউন্ট তৈরি হচ্ছে…", or_sign: "অথবা সাইন ইন",
+    perk1: "অনুশীলনের টাকা", perk2: "আসল ব্লকচেইন", perk3: "৪টি ভ্যালিডেটর", nick_bad: "২ থেকে ২৪টি অক্ষর বা সংখ্যা দিন।",
+    welcome_t: "স্বাগতম, {name}!", welcome_s: "আপনার অনুশীলন অ্যাকাউন্ট তৈরি এবং ব্লকচেইনে নিবন্ধিত।",
+    welcome_get: "আপনি পেয়েছেন {cash} অনুশীলনের টাকা এবং প্রতিটি কোম্পানির {n}টি করে শেয়ার।", explore: "নিজে ঘুরে দেখি",
+    install: "অ্যাপ ইনস্টল", ios_t: "RACE হোম স্ক্রিনে যোগ করুন", ios_1: "Safari-তে শেয়ার বোতামে ট্যাপ করুন", ios_2: "“Add to Home Screen” বেছে নিন", ios_3: "হোম স্ক্রিন থেকে RACE খুলুন",
+    inst_other: "ব্রাউজারের মেনু খুলে “Install app” বা “Add to Home screen” বেছে নিন।", installed: "ইনস্টল হয়েছে। হোম স্ক্রিন থেকে RACE খুলুন।",
+    share_app: "অ্যাপটি শেয়ার করুন", share_s: "বন্ধুকে এই কোড স্ক্যান করতে দিন, সে তার ফোনে লেনদেন করে দেখতে পারবে।",
+    board: "লাইভ বোর্ড", board_s: "স্টলের বড় স্ক্রিনের জন্য", scan: "স্ক্যান করে লেনদেন করুন", scan_s: "ক্যামেরা খুলে স্ক্যান করুন, একটি ডাকনাম দিন। শুধু অনুশীলনের টাকা।",
+    feed: "লাইভ ব্লকচেইন ফিড", feed_s: "প্রতিটি অর্ডার: ফোনে সই, ৪টি ভ্যালিডেটরের যাচাই, ব্লকচেইনে নিষ্পত্তি", feed_empty: "প্রথম অর্ডারের অপেক্ষা…",
+    local_warn: "ফোন এই ঠিকানা খুলতে পারবে না। সিস্টেম --public (ইন্টারনেট লিংক) বা --lan (একই Wi-Fi) দিয়ে চালু করুন।",
+    trade_list: "শেয়ার", order_book: "অর্ডার বই", tap_price: "দামে ট্যাপ করলে সেটি বসবে", page_home: "সারসংক্ষেপ",
+    sim_banner: "অনুশীলন সিস্টেম: টাকা, দাম ও পেমেন্ট কাল্পনিক", copy_link: "লিংক শেয়ার", show_all: "সব {n}টি দেখুন", show_less: "কম দেখুন", trade_1: "লেনদেন",
   },
 };
 const t = k => (L[S.lang] && L[S.lang][k]) || L.en[k] || k;
+const tf = (k, p) => t(k).replace(/\{(\w+)\}/g, (_, x) => p[x] ?? "");
 const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
 const loc = () => S.lang === "bn" ? "bn-BD" : "en-IN";
 /* "3 of 4" and the approval sentences, in the word order of each language */
@@ -428,7 +670,7 @@ function needQ(r, q, n) {
   if (S.lang === "bn") return r ? `<b>${t("escalated")}:</b> ${num(q.risky)}টি অনুমোদন লাগবে, ${num(q.routine)}টি নয়` : `<b>${t("routine")}:</b> ${ofN(q.routine, n)} অনুমোদন লাগবে`;
   return r ? `<b>${t("escalated")}:</b> needs ${q.risky} approvals, not ${q.routine}` : `<b>${t("routine")}:</b> needs ${q.routine} of ${n} approvals`;
 }
-function setLang(l) { S.lang = l; localStorage.setItem("bx_lang", l); document.documentElement.lang = l === "bn" ? "bn" : "en"; document.body.classList.toggle("bn", l === "bn"); route(); }
+function setLang(l) { S.lang = l; if (l === "bn") setFlag("bangla"); localStorage.setItem("bx_lang", l); document.documentElement.lang = l === "bn" ? "bn" : "en"; document.body.classList.toggle("bn", l === "bn"); route(); }
 
 /* ───────── numbers ───────── */
 const MK = () => S.info.markets[S.market];
@@ -461,8 +703,8 @@ async function api(path, opt = {}) {
 let toastT; function toast(msg) { const el = $("#toast"); el.textContent = msg; el.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = "none", 4200); }
 function signOutLocal() {
   S.token = ""; S.tab = "in"; S.otpDemo = ""; S.me = null; S.portfolios = null; S.view = null; S.cur = null; S.key = null; S.keyDemo = false; S.review = [];
-  S.itab = "home"; S.watch = {}; S.wallet = null; S.guide = { on: false, step: 0 }; closeSheet(); hideCoach();
-  sessionStorage.removeItem("bx_token"); sessionStorage.removeItem("bx_demo_key"); route();
+  S.itab = "home"; S.watch = {}; S.wallet = null; S.orders = []; S.ordersLoaded = false; S.lb = null; S.guide = { on: false, step: 0 }; closeSheet(); hideCoach();
+  sessionStorage.removeItem("bx_token"); sessionStorage.removeItem("bx_demo_key"); localStorage.removeItem("bx_qtoken"); S.prevOrd = null; route();
 }
 function setToken(tk) { S.token = tk; sessionStorage.setItem("bx_token", tk); }
 document.addEventListener("click", e => { const h = e.target.closest(".hash"); if (h && h.dataset.full && navigator.clipboard) navigator.clipboard.writeText(h.dataset.full).then(() => toast(t("copied") + ": " + short(h.dataset.full))); });
@@ -501,6 +743,8 @@ async function act(btn, fn, okMsg) {
 
 /* ───────── routing ───────── */
 function route() {
+  if (location.hash === "#board") { S.view = "board"; setShell("board"); return mountBoard(); }
+  stopBoard();
   const u = S.me && S.me.user;
   document.body.classList.toggle("bn", S.lang === "bn" && (!u || u.role === "trader"));
   if (!u) { S.view = "guest"; setShell("guest"); return mountGuest(); }
@@ -514,11 +758,12 @@ function route() {
 }
 function setShell(kind) {
   if (document.body.dataset.shell === kind) return;
-  document.body.dataset.shell = kind; document.body.className = kind === "staff" ? "staff" : kind === "inv" ? "inv" : "guest";
+  document.body.dataset.shell = kind; document.body.className = kind === "staff" ? "staff" : kind === "inv" ? "inv" : kind === "board" ? "board" : "guest";
   if (S.lang === "bn" && kind !== "staff") document.body.classList.add("bn");
   $("#root").innerHTML = kind === "staff"
     ? `<header><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)} · staff console (simulated)</small></div></div><div class="who" id="who"></div></header><div class="mkbar" id="mkbar"></div><nav id="nav"></nav><main id="main"></main>`
-    : kind === "inv" ? `<div class="shell"><div id="itop"></div><div id="main"></div></div><div class="tabs"><div class="in" id="itabs"></div></div>`
+    : kind === "inv" ? `<div class="shell"><div id="itop"></div><div id="main"></div></div><div class="tabs"><div class="nbrand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)}</small></div></div><div class="in" id="itabs"></div><div class="nfoot" id="nfoot"></div></div>`
+    : kind === "board" ? `<div class="bw" id="main"></div>`
     : `<div class="gwrap" id="main"></div>`;
 }
 
@@ -577,13 +822,15 @@ const PAY_COLOR = { bkash: "#E2136E", nagad: "#F6921E", rocket: "#8C3494", bank:
 function langBtn() { return `<button class="lang" id="bLang">${S.lang === "bn" ? "EN" : "বাংলা"}</button>`; }
 function bindLang() { const b = $("#bLang"); if (b) b.onclick = () => setLang(S.lang === "bn" ? "en" : "bn"); }
 async function mountGuest() {
-  $("#main").innerHTML = `<div class="top"><span></span><div class="topr">${langBtn()}<button class="lang" id="bTour">${t("tour")}</button></div></div>
+  $("#main").innerHTML = `<div class="top"><span>${installSlot("lang")}</span><div class="topr">${langBtn()}<button class="lang" id="bTour">${t("tour")}</button></div></div>
     <div class="ghero"><div class="logo">${BRAND.letter}</div><h1>${esc(BRAND.name)}</h1><p>${t("tagline")}</p>
       <div class="pills3"><span class="chip"><span class="dot"></span>DSE · LSE</span><span class="chip">${I.key.replace("<svg", '<svg width="14" height="14"')} ${t("key_ok").split(" ")[0]}…</span><span class="chip">${t("sim_only")}</span></div></div>
+    ${S.info.quickstart ? tryCardHTML() : ""}
     <div class="card"><div class="seg"><button id="tIn" class="${S.tab === "in" ? "on" : ""}">${t("signin")}</button><button id="tUp" class="${S.tab === "up" ? "on" : ""}">${t("create")}</button></div><div id="gform"></div></div>`;
   $(".pills3 .chip:nth-child(2)").innerHTML = `${I.key.replace("<svg", '<svg width="14" height="14"')} ${S.lang === "bn" ? "ফোনে সই" : "Signed on your phone"}`;
   bindLang(); $("#bTour").onclick = () => openTour(0);
   $("#tIn").onclick = () => { S.tab = "in"; mountGuest(); }; $("#tUp").onclick = () => { S.tab = "up"; mountGuest(); };
+  bindTry();
   S.tab === "in" ? formSignIn() : formSignUp();
 }
 async function formSignIn() {
@@ -660,27 +907,33 @@ function mountOnboard() {
 
 /* ═══════════════ investor app ═══════════════ */
 const ITABS = [["home", "home"], ["markets", "markets"], ["trade", "trade"], ["orders", "orders"], ["wallet", "wallet"]];
+function pageTitle() { return S.itab === "stock" && S.stock && MK().tickers[S.stock] ? MK().tickers[S.stock].name : S.itab === "me" ? t("profile") : S.itab === "home" ? t("page_home") : t(S.itab); }
 function renderInv() {
-  const u = S.me.user, initials = u.name.split(/\s+/).map(x => x[0]).join("").slice(0, 2).toUpperCase();
-  $("#itop").innerHTML = `<div class="top"><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)}</small></div></div>
-      <div class="topr">${langBtn()}<button class="avatar" id="bMe" title="${esc(t("profile"))}">${esc(initials)}</button></div></div>
+  const u = S.me.user, initials = u.name.split(/\s+/).map(x => [...x][0] || "").join("").slice(0, 2).toUpperCase();
+  $("#itop").innerHTML = `<div class="top"><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)}</small></div></div><div class="ptitle">${esc(pageTitle())}</div>
+      <div class="topr">${installSlot("lang")}${langBtn()}<button class="avatar" id="bMe" title="${esc(t("profile"))}">${esc(initials)}</button></div></div>
     <div class="chiprow"><button class="chip" id="cMk"><span class="dot ${isLive() ? "" : "off"}" id="liveDot"></span>${esc(S.market)} ${t("market_chip")} ⇄</button>
-      <span class="chip" id="cKey" style="${S.key ? "" : "color:var(--bad)"}">${I.key.replace("<svg", '<svg width="15" height="15"')} ${S.key ? t("key_ok") : t("key_no")}</span></div>`;
+      <span class="chip" id="cKey" style="${S.key ? "" : "color:var(--bad)"}">${I.key.replace("<svg", '<svg width="15" height="15"')} ${S.key ? t("key_ok") : t("key_no")}</span></div>
+    ${S.itab === "me" ? "" : tickerTapeHTML(S.market)}`;
   bindLang(); $("#bMe").onclick = () => goTab("me");
   $("#cMk").onclick = () => { const ks = Object.keys(S.info.markets); S.market = ks[(ks.indexOf(S.market) + 1) % ks.length]; sessionStorage.setItem("bx_mk", S.market); S.cur = null; S.form.price = null; route(); };
   $("#cKey").onclick = () => goTab("me");
   const tabOf = S.itab === "stock" ? "markets" : S.itab;
   const nActive = S.orders.filter(isActive).length;
-  $("#itabs").innerHTML = ITABS.map(([k, ic]) => `<button class="tab ${tabOf === k ? "on" : ""}" data-t="${k}">${I[ic]}${t(k)}${k === "orders" && nActive ? `<span class="cnt">${nActive}</span>` : ""}</button>`).join("");
+  $("#itabs").innerHTML = ITABS.map(([k, ic]) => `<button class="tab ${tabOf === k ? "on" : ""}" data-t="${k}">${I[ic]}<span>${t(k)}</span>${k === "orders" && nActive ? `<span class="cnt">${nActive}</span>` : ""}</button>`).join("");
   $$("#itabs .tab").forEach(b => b.onclick = () => goTab(b.dataset.t));
+  renderNfoot();
   ({ home: mountHome, markets: mountMarkets, stock: mountStock, trade: mountTrade, orders: mountIOrders, wallet: mountWallet, me: mountMe })[S.itab]();
   if (S.guide.on) showCoach();
+  if (S.welcome) showWelcome();
+  if (!S.ov[S.market]) loadOverview(S.market).then(() => { refreshTape(true); if (S.itab === "home") refreshHome(); else if (S.itab === "markets") refreshOverview(); });
 }
 function goTab(k) { if (S.guide.on && k !== "trade") endGuide(); S.itab = k; window.scrollTo(0, 0); renderInv(); tick(); }
 function refreshLive() {
   if (S.view === "inv") {
     const d = $("#liveDot"); if (d) d.className = "dot " + (isLive() ? "" : "off");
     if (S.itab === "home") refreshHome(); else if (S.itab === "markets") refreshMarkets(); else if (S.itab === "stock") refreshStock(); else if (S.itab === "trade") syncTrade();
+    refreshTape();
     return;
   }
   if ($("#strip")) { $("#strip").innerHTML = stripHTML(); $$("#strip .trow").forEach(r => r.onclick = () => { S.tk[S.market] = r.dataset.t; refreshLive(); }); }
@@ -775,20 +1028,35 @@ function latestOrder() { return S.orders.find(x => x.id === S.cur) || S.orders.f
 
 /* ───────── home ───────── */
 function mountHome() {
-  $("#main").innerHTML = `<div class="card hero" id="hero"></div>
-    <div class="qa"><button data-a="buy">${I.buy}${t("buy")}</button><button data-a="sell">${I.sell}${t("sell")}</button><button data-a="add">${I.add}${t("add_money")}</button><button data-a="out">${I.out}${t("withdraw")}</button></div>
-    <div id="startcard"></div>
-    <div class="sec"><b>${t("live_order")}</b><a data-go="orders">${t("see_all")}</a></div><div id="liveord"></div>
-    <div class="sec"><b>${t("watchlist")}</b><a data-go="markets">${t("markets")}</a></div><div class="card" id="watch"></div>
-    <div class="sec"><b>${t("holdings")}</b><span>${esc(S.market)}</span></div><div class="card" id="holds"></div>`;
+  $("#main").innerHTML = `<div class="pg home">
+    <div class="col c1">
+      <div class="card hero" id="hero" style="--o:1"></div>
+      <div class="qa" style="--o:2"><button data-a="buy">${I.buy}${t("buy")}</button><button data-a="sell">${I.sell}${t("sell")}</button><button data-a="add">${I.add}${t("add_money")}</button><button data-a="out">${I.out}${t("withdraw")}</button></div>
+      <div id="startcard" style="--o:3"></div>
+      <div style="--o:9"><div class="sec"><b>${t("holdings")}</b><span>${esc(S.market)}</span></div><div class="card" id="holds"></div></div>
+    </div>
+    <div class="col c2">
+      <div style="--o:6"><div class="sec"><b>${t("pulse")}</b><a data-go="markets">${t("markets")}</a></div><div class="card idx" id="hidx"></div></div>
+      <div style="--o:7"><div class="sec"><b>${t("movers")}</b></div><div class="card">${moversTabs("mvh")}<div id="hmov"></div></div></div>
+      <div style="--o:10"><div class="sec"><b>${t("heatmap")}</b><span>${esc(S.market)}</span></div><div class="card"><div id="hheat"></div><div class="sub" style="margin-top:8px">${t("heat_note")}</div></div></div>
+    </div>
+    <div class="col c3">
+      <div style="--o:4"><div class="sec"><b>${t("live_order")}</b><a data-go="orders">${t("see_all")}</a></div><div id="liveord"></div></div>
+      <div style="--o:5"><div class="sec"><b>${I.trophy.replace("<svg", '<svg style="vertical-align:-3px;color:var(--amber)"')} ${t("chal")}</b><span id="hplayers"></span></div><div class="card" id="hchal"></div></div>
+      <div style="--o:8"><div class="sec"><b>${t("watchlist")}</b><a data-go="markets">${t("markets")}</a></div><div class="card" id="watch"></div></div>
+      <div style="--o:11"><div class="card" id="badges"></div></div>
+      <div style="--o:12"><div class="sec"><b>${t("notices")}</b><span class="ldot"></span></div><div class="card" id="hnot"></div></div>
+    </div></div>`;
   $$(".qa button").forEach(b => b.onclick = () => {
     const a = b.dataset.a;
     if (a === "buy" || a === "sell") { S.side = a.toUpperCase(); goTab("trade"); }
     else if (a === "add") { goTab("wallet"); openDeposit(); } else { goTab("wallet"); openWithdraw(); }
   });
   $$("[data-go]").forEach(b => b.onclick = () => goTab(b.dataset.go));
-  refreshHome();
+  bindMoversTabs("mvh", () => { $("#hmov").innerHTML = moversHTML(S.market); });
+  badgeSig = ""; refreshHome();
   loadAllHist(S.market).then(() => { if (S.itab === "home") refreshHome(); });
+  if (!S.lb) loadLeaderboard().then(() => { if (S.itab === "home") refreshHome(); });
 }
 function refreshHome() {
   if (!$("#hero")) return;
@@ -802,31 +1070,57 @@ function refreshHome() {
   $("#liveord").innerHTML = liveOrderHTML(latestOrder());
   const wl = (S.watch[S.market] || []).filter(k => MK().tickers[k]);
   $("#watch").innerHTML = wl.length ? wl.map(stockRow).join("") : `<div class="empty">${t("watch_empty")}</div>`;
-  $("#holds").innerHTML = v && v.rows.length ? v.rows.map(r => `<div class="lrow" data-s="${esc(r.k)}"><div class="l"><div class="tk">${esc(r.k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(MK().tickers[r.k].name)}</div><small>${num(r.q)} ${t("shares")}${r.locked ? ` · ${num(r.locked)} 🔒` : ""}</small></div></div>
-      <div class="r"><b>${cash$(S.market, r.value)}</b><br>${pcHTML(r.chg)}</div></div>`).join("") : `<div class="empty">—</div>`;
+  const hrows = v ? v.rows.slice().sort((a, b) => b.value - a.value) : [], hall = S.showAllHold || hrows.length <= 5;
+  $("#holds").innerHTML = hrows.length ? (hall ? hrows : hrows.slice(0, 5)).map(r => `<div class="lrow" data-s="${esc(r.k)}"><div class="l"><div class="tk">${esc(r.k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(MK().tickers[r.k].name)}</div><small>${num(r.q)} ${t("shares")}${r.locked ? ` · ${num(r.locked)} 🔒` : ""}</small></div></div>
+      <div class="r"><b>${cash$(S.market, r.value)}</b><br>${pcHTML(r.chg)}</div></div>`).join("") + (hrows.length > 5 ? `<button class="btn ghost sm" id="hAll" style="margin-top:8px;width:100%">${hall ? t("show_less") : tf("show_all", { n: num(hrows.length) })}</button>` : "") : `<div class="empty">—</div>`;
+  if ($("#hAll")) $("#hAll").onclick = () => { S.showAllHold = !S.showAllHold; refreshHome(); };
   $$("#watch .lrow, #holds .lrow").forEach(r => r.onclick = () => openStock(r.dataset.s));
+  const m = S.market;
+  $("#hidx").innerHTML = idxCardHTML(m); $("#hmov").innerHTML = moversHTML(m); $("#hheat").innerHTML = heatHTML(m);
+  $("#hnot").innerHTML = noticesHTML(S.ov[m] && S.ov[m].notices, 6);
+  $("#hchal").innerHTML = chalHTML(S.lb, 5); $("#hplayers").textContent = S.lb ? tf("players", { n: num(S.lb.players ?? S.lb.n) }) : "";
+  renderBadges();
 }
 function stockRow(k) {
   const m = S.market, x = MK().tickers[k], sn = snap(), v = sn && sn.tickers[k], last = v ? v.last : x.ref, chg = v ? v.chg : 0, h = S.hist[m + ":" + k];
-  const vals = h ? h.daily.map(d => d.close).concat([last]) : null;
-  return `<div class="lrow" data-s="${esc(k)}"><div class="l"><div class="tk">${esc(k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(x.name)}</div><small>${esc(k)} · ${esc(x.sector || "")}</small></div></div>
-    <div style="flex:none">${vals ? spark(vals.slice(-20), 58, 26, vals[vals.length - 1] < vals[Math.max(0, vals.length - 20)] ? "#C0392B" : "#2E9E5B", false) : ""}</div>
-    <div class="r"><b>${price$(m, last)}</b><br>${pcHTML(chg)}</div></div>`;
+  const vals = h ? h.daily.map(d => d.close).concat([last]) : null, ov = S.ov[m], r = ov && ov.rows.find(z => z.ticker === k);
+  return `<div class="lrow" data-s="${esc(k)}"><div class="l" style="flex:1"><div class="tk">${esc(k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(x.name)}</div><small>${esc(k)} · ${esc(x.sector || "")}</small></div></div>
+    <div style="flex:none;width:62px">${vals ? spark(vals.slice(-20), 58, 26, vals[vals.length - 1] < vals[Math.max(0, vals.length - 20)] ? "#C0392B" : "#2E9E5B", false) : ""}</div>
+    <div class="r" style="min-width:86px"><b>${price$(m, last)}</b><br>${pcHTML(chg)}</div>
+    <div class="xc">${num(v ? v.volume : r ? r.volume : 0)}</div><div class="xc">${num(r ? r.trades : v ? v.trades : 0)}</div><div class="xc">${cash$(m, r ? r.turnover : 0)}</div></div>`;
 }
-
 /* ───────── markets ───────── */
 function mountMarkets() {
   const sectors = [...new Set(Object.values(MK().tickers).map(x => x.sector).filter(Boolean))];
-  const mks = Object.keys(S.info.markets);
+  const mks = Object.keys(S.info.markets), P = S.mpanel;
+  const panels = [["stocks", "stocks"], ["movers", "movers"], ["heat", "heatmap"], ["news", "news"]];
   $("#main").innerHTML = `<div class="seg">${mks.map(m => `<button data-m="${m}" class="${m === S.market ? "on" : ""}">${esc(m)} · ${esc(S.info.markets[m].name.replace(" Stock Exchange", ""))}</button>`).join("")}</div>
-    <div class="search">${I.search}<input id="q" placeholder="${esc(t("search"))}" value="${esc(S.q)}" autocomplete="off"></div>
-    <div class="hscroll" id="mf"><button class="chip ${S.mfilter === "all" ? "on" : ""}" data-f="all">${t("all")}</button><button class="chip ${S.mfilter === "watch" ? "on" : ""}" data-f="watch">★ ${t("watchlist")}</button>${sectors.map(s => `<button class="chip ${S.mfilter === s ? "on" : ""}" data-f="${esc(s)}">${esc(s)}</button>`).join("")}</div>
-    <div class="card" id="mlist"></div><div class="sub" style="text-align:center">${esc(MK().hours)}</div>`;
+    <div class="pg markets"><div class="col c1">
+      <div class="card idx" id="midx" style="--o:1"></div>
+      <div class="seg sm mseg" id="mseg" style="--o:2">${panels.map(([k, l]) => `<button data-p="${k}" class="${P === k ? "on" : ""}">${t(l)}</button>`).join("")}</div>
+      <div class="mpanel ${P === "stocks" ? "on" : ""}" data-panel="stocks" style="--o:3">
+        <div class="search">${I.search}<input id="q" placeholder="${esc(t("search"))}" value="${esc(S.q)}" autocomplete="off"></div>
+        <div class="hscroll" id="mf"><button class="chip ${S.mfilter === "all" ? "on" : ""}" data-f="all">${t("all")}</button><button class="chip ${S.mfilter === "watch" ? "on" : ""}" data-f="watch">★ ${t("watchlist")}</button>${sectors.map(s => `<button class="chip ${S.mfilter === s ? "on" : ""}" data-f="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+        <div class="card"><div class="lhead"><span class="l0">${t("stock")}</span><span class="sp"></span><span>${t("last")}</span><span>${t("volume")}</span><span>${t("trades_n")}</span><span>${t("turnover")}</span></div><div id="mlist"></div></div>
+        <div class="sub" style="text-align:center;margin-bottom:12px">${esc(MK().hours)}</div></div>
+    </div><div class="col c2">
+      <div class="mpanel ${P === "movers" ? "on" : ""}" data-panel="movers" style="--o:4"><div class="sec"><b>${t("movers")}</b></div><div class="card">${moversTabs("mvm")}<div id="mmov"></div></div></div>
+      <div class="mpanel ${P === "heat" ? "on" : ""}" data-panel="heat" style="--o:5"><div class="sec"><b>${t("heatmap")}</b></div><div class="card"><div id="mheat"></div><div class="sub" style="margin-top:8px">${t("heat_note")}</div></div></div>
+      <div class="mpanel ${P === "news" ? "on" : ""}" data-panel="news" style="--o:6"><div class="sec"><b>${t("notices")}</b><span class="ldot"></span></div><div class="card"><div id="mnot"></div><div class="sub" style="margin-top:6px">${t("notices_note")}</div></div></div>
+    </div></div>`;
   $$(".seg button[data-m]").forEach(b => b.onclick = () => { S.market = b.dataset.m; sessionStorage.setItem("bx_mk", S.market); S.mfilter = "all"; route(); });
+  $$("#mseg [data-p]").forEach(b => b.onclick = () => { S.mpanel = b.dataset.p; $$("#mseg [data-p]").forEach(x => x.classList.toggle("on", x === b)); $$(".mpanel").forEach(x => x.classList.toggle("on", x.dataset.panel === S.mpanel)); });
   $("#q").oninput = () => { S.q = $("#q").value; refreshMarkets(); };
   $$("#mf .chip").forEach(b => b.onclick = () => { S.mfilter = b.dataset.f; $$("#mf .chip").forEach(c => c.classList.toggle("on", c === b)); refreshMarkets(); });
-  refreshMarkets();
+  bindMoversTabs("mvm", () => { $("#mmov").innerHTML = moversHTML(S.market); });
+  refreshMarkets(); refreshOverview();
   loadAllHist(S.market).then(() => { if (S.itab === "markets") refreshMarkets(); });
+  loadOverview(S.market).then(() => { if (S.itab === "markets") { refreshOverview(); refreshMarkets(); } });
+}
+function refreshOverview() {
+  if (!$("#midx")) return; const m = S.market;
+  $("#midx").innerHTML = idxCardHTML(m); $("#mmov").innerHTML = moversHTML(m); $("#mheat").innerHTML = heatHTML(m);
+  $("#mnot").innerHTML = noticesHTML(S.ov[m] && S.ov[m].notices, 25);
 }
 function refreshMarkets() {
   if (!$("#mlist")) return;
@@ -839,20 +1133,41 @@ function refreshMarkets() {
 function openStock(k) { S.stock = k; S.tk[S.market] = k; S.itab = "stock"; window.scrollTo(0, 0); renderInv(); }
 
 /* ───────── stock page ───────── */
+function chartHTML(m, k, range) {
+  const x = MK().tickers[k], sn = snap(), v = sn && sn.tickers[k], last = v ? v.last : x.ref, h = S.hist[m + ":" + k];
+  let vals, note;
+  if (range === "1M") { vals = h ? h.daily.map(d => d.close).concat([last]) : null; note = t("ill"); }
+  else { const tr = h ? h.today.map(p => p.price) : []; const live = (sn ? sn.tape : []).filter(q => q.ticker === k).map(q => q.price).reverse();
+    vals = [x.ref].concat(live.length ? live : tr); note = vals.length > 1 ? t("today_trades") : t("no_trades_today"); if (vals.length < 2) vals = [x.ref, x.ref]; }
+  return { html: vals ? `<div style="height:170px">${lineChart(vals, { base: range === "1D" ? x.ref : null, color: vals[vals.length - 1] < vals[0] ? "#C0392B" : "#2F5597" })}</div>` : `<div style="height:170px;display:flex;align-items:center;justify-content:center"><span class="spin"></span></div>`, note };
+}
+function bookHTML(m, k) {
+  const sn = snap(), v = sn && sn.tickers[k], bids = v ? v.bids : [], asks = v ? v.asks : [], mx = Math.max(1, ...bids.map(a => a[1]), ...asks.map(a => a[1]));
+  return `<div><div class="h"><span>${t("buyers")}</span><span>${t("qty")}</span></div>${bids.map(a => `<div class="lv bid" data-px="${a[0]}"><i style="width:${a[1] / mx * 100}%"></i><span class="up">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>
+    <div><div class="h"><span>${t("sellers")}</span><span>${t("qty")}</span></div>${asks.map(a => `<div class="lv ask" data-px="${a[0]}"><i style="width:${a[1] / mx * 100}%"></i><span class="dn">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>`;
+}
+function tradesHTML(m, k, n) {
+  const sn = snap(), tape = (sn ? sn.tape : []).filter(q => q.ticker === k).slice(0, n || 6);
+  return tape.map(q => `<div class="lrow" style="cursor:default;padding:7px 0"><span>${num(q.qty)} @ <b>${price$(m, q.price)}</b></span><span class="sub">${new Date(q.t).toLocaleTimeString(loc())}</span></div>`).join("") || `<div class="empty">${t("none_yet")}</div>`;
+}
 function mountStock() {
   const k = S.stock, x = MK().tickers[k]; if (!x) { S.itab = "markets"; return mountMarkets(); }
   const on = (S.watch[S.market] || []).includes(k);
   $("#main").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><button class="back" id="bBack">${I.back} ${t("markets")}</button>
       <button class="star" id="bStar" title="${esc(on ? t("following") : t("follow"))}">${on ? I.starOn : I.star}</button></div>
-    <div style="margin:2px 2px 10px"><div class="sub" style="font-weight:700">${esc(k)} · ${esc(x.sector)}</div><div style="font-size:20px;font-weight:800;color:var(--navy)">${esc(x.name)}</div><div class="sub">${esc(x.about)}</div></div>
-    <div class="card"><div id="sprice"></div><div class="seg sm" style="margin:10px 0 6px;max-width:220px"><button data-r="1D" class="${S.histRange === "1D" ? "on" : ""}">${t("chart_1d")}</button><button data-r="1M" class="${S.histRange === "1M" ? "on" : ""}">${t("chart_1m")}</button></div>
-      <div id="chart"></div><div class="sub" id="chartnote"></div></div>
-    <div class="card"><div class="stats" id="sstats"></div><div id="srange"></div></div>
-    <div class="card"><div class="book" id="sbook"></div></div>
-    <div class="sec"><b>${t("recent")}</b></div><div class="card" id="stape"></div><div style="height:70px"></div>
-    <div class="sticky"><div class="in row2"><button class="btn buy" id="sBuy">${t("buy")}</button><button class="btn sell" id="sSell">${t("sell")}</button></div></div>`;
+    <div class="pg stock"><div class="col c1">
+      <div style="margin:2px 2px 10px;--o:1"><div class="sub" style="font-weight:700">${esc(k)} · ${esc(x.sector)}</div><div style="font-size:20px;font-weight:800;color:var(--navy)">${esc(x.name)}</div><div class="sub">${esc(x.about)}</div></div>
+      <div class="card" style="--o:2"><div id="sprice"></div><div class="seg sm" style="margin:10px 0 6px;max-width:220px"><button data-r="1D" class="${S.histRange === "1D" ? "on" : ""}">${t("chart_1d")}</button><button data-r="1M" class="${S.histRange === "1M" ? "on" : ""}">${t("chart_1m")}</button></div>
+        <div id="chart"></div><div class="sub" id="chartnote"></div></div>
+      <div class="card" style="--o:3"><div class="stats" id="sstats"></div><div id="srange"></div></div>
+    </div><div class="col c2">
+      <div class="sticky" style="--o:9"><div class="in row2"><button class="btn buy" id="sBuy">${t("buy")}</button><button class="btn sell" id="sSell">${t("sell")}</button></div></div>
+      <div style="--o:4"><div class="sec"><b>${t("order_book")}</b></div><div class="card"><div class="book" id="sbook"></div></div></div>
+      <div style="--o:5"><div class="sec"><b>${t("recent")}</b></div><div class="card" id="stape"></div></div>
+      <div style="height:70px;--o:8" class="phonepad"></div>
+    </div></div>`;
   $("#bBack").onclick = () => goTab("markets");
-  $("#bStar").onclick = async () => { try { S.watch = await api("/api/watchlist", { method: "POST", body: { market: S.market, ticker: k, on: !on } }); mountStock(); } catch (e) { toast(e.message); } };
+  $("#bStar").onclick = async () => { try { S.watch = await api("/api/watchlist", { method: "POST", body: { market: S.market, ticker: k, on: !on } }); mountStock(); checkBadges(); } catch (e) { toast(e.message); } };
   $$("[data-r]").forEach(b => b.onclick = () => { S.histRange = b.dataset.r; mountStock(); });
   $("#sBuy").onclick = () => { S.side = "BUY"; S.form.price = null; goTab("trade"); };
   $("#sSell").onclick = () => { S.side = "SELL"; S.form.price = null; goTab("trade"); };
@@ -861,31 +1176,24 @@ function mountStock() {
 function refreshStock() {
   if (!$("#sprice")) return;
   const m = S.market, k = S.stock, x = MK().tickers[k], sn = snap(), v = sn && sn.tickers[k];
-  const last = v ? v.last : x.ref, chg = v ? v.chg : 0, h = S.hist[m + ":" + k];
+  const last = v ? v.last : x.ref, chg = v ? v.chg : 0;
   $("#sprice").innerHTML = `<div class="big">${price$(m, last)}</div><div>${pcHTML(chg)} <span class="sub">${t("today")}</span></div>`;
-  let vals, note;
-  if (S.histRange === "1M") { vals = h ? h.daily.map(d => d.close).concat([last]) : null; note = t("ill"); }
-  else { const tr = h ? h.today.map(p => p.price) : []; const live = (sn ? sn.tape : []).filter(q => q.ticker === k).map(q => q.price).reverse();
-    vals = [x.ref].concat(live.length ? live : tr); note = vals.length > 1 ? t("today_trades") : t("no_trades_today"); if (vals.length < 2) vals = [x.ref, x.ref]; }
-  $("#chart").innerHTML = vals ? `<div style="width:100%">${spark(vals, 340, 150, vals[vals.length - 1] < vals[0] ? "#C0392B" : "#2F5597", true).replace('width="340"', 'width="100%"').replace('height="150"', 'height="150" preserveAspectRatio="none"')}</div>` : `<div style="height:150px;display:flex;align-items:center;justify-content:center"><span class="spin"></span></div>`;
-  $("#chartnote").textContent = note;
+  const c = chartHTML(m, k, S.histRange); $("#chart").innerHTML = c.html; $("#chartnote").textContent = c.note;
   const lo = x.lo, hi = x.hi, posOf = p => Math.max(0, Math.min(100, (p - lo) / (hi - lo) * 100));
   $("#sstats").innerHTML = `<div><small>${t("ref")}</small><b>${price$(m, x.ref)}</b></div><div><small>${t("dayrange")}</small><b>${v && v.low != null ? `${price$(m, v.low)} – ${price$(m, v.high)}` : "—"}</b></div>
     <div><small>${t("band")} ±${num(x.band)}%</small><b>${price$(m, lo)} – ${price$(m, hi)}</b></div><div><small>${t("volume")}</small><b>${num(v ? v.volume : 0)}</b></div>`;
   $("#srange").innerHTML = `<div class="rangebar"><i style="left:${posOf(last)}%"></i></div><div class="foot"><span>${price$(m, lo)}</span><span>${t("allowed")}</span><span>${price$(m, hi)}</span></div>`;
-  const bids = v ? v.bids : [], asks = v ? v.asks : [], mx = Math.max(1, ...bids.map(a => a[1]), ...asks.map(a => a[1]));
-  $("#sbook").innerHTML = `<div><div class="h"><span>${t("buyers")}</span><span>${t("qty")}</span></div>${bids.map(a => `<div class="lv bid"><i style="width:${a[1] / mx * 100}%"></i><span class="up">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>
-    <div><div class="h"><span>${t("sellers")}</span><span>${t("qty")}</span></div>${asks.map(a => `<div class="lv ask"><i style="width:${a[1] / mx * 100}%"></i><span class="dn">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>`;
-  const tape = (sn ? sn.tape : []).filter(q => q.ticker === k).slice(0, 6);
-  $("#stape").innerHTML = tape.map(q => `<div class="lrow" style="cursor:default;padding:7px 0"><span>${num(q.qty)} @ <b>${price$(m, q.price)}</b></span><span class="sub">${new Date(q.t).toLocaleTimeString(loc())}</span></div>`).join("") || `<div class="empty">${t("none_yet")}</div>`;
+  $("#sbook").innerHTML = bookHTML(m, k);
+  $("#stape").innerHTML = tradesHTML(m, k, 8);
 }
-
 /* ───────── trade ───────── */
 function defaultPrice(tk) { const e = expectPrice(tk, S.side); return e != null ? e : lastOf(S.market, tk); }
 function mountTrade() {
   const cfg = MK(), tk = selTicker();
   if (S.form.ticker !== tk || S.form.market !== S.market || !S.form.price) { S.form.ticker = tk; S.form.market = S.market; S.form.price = defaultPrice(tk); }
-  $("#main").innerHTML = `<div class="sec"><b>${t("new_order")}</b><span>${t("checked_by")}</span></div>
+  $("#main").innerHTML = `<div class="pg trade"><div class="col c1"><div class="sec"><b>${t("trade_list")}</b><span>${esc(S.market)}</span></div><div class="card" id="tlist"></div></div>
+    <div class="col c2"><div id="tside"></div></div>
+    <div class="col c3"><div class="sec"><b>${t("new_order")}</b><span>${t("checked_by")}</span></div>
     <div class="card" id="tcard">
       <div class="seg side" id="side"><button class="${S.side === "BUY" ? "on" : ""}" data-s="BUY">${t("buy")}</button><button class="sell ${S.side === "SELL" ? "on" : ""}" data-s="SELL">${t("sell")}</button></div>
       <div class="f" id="f-tk" style="margin-bottom:8px"><small>${t("stock")}</small><select id="tk">${Object.entries(cfg.tickers).map(([k, v]) => `<option value="${esc(k)}" ${k === tk ? "selected" : ""}>${esc(k)} · ${esc(v.name)}</option>`).join("")}</select></div>
@@ -898,7 +1206,7 @@ function mountTrade() {
       <button class="btn ${S.side === "BUY" ? "buy" : "sell"}" id="go">${I.key} ${t("sign_submit")}</button>
       <div class="sub" style="margin-top:8px;text-align:center" id="keyline">${S.key ? `${t("signed_with")} ${H(S.me.user.wallet)}` : `<span class="dn">${t("nokey_trade")}</span>`}</div>
     </div>
-    <div class="sec"><b>${t("live_order")}</b><span id="curId"></span></div><div id="liveord"></div>`;
+    <div class="sec"><b>${t("live_order")}</b><span id="curId"></span></div><div id="liveord"></div></div></div>`;
   $$("#side button").forEach(b => b.onclick = () => { S.side = b.dataset.s; S.form.price = defaultPrice($("#tk").value); mountTrade(); });
   $$("#otype button").forEach(b => b.onclick = () => { S.otype = b.dataset.o; mountTrade(); });
   $("#tk").onchange = () => { S.tk[S.market] = $("#tk").value; S.form.ticker = $("#tk").value; S.form.price = defaultPrice($("#tk").value); mountTrade(); };
@@ -906,6 +1214,7 @@ function mountTrade() {
   if (S.otype === "LIMIT") $("#px").oninput = () => { S.form.price = $("#px").value; syncTrade(); };
   $("#hLim").onclick = () => toast(t("limit_help"));
   $("#go").onclick = submitOrder;
+  if (innerWidth >= 760) setTimeout(() => refreshTradeSide(selTicker()), 0);
   if (S.prefill) {
     const p = S.prefill; S.prefill = null; S.side = p.side; S.otype = p.otype || "LIMIT"; if (p.ticker) { S.tk[S.market] = p.ticker; S.form.ticker = p.ticker; }
     S.form.qty = p.qty; S.form.price = p.price || defaultPrice(p.ticker); return mountTrade();
@@ -938,6 +1247,7 @@ function syncTrade() {
   if (!$("#go").dataset.sending) busy($("#go"), block);
   const o = S.orders.find(z => z.id === S.cur) || null;
   $("#liveord").innerHTML = liveOrderHTML(o); $("#curId").textContent = o ? o.id : "";
+  if (innerWidth >= 760) refreshTradeSide(tk);
   if (S.guide.on && S.guide.step === GUIDE.length - 1 && o && o.status !== S.guide.seen) { S.guide.seen = o.status; showCoach(); }
 }
 async function submitOrder() {
@@ -950,11 +1260,35 @@ async function submitOrder() {
     const sig = BXSign.sign(S.key, BXSign.orderDigest(domainOf(S.market), order));      // signed here; only the signature leaves the device
     const r = await api("/api/order", { method: "POST", body: { market: S.market, ticker: tk, qty: q, price, side: S.side, otype: S.otype, nonce: order.nonce, expiry: order.expiry, sig } });
     S.cur = r.id; toast(t("sent"));
-    S.orders = await api("/api/orders").catch(() => S.orders);
+    S.orders = await api("/api/orders").catch(() => S.orders); setFlag("ordered");
     if (S.guide.on) { S.guide.step = 6; showCoach(); }
     syncTrade(); $("#liveord").scrollIntoView({ behavior: "smooth", block: "center" });
   } catch (e) { toast(e.message); }
   setTimeout(() => { delete b.dataset.sending; syncTrade(); }, 600);
+}
+
+function refreshTradeSide(tk) {
+  const m = S.market, x = MK().tickers[tk], el = $("#tside"); if (!el || !x) return;
+  if (el.dataset.tk !== tk || el.dataset.r !== S.histRange || !el.innerHTML) {
+    el.dataset.tk = tk; el.dataset.r = S.histRange;
+    el.innerHTML = `<div class="sec"><b>${esc(x.name)}</b><span>${esc(tk)} · ${esc(x.sector)}</span></div>
+      <div class="card"><div class="tt"><div id="tsp"></div><div class="seg sm" style="margin:0;width:170px;height:fit-content"><button data-tr="1D" class="${S.histRange === "1D" ? "on" : ""}">${t("chart_1d")}</button><button data-tr="1M" class="${S.histRange === "1M" ? "on" : ""}">${t("chart_1m")}</button></div></div>
+        <div id="tch" style="margin-top:8px"></div><div class="sub" id="tchn"></div></div>
+      <div class="sec"><b>${t("order_book")}</b><span>${t("tap_price")}</span></div><div class="card"><div class="book bookc" id="tbk"></div></div>
+      <div class="sec"><b>${t("recent")}</b></div><div class="card" id="ttr"></div>`;
+    $$("#tside [data-tr]").forEach(b => b.onclick = () => { S.histRange = b.dataset.tr; refreshTradeSide(tk); });
+    $("#tbk").onclick = e => { const lv = e.target.closest("[data-px]"); if (!lv || S.otype !== "LIMIT") return; S.form.price = +lv.dataset.px; $("#px").value = lv.dataset.px; syncTrade(); };
+    if (!(m + ":" + tk in S.hist)) loadHist(m, tk).then(() => { if (S.itab === "trade" && $("#tside")) refreshTradeSide(selTicker()); });
+  }
+  const sn = snap(), v = sn && sn.tickers[tk], last = v ? v.last : x.ref, chg = v ? v.chg : 0;
+  $("#tsp").innerHTML = `<div class="big" style="font-size:26px">${price$(m, last)}</div><div>${pcHTML(chg)} <span class="sub">${t("today")}</span></div>`;
+  const c = chartHTML(m, tk, S.histRange); $("#tch").innerHTML = c.html; $("#tchn").textContent = c.note;
+  $("#tbk").innerHTML = bookHTML(m, tk); $("#ttr").innerHTML = tradesHTML(m, tk, 6);
+  if (innerWidth >= 1200 && $("#tlist")) {
+    const wl = S.watch[m] || [], ks = Object.keys(MK().tickers).sort((a, b) => (wl.includes(b) - wl.includes(a)));
+    $("#tlist").innerHTML = ks.map(k => { const r = tapeRows(m).find(z => z.k === k); return `<div class="lrow ${k === tk ? "sel" : ""}" data-k="${esc(k)}" style="padding:7px 6px;border-radius:10px;${k === tk ? "background:var(--pale)" : ""}"><div class="l"><div class="tk" style="width:36px;height:36px">${esc(k.slice(0, 4))}</div><div style="min-width:0"><div class="nm" style="font-size:13.5px">${wl.includes(k) ? "★ " : ""}${esc(k)}</div><small>${esc(MK().tickers[k].name)}</small></div></div><div class="r"><b style="font-size:13.5px">${price$(m, r.last)}</b><br>${pcHTML(r.chg)}</div></div>`; }).join("");
+    $$("#tlist .lrow").forEach(r => r.onclick = () => { if (S.guide.on) return; S.tk[m] = r.dataset.k; S.form.ticker = r.dataset.k; S.form.price = defaultPrice(r.dataset.k); mountTrade(); });
+  }
 }
 
 /* ───────── guided first trade ───────── */
@@ -987,7 +1321,7 @@ function showCoach() {
 /* ───────── orders ───────── */
 function mountIOrders() {
   $("#main").innerHTML = `<div class="sec"><b>${t("orders")}</b><span>DSE · LSE</span></div>
-    <div class="seg" id="of"><button data-f="active" class="${S.ofilter === "active" ? "on" : ""}">${t("active")}</button><button data-f="done" class="${S.ofilter === "done" ? "on" : ""}">${t("completed")}</button><button data-f="all" class="${S.ofilter === "all" ? "on" : ""}">${t("all")}</button></div><div id="olist2"></div>`;
+    <div class="seg" id="of"><button data-f="active" class="${S.ofilter === "active" ? "on" : ""}">${t("active")}</button><button data-f="done" class="${S.ofilter === "done" ? "on" : ""}">${t("completed")}</button><button data-f="all" class="${S.ofilter === "all" ? "on" : ""}">${t("all")}</button></div><div id="olist2" class="olist"></div>`;
   $$("#of button").forEach(b => b.onclick = () => { S.ofilter = b.dataset.f; mountIOrders(); });
   refreshIOrders();
 }
@@ -1011,8 +1345,8 @@ function refreshIOrders() {
 /* ───────── wallet ───────── */
 function mountWallet() {
   const mks = Object.keys(S.info.markets);
-  $("#main").innerHTML = `<div class="sec"><b>${t("wallet")}</b><span>${t("practice")}</span></div><div id="wbal"></div>
-    <div class="row2" style="margin-bottom:14px"><button class="btn" id="bDep">${I.add} ${t("add_money")}</button><button class="btn ghost" id="bWd">${I.out} ${t("withdraw")}</button></div>
+  $("#main").innerHTML = `<div class="sec"><b>${t("wallet")}</b><span>${t("practice")}</span></div><div id="wbal" class="wbals"></div>
+    <div class="row2 wbtns" style="margin-bottom:14px"><button class="btn" id="bDep">${I.add} ${t("add_money")}</button><button class="btn ghost" id="bWd">${I.out} ${t("withdraw")}</button></div>
     <div class="sec"><b>${t("history")}</b></div><div class="card" id="whist"><span class="spin"></span></div>`;
   $("#bDep").onclick = () => openDeposit(); $("#bWd").onclick = () => openWithdraw();
   refreshWallet(); loadWallet();
@@ -1062,6 +1396,7 @@ function bindMoney(kind, m) {
         r = await api("/api/wallet/withdraw", { method: "POST", body: { market: m, amount, method: S.payMethod, nonce, expiry, sig } });
       }
       if (S.portfolios) S.portfolios[m] = r.balance;
+      if (kind === "dep") setFlag("funded");
       openSheet(`<div style="text-align:center"><div class="okmark">${I.bigcheck}</div><h3>${kind === "dep" ? t("done_dep") : t("done_wd")}</h3>
         <div class="big" style="margin:6px 0">${cash$(m, r.entry.amount)}</div><div class="sub">${esc(r.entry.method_name)} · ${t("ref_id")} ${esc(r.entry.id)}</div>
         <div class="sub" style="margin:4px 0 14px">${t("tx")} ${H(r.entry.tx)} · block ${num(r.entry.block)}</div><button class="btn" id="mclose">${t("close")}</button></div>`);
@@ -1076,25 +1411,31 @@ function openWithdraw(m) { m = m || S.market; openSheet(moneyForm("wd", m)); bin
 function mountMe() {
   const u = S.me.user;
   $("#main").innerHTML = `<button class="back" id="bBack">${I.back} ${t("home")}</button>
+    <div class="pg me"><div class="col c1">
     <div class="card" style="display:flex;gap:12px;align-items:center"><div class="avatar" style="width:54px;height:54px;font-size:19px">${esc(u.name.split(/\s+/).map(x => x[0]).join("").slice(0, 2).toUpperCase())}</div>
       <div style="min-width:0"><div style="font-weight:800;font-size:17px;color:var(--navy)">${esc(u.name)}</div><div class="sub">${esc(u.email)}${u.nid_last4 ? ` · ${t("id_end")} ${esc(u.nid_last4)}` : ""}</div><div class="sub">${H(u.wallet)}</div></div></div>
     <div class="card"><div class="mrow" style="cursor:default"><b>${t("language")}</b><div class="seg sm" style="margin:0;width:170px"><button data-l="en" class="${S.lang === "en" ? "on" : ""}">English</button><button data-l="bn" class="${S.lang === "bn" ? "on" : ""}">বাংলা</button></div></div>
       <div class="mrow" id="rGuide"><div><b>${t("guided")}</b><br><span>${t("guided_s")}</span></div>›</div>
-      <div class="mrow" id="rTour"><div><b>${t("tour")}</b></div>›</div></div>
+      <div class="mrow" id="rTour"><div><b>${t("tour")}</b></div>›</div>
+      <div class="mrow" id="rShare"><div><b>${I.share.replace("<svg", '<svg style="vertical-align:-4px;color:var(--blue)"')} ${t("share_app")}</b><br><span>${t("share_s")}</span></div>›</div>
+      <a class="mrow" href="/#board" target="_blank" rel="noopener" style="color:inherit;text-decoration:none"><div><b>${I.board.replace("<svg", '<svg style="vertical-align:-4px;color:var(--blue)"')} ${t("board")}</b><br><span>${t("board_s")}</span></div>›</a>
+      ${canInstall() ? `<div class="mrow" data-install><div><b>${I.dl.replace("<svg", '<svg style="vertical-align:-3px;color:var(--blue)"')} ${t("install")}</b></div>›</div>` : ""}</div>
     <div class="sec"><b>${t("key")}</b></div><div class="card" id="keycard"></div>
+    </div><div class="col c2"><div class="card" id="badges"></div>
     <div class="sec"><b>${t("check")}</b></div><div class="card"><div class="mrow" id="rAudit"><div>${I.shield.replace("<svg", '<svg style="vertical-align:-5px;color:var(--blue)"')} <b>${t("run_audit")} · ${esc(S.market)}</b><br><span>${t("audit_s")}</span></div>›</div><div id="iaudit"></div></div>
     <div class="sec"><b>${t("how")}</b></div><div class="card how"><div>${t("how1")}</div><div>${t("how2")}</div><div>${t("how3")}</div><div>${t("how4")}</div></div>
     <div class="sec"><b>${t("roadmap")}</b></div><div class="card" id="iroad"></div>
-    <button class="btn ghost" id="bOut" style="margin-top:6px">${t("signout")}</button>`;
+    <button class="btn ghost" id="bOut" style="margin-top:6px">${t("signout")}</button></div></div>`;
   $("#bBack").onclick = () => goTab("home");
   $$("[data-l]").forEach(b => b.onclick = () => setLang(b.dataset.l));
-  $("#rGuide").onclick = startGuide; $("#rTour").onclick = () => openTour(0);
+  $("#rGuide").onclick = startGuide; $("#rTour").onclick = () => openTour(0); $("#rShare").onclick = openShare;
   $("#rAudit").onclick = async () => { $("#iaudit").innerHTML = `<span class="spin"></span>`; try { const rep = await api("/api/audit/" + S.market);
+    setFlag("audit");
     $("#iaudit").innerHTML = `<div class="${rep.ok ? "pass" : "fail"}" style="margin-top:6px">${rep.ok ? t("audit_ok") : t("audit_bad")}</div><div class="sub">${num(rep.orders)} orders · ${num(rep.trades)} trades · ${num(rep.signatures_checked)} signatures</div>` +
       rep.checks.map(c => `<div class="sub" style="padding:3px 0"><span class="${c.ok ? "pass" : "fail"}">${c.ok ? "✓" : "✗"}</span> ${esc(c.name)}</div>`).join(""); } catch (e) { $("#iaudit").textContent = e.message; } };
   $("#bOut").onclick = async () => { try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {} signOutLocal(); };
   $("#iroad").innerHTML = Object.entries(ROAD).map(([k, v], i) => `<details ${i === 0 ? "" : ""}><summary style="cursor:pointer;font-weight:700;color:${["var(--ok)", "var(--warn)", "var(--mut)"][i]};padding:6px 0">${esc(k)} (${v.length})</summary>${v.map(x => `<div class="sub" style="padding:3px 0 3px 10px">• ${esc(x)}</div>`).join("")}</details>`).join("");
-  renderKeyCard();
+  renderKeyCard(); badgeSig = ""; renderBadges(true);
 }
 function renderKeyCard() {
   const u = S.me.user, el = $("#keycard"); if (!el) return;
@@ -1119,6 +1460,356 @@ async function cancelOrder(id) {
   if (!S.key) throw new Error(t("nokey_trade"));
   const sig = BXSign.sign(S.key, BXSign.cancelDigest(domainOf(o.market), o.chain_id));   // the contract cancels only with the investor's signature
   await api(`/api/orders/${id}/cancel`, { method: "POST", body: { sig } });
+}
+
+/* ═══════════════ v2.1 demo-day features ═══════════════
+   Market tools like an exchange home page (ticker tape, demo index, breadth, heatmap, movers, notice board),
+   the practice challenge, achievements, "Try it now" quick start, app install, and the big-screen live board (#board).
+   Everything shown here comes from this system's own state: no outside market data, no invented news. */
+Object.assign(I, {
+  dl: '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>',
+  board: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4" stroke-linecap="round"/></svg>',
+  share: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0L7.5 7.5M12 3l4.5 4.5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4M12 13v4m-4 3h8l-1-3H9z"/></svg>',
+});
+const num2 = v => Number(v).toLocaleString(loc(), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const absPct = c => pct(Math.abs(c)).replace("+", "");
+const sgn = c => c > 0 ? "+" : c < 0 ? "−" : "";
+
+/* ───────── per-user flags kept on this device (Bangla used, audit run, money added) ───────── */
+const uidKey = () => (S.me && S.me.user ? S.me.user.id + ":" + S.me.user.email : "anon");
+function flags() { try { return JSON.parse(localStorage.getItem("bx_flags_" + uidKey()) || "{}"); } catch (e) { return {}; } }
+function setFlag(k) {
+  try { const f = flags(); if (!f[k]) { f[k] = 1; localStorage.setItem("bx_flags_" + uidKey(), JSON.stringify(f)); } } catch (e) {}
+  if (S.view === "inv") setTimeout(checkBadges, 50);
+}
+
+/* ───────── data ───────── */
+async function loadOverview(m) { try { S.ov[m] = await api("/api/overview/" + m); } catch (e) {} return S.ov[m]; }
+async function loadLeaderboard() { try { S.lb = await api("/api/leaderboard"); } catch (e) {} return S.lb; }
+function tapeRows(m) {            // the live stream when there is one, else the last overview
+  const tks = S.info.markets[m].tickers, sn = S.snap[m], ov = S.ov[m];
+  return Object.keys(tks).map(k => {
+    const v = sn && sn.tickers[k], r = ov && ov.rows.find(x => x.ticker === k), ref = tks[k].ref;
+    const last = v ? v.last : r ? r.last : ref;
+    return { k, last, ref, chg: (last - ref) / ref * 100, volume: v ? v.volume : r ? r.volume : 0, trades: r ? r.trades : v ? v.trades : 0, turnover: r ? r.turnover : 0 };
+  });
+}
+
+/* ───────── scrolling ticker tape, as on an exchange home page ───────── */
+function tapeInner(m) {
+  let rows = tapeRows(m); while (rows.length && rows.length < 12) rows = rows.concat(rows);
+  const one = rows.map(r => `<span class="ti" data-s="${esc(r.k)}"><b>${esc(r.k)}</b><span class="p">${price$(m, r.last)}</span><span class="${r.chg > 0 ? "up" : r.chg < 0 ? "dn" : "fl"}">${r.chg > 0 ? "▲" : r.chg < 0 ? "▼" : "•"} ${absPct(r.chg)}</span></span>`).join("");
+  return one + one;               // two copies: the track slides by half its width, so the loop is seamless
+}
+function tickerTapeHTML(m) { return `<div class="tape" data-m="${esc(m)}" role="marquee" aria-label="${esc(t("live"))}"><div class="trk">${tapeInner(m)}</div></div>`; }
+let tapeAt = 0;
+function refreshTape(force) {
+  if (!force && Date.now() - tapeAt < 2500) return; tapeAt = Date.now();
+  $$(".tape[data-m]").forEach(el => { const tr = el.firstElementChild; if (tr) tr.innerHTML = tapeInner(el.dataset.m); });
+}
+document.addEventListener("click", e => {
+  if (S.view !== "inv") return;
+  const x = e.target.closest(".tape .ti, .hx, .mv[data-s]"); if (x && x.dataset.s && MK().tickers[x.dataset.s]) openStock(x.dataset.s);
+});
+
+/* ───────── charts ───────── */
+function lineChart(vals, o = {}) {
+  const w = o.w || 600, h = o.h || 140;
+  if (!vals || vals.length < 2) { const v = vals && vals.length ? vals[0] : 1; vals = [v, v]; }
+  let mn = Math.min(...vals), mx = Math.max(...vals);
+  if (o.base != null) { mn = Math.min(mn, o.base); mx = Math.max(mx, o.base); }
+  const pad = ((mx - mn) || Math.abs(mx) * 0.01 || 1) * 0.12; mn -= pad; mx += pad;
+  const X = i => (i / (vals.length - 1) * w).toFixed(1), Y = v => (h - (v - mn) / (mx - mn) * h).toFixed(1);
+  const d = vals.map((v, i) => (i ? "L" : "M") + X(i) + " " + Y(v)).join(" ");
+  const up = vals[vals.length - 1] >= (o.base ?? vals[0]), col = o.color || (up ? "#2E9E5B" : "#C0392B"), id = "lc" + Math.random().toString(36).slice(2, 8);
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity="${o.op ?? 0.24}"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+    ${o.base != null ? `<line x1="0" x2="${w}" y1="${Y(o.base)}" y2="${Y(o.base)}" stroke="${o.grid || "#8FAADC"}" stroke-dasharray="5 5" stroke-width="1" vector-effect="non-scaling-stroke"/>` : ""}
+    <path d="${d} L${w} ${h} L0 ${h}Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${o.sw || 2.2}" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
+
+/* ───────── demo index card: value, intraday chart, turnover, breadth ───────── */
+function idxCardHTML(m, board) {
+  const ov = S.ov[m]; if (!ov) return `<div style="height:120px;display:flex;align-items:center;justify-content:center"><span class="spin"></span></div>`;
+  const ix = ov.index, sm = ov.summary, up = ix.chg >= 0, n = Object.keys(S.info.markets[m].tickers).length;
+  const vals = ix.history.map(p => p[1]).concat([ix.value]);
+  const br = [["a", sm.adv], ["u", sm.unch], ["d", sm.dec]].filter(x => x[1] > 0).map(([c, v]) => `<i class="${c}" style="flex:${v}"></i>`).join("");
+  return `<div class="ih"><div style="min-width:0"><div class="sub" style="font-weight:700"><span class="ldot"></span>${t("live")} · ${esc(t("idx_name"))} · ${esc(m)}</div>
+      <div class="iv">${num2(ix.value)}</div><div class="ic ${up ? "up" : "dn"}">${up ? "▲" : "▼"} ${num2(Math.abs(ix.chg))} (${absPct(ix.chg_pct)})</div></div>
+      <div class="ist">${esc(t("mkt_open"))}<b>● ${esc(t("live"))}</b><span>H ${num2(ix.high)}</span><br><span>L ${num2(ix.low)}</span></div></div>
+    <div class="ichart">${lineChart(vals, { base: 1000, grid: board ? "rgba(255,255,255,.35)" : "#8FAADC", color: board ? (up ? "#7BE0A5" : "#FF9C8F") : null, op: board ? 0.3 : 0.24 })}</div>
+    <div class="sum3"><div><small>${t("turnover")}</small><b>${cash$(m, sm.turnover)}</b></div><div><small>${t("volume")}</small><b>${num(sm.volume)}</b></div><div><small>${t("trades_n")}</small><b>${num(sm.trades)}</b></div></div>
+    <div class="breadth">${br}</div>
+    <div class="foot"><span class="up">▲ ${num(sm.adv)} ${t("adv")}</span><span>• ${num(sm.unch)} ${t("unch")}</span><span class="dn">▼ ${num(sm.dec)} ${t("dec")}</span></div>
+    ${board ? "" : `<div class="sub" style="margin-top:8px">${tf("idx_note", { n: num(n) })} ${tf("status_note", { h: esc(ov.status.hours) })}</div>`}`;
+}
+
+/* ───────── heatmap: one tile per stock, grouped by sector, coloured by today's change ───────── */
+const HPREV = {};
+function heatColor(c, board) {
+  if (!c) return board ? ["rgba(255,255,255,.1)", "#fff"] : ["#EEF2FA", "#1F3864"];
+  const a = Math.min(Math.abs(c) / 4, 1), to = c > 0 ? [46, 158, 91] : [192, 57, 43], from = board ? [40, 64, 110] : [238, 242, 250];
+  const k = 0.3 + 0.7 * a, mix = from.map((x, i) => Math.round(x + (to[i] - x) * k));
+  return [`rgb(${mix.join(",")})`, board || k > 0.5 ? "#fff" : "#16202f"];
+}
+function heatHTML(m, board) {
+  const tks = S.info.markets[m].tickers, rows = tapeRows(m), secW = {};
+  rows.forEach(r => { const s = tks[r.k].sector || ""; secW[s] = (secW[s] || 0) + (tks[r.k].w || 1); });
+  rows.sort((a, b) => { const sa = tks[a.k].sector || "", sb = tks[b.k].sector || ""; return secW[sb] - secW[sa] || sa.localeCompare(sb) || (tks[b.k].w || 1) - (tks[a.k].w || 1); });
+  return `<div class="heat">${rows.map(r => {
+    const [bg, fg] = heatColor(Math.round(r.chg * 100) / 100, board), key = m + ":" + r.k, fl = HPREV[key] != null && HPREV[key] !== r.last; HPREV[key] = r.last;
+    return `<button class="hx ${(tks[r.k].w || 1) >= 10 ? "w2" : ""} ${fl ? "flash" : ""}" data-s="${esc(r.k)}" style="background:${bg};color:${fg}" title="${esc(tks[r.k].name)}"><b>${esc(r.k)}</b><span>${sgn(r.chg)}${absPct(r.chg)}</span><small>${esc(tks[r.k].sector || "")}</small></button>`;
+  }).join("")}</div>`;
+}
+
+/* ───────── top movers ───────── */
+function moversTabs(id) {
+  return `<div class="seg sm" id="${id}" style="margin-bottom:6px">${[["gainers", "gainers"], ["losers", "losers"], ["active", "active_m"]].map(([k, l]) => `<button data-mv="${k}" class="${S.mvtab === k ? "on" : ""}">${t(l)}</button>`).join("")}</div>`;
+}
+function bindMoversTabs(id, after) { $$(`#${id} [data-mv]`).forEach(b => b.onclick = () => { S.mvtab = b.dataset.mv; $$(`#${id} [data-mv]`).forEach(x => x.classList.toggle("on", x === b)); after(); }); }
+function moversHTML(m) {
+  const ov = S.ov[m]; if (!ov) return `<span class="spin"></span>`;
+  const list = ov.movers[S.mvtab] || [];
+  return list.map(r => `<div class="mv" data-s="${esc(r.ticker)}"><div class="tk">${esc(r.ticker.slice(0, 4))}</div><div class="m"><b>${esc(r.name)}</b><small>${esc(r.ticker)} · ${S.mvtab === "active" ? `${t("turnover")} ${cash$(m, r.turnover)}` : `${t("volume")} ${num(r.volume)}`}</small></div><div class="r"><b>${price$(m, r.last)}</b><br>${pcHTML(r.chg)}</div></div>`).join("")
+    || `<div class="empty">${t("no_movers")}</div>`;
+}
+
+/* ───────── live notice board: built only from real events in this system ───────── */
+function agoText(ts) {
+  const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+  return s < 60 ? tf("ago_s", { n: num(s) }) : s < 3600 ? tf("ago_m", { n: num(Math.floor(s / 60)) }) : tf("ago_h", { n: num(Math.floor(s / 3600)) });
+}
+function noticeText(n) {
+  const m = n.market || "DSE", bn = S.lang === "bn", tk = esc(n.ticker || ""), P = v => price$(m, v), Q = v => num(v);
+  switch (n.kind) {
+    case "circuit": return { ic: n.up ? "▲" : "▼", cls: "k-circuit", tx: bn ? `${tk} দামের ${n.up ? "ঊর্ধ্ব" : "নিম্ন"}সীমা ${P(n.price)}-এ পৌঁছেছে` : `${tk} hit its ${n.up ? "upper" : "lower"} price limit at ${P(n.price)}` };
+    case "block": return { ic: "◆", cls: "k-block", tx: bn ? `ব্লক লেনদেন: ${tk}-এর ${Q(n.qty)}টি শেয়ার ${P(n.price)} দামে` : `Block trade: ${Q(n.qty)} ${tk} at ${P(n.price)}`, hash: n.tx };
+    case "held": return { ic: "⏸", cls: "k-held", tx: bn ? `${tk}-এর ${Q(n.qty)}টি শেয়ারের ${n.side === "BUY" ? "ক্রয়" : "বিক্রয়"} অর্ডার ব্রোকারের পর্যালোচনায় (${ofN(n.have, n.need)} অনুমোদন)` : `${n.side === "BUY" ? "Buy" : "Sell"} order for ${Q(n.qty)} ${tk} held for broker review (${num(n.have)} of ${num(n.need)} approvals)` };
+    case "escalated": return { ic: "★", cls: "k-escalated", tx: bn ? `উচ্চ ঝুঁকির অর্ডার: ${tk}-এর ${Q(n.qty)}টি শেয়ার ${num(n.votes)}টি ভ্যালিডেটরের অনুমোদনে নিষ্পন্ন${n.reviewer ? ", সঙ্গে ব্রোকারের পর্যালোচনা" : ""}` : `High-risk order: ${Q(n.qty)} ${tk} settled after ${num(n.votes)} validator approvals${n.reviewer ? " and a broker review" : ""}` };
+    case "joined": return { ic: "+", cls: "k-joined", tx: bn ? `${esc(n.name)} অনুশীলন প্রতিযোগিতায় যোগ দিয়েছেন` : `${esc(n.name)} joined the practice challenge` };
+    case "validator": return { ic: n.faulty ? "!" : "✓", cls: "k-validator" + (n.faulty ? "" : " ok"), tx: bn ? (n.faulty ? `ভ্যালিডেটর V${num(n.node)} বন্ধ (সিমুলেটেড ত্রুটি)। বাকিরা লেনদেন চালু রাখছে।` : `ভ্যালিডেটর V${num(n.node)} আবার চালু`) : (n.faulty ? `Validator V${n.node} is down (simulated fault). The others keep trading going.` : `Validator V${n.node} is back online`) };
+    default: return { ic: "•", cls: "k-block", tx: esc(n.kind) };
+  }
+}
+const NSEEN = new Set(); let nseenInit = false;
+function noticesHTML(list, lim) {
+  const out = (list || []).slice(0, lim || 12).map(n => {
+    const x = noticeText(n), key = n.t + ":" + n.kind + ":" + (n.ticker || n.name || n.node || ""), fresh = nseenInit && !NSEEN.has(key); NSEEN.add(key);
+    return `<div class="nt ${fresh ? "new" : ""}"><div class="ni ${x.cls}">${x.ic}</div><div class="nb">${x.tx}<small>${agoText(n.t)}${x.hash ? " · " + H(x.hash) : ""}</small></div></div>`;
+  }).join("");
+  nseenInit = true;
+  return out || `<div class="empty">${t("no_notices")}</div>`;
+}
+
+/* ───────── practice challenge (leaderboard) ───────── */
+function chalHTML(lb, lim, board) {
+  if (!lb) return `<span class="spin"></span>`;
+  const me = !board && S.me && S.me.user ? S.me.user.id : null, mine = me && lb.rows.find(r => r.id === me);
+  const row = r => `<div class="lb ${r.id === me ? "me" : ""}"><div class="rk ${r.rank <= 3 ? "g" + r.rank : ""}">${num(r.rank)}</div>
+    <div class="nm">${esc(r.name)}${r.id === me ? `<small>(${t("you")})</small>` : ""}<small>${num(r.trades)} ${r.trades === 1 ? t("trade_1") : t("trades_w")}</small></div>
+    <b class="${r.ret > 0 ? "up" : r.ret < 0 ? "dn" : ""}">${sgn(r.ret)}${absPct(r.ret)}</b></div>`;
+  let top = lb.rows.slice(0, lim || 5); if (mine && mine.rank > (lim || 5)) top = top.concat([mine]);
+  const head = board ? "" : mine
+    ? `<div class="myrank"><div><small>${t("your_rank")}</small><b>#${num(mine.rank)}</b> <span style="opacity:.8">/ ${num(lb.n)}</span></div><div style="text-align:right"><small>${t("chal")}</small><b>${sgn(mine.ret)}${absPct(mine.ret)}</b></div></div>`
+    : `<div class="infobox">${t("chal_join")}</div>`;
+  return head + (top.map(row).join("") || `<div class="empty">${t("chal_empty")}</div>`) + (board ? "" : `<div class="sub" style="margin-top:6px">${t("chal_rule")}</div>`);
+}
+
+/* ───────── achievements ───────── */
+const BADGES = [["first_order", "✎"], ["first_trade", "✓"], ["escalated", "4"], ["market", "⚡"], ["watch3", "★"], ["funded", "৳"], ["bangla", "অ"], ["audit", "⛭"], ["lse", "£"], ["cancel", "↺"]];
+function badgeState() {
+  const own = (S.orders || []).filter(o => !o.sim), f = flags(), traded = o => o.trades && o.trades.length;
+  return {
+    first_order: own.length > 0, first_trade: own.some(traded), escalated: own.some(o => o.risk && o.risk.level === "ESCALATED" && traded(o)),
+    market: own.some(o => o.otype === "MARKET"), watch3: Object.values(S.watch || {}).some(l => (l || []).length >= 3),
+    funded: !!f.funded || !!(S.wallet && S.wallet.history && S.wallet.history.some(x => x.type === "deposit")),
+    bangla: !!f.bangla || S.lang === "bn", audit: !!f.audit, lse: own.some(o => o.market === "LSE"),
+    cancel: own.some(o => o.status === "cancelled" && o.otype !== "MARKET"),
+  };
+}
+let badgeSig = "";
+function badgesHTML() {
+  const st = badgeState(), n = Object.values(st).filter(Boolean).length, pop = S.popBadge || []; S.popBadge = null;
+  return `<div class="sec" style="margin-top:0"><b>${t("badges")}</b><span>${num(n)} / ${num(BADGES.length)}</span></div>
+    <div class="badges">${BADGES.map(([k, ic]) => `<button class="bd ${st[k] ? "on" : ""} ${pop.includes(k) ? "pop" : ""}" data-b="${k}" title="${esc(t("b_" + k + "_d"))}"><i>${ic}</i>${esc(t("b_" + k))}</button>`).join("")}</div>`;
+}
+function renderBadges(force) {
+  const el = $("#badges"); if (!el) return;
+  const sig = JSON.stringify(badgeState()) + S.lang; if (!force && sig === badgeSig && el.innerHTML) return; badgeSig = sig;
+  el.innerHTML = badgesHTML(); $$("#badges [data-b]").forEach(b => b.onclick = () => toast(`${t("b_" + b.dataset.b)}: ${t("b_" + b.dataset.b + "_d")}`));
+}
+function checkBadges() {
+  if (S.view !== "inv" || !S.me || !S.ordersLoaded) return;
+  const st = badgeState(), key = "bx_badges_" + uidKey(), on = Object.keys(st).filter(k => st[k]); let seen = null;
+  try { seen = JSON.parse(localStorage.getItem(key)); } catch (e) {}
+  if (!Array.isArray(seen)) { try { localStorage.setItem(key, JSON.stringify(on)); } catch (e) {} return; }   // first visit on this device: no fanfare for old progress
+  const fresh = on.filter(k => !seen.includes(k));
+  if (!fresh.length) return;
+  try { localStorage.setItem(key, JSON.stringify([...new Set(seen.concat(on))])); } catch (e) {}
+  toast(`${t("b_unlocked")}: ${fresh.map(k => t("b_" + k)).join(", ")}`); confetti(80); S.popBadge = fresh; renderBadges(true);
+}
+
+/* ───────── celebrate a settled trade ───────── */
+function afterOrders() {
+  const prev = S.prevOrd; S.prevOrd = {};
+  for (const o of S.orders) S.prevOrd[o.id] = o.filled || 0;
+  if (prev) for (const o of S.orders) {
+    if (o.sim) continue;
+    const p = prev[o.id], f = o.filled || 0;
+    if ((p != null && f > p) || (p == null && f > 0 && Date.now() - o.ts < 20000)) { toast(tf(o.side === "BUY" ? "cel_buy" : "cel_sell", { q: num(f - (p || 0)), tk: o.ticker })); confetti(); break; }
+  }
+  S.ordersLoaded = true; checkBadges();
+}
+const FX = { ps: [], run: false };
+function confetti(n = 150) {
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = $("#fx"); if (!cv || !cv.getContext) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), W = innerWidth * dpr, Hh = innerHeight * dpr;
+  if (cv.width !== W || cv.height !== Hh) { cv.width = W; cv.height = Hh; }
+  const cols = ["#1F3864", "#2F5597", "#8FAADC", "#ED7D31", "#2E9E5B", "#F7D774", "#C0392B"];
+  for (let i = 0; i < n; i++) FX.ps.push({ x: W * (0.25 + Math.random() * 0.5), y: Hh * (0.3 + Math.random() * 0.12), vx: (Math.random() - 0.5) * 15 * dpr, vy: (-Math.random() * 15 - 5) * dpr,
+    r: (5 + Math.random() * 5) * dpr, c: cols[i % cols.length], a: Math.random() * 6, va: (Math.random() - 0.5) * 0.4, life: 150 + Math.random() * 40 });
+  if (FX.run) return; FX.run = true;
+  const ctx = cv.getContext("2d"), g = 0.42 * dpr;
+  (function step() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    FX.ps = FX.ps.filter(p => --p.life > 0 && p.y < cv.height + 40);
+    for (const p of FX.ps) { p.vy += g; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.a += p.va; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.fillStyle = p.c; ctx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); ctx.restore(); }
+    if (FX.ps.length) requestAnimationFrame(step); else { FX.run = false; ctx.clearRect(0, 0, cv.width, cv.height); }
+  })();
+}
+
+/* ───────── "Try it now": a practice account in one step (the key is still made here, in the browser) ───────── */
+function tryCardHTML() {
+  const d = S.info.markets.DSE, cash = d ? cash$("DSE", d.new_cash) : "";
+  return `<div class="card try" id="tryc"><h2>${t("try_t")}</h2><p>${t("try_s")}</p>
+    <div class="tryrow"><input id="qn" maxlength="24" autocomplete="nickname" autocapitalize="words" placeholder="${esc(t("nick"))}" enterkeyhint="go"><button class="btn" id="qgo">${t("try_go")}</button></div>
+    <div class="err" id="qerr"></div><div class="perks"><span>${esc(cash)} · ${t("perk1")}</span><span>${t("perk2")}</span><span>${t("perk3")}</span></div></div>
+    <div class="orline">${t("or_sign")}</div>`;
+}
+function bindTry() {
+  if (!$("#qgo")) return;
+  $("#qgo").onclick = doQuick; $("#qn").onkeydown = e => { if (e.key === "Enter") doQuick(); };
+  if (/[?&]try\b/.test(location.search) && !("ontouchstart" in window)) $("#qn").focus();
+}
+async function doQuick() {
+  const nm = $("#qn").value.trim(), btn = $("#qgo"), er = $("#qerr");
+  if ([...nm].length < 2 || [...nm].length > 24) { er.textContent = t("nick_bad"); return; }
+  busy(btn, true); er.style.color = "#fff"; er.innerHTML = `<span class="spin"></span>${t("try_wait")}`;
+  try {
+    const k = BXSign.newKey(), addr = BXSign.addressOf(k);                 // created here; only the address leaves the phone
+    const r = await api("/api/auth/quickstart", { method: "POST", body: { name: nm, wallet: addr } });
+    keyStore.set(r.user.email, k); S.tmpKey = k; setToken(r.token); try { localStorage.setItem("bx_qtoken", r.token); } catch (e) {}
+    sessionStorage.removeItem("bx_demo_key"); await loadMe(); S.itab = "home"; S.welcome = { name: r.user.name, tx: r.tx };
+    if (location.search) history.replaceState(null, "", location.pathname);
+    route();
+  } catch (e) { er.style.color = ""; er.textContent = e.message; busy(btn, false); }
+}
+function showWelcome() {
+  const w = S.welcome; S.welcome = null; if (!w) return; const d = S.info.markets.DSE;
+  openSheet(`<div style="text-align:center"><div class="okmark">${I.bigcheck}</div><h3>${esc(tf("welcome_t", { name: w.name }))}</h3><p class="sub" style="margin:4px 0 12px">${t("welcome_s")}</p>
+    <div class="infobox" style="text-align:left">${tf("welcome_get", { cash: cash$("DSE", d.new_cash), n: num(d.new_shares) })}<div class="sub" style="margin-top:4px">${t("tx")} ${H(w.tx)}</div></div>
+    <button class="btn" id="wGuide">${t("start_btn")}</button><button class="btn ghost" id="wX" style="margin-top:8px">${t("explore")}</button></div>`);
+  $("#wGuide").onclick = () => { closeSheet(); startGuide(); }; $("#wX").onclick = closeSheet;
+  setTimeout(() => confetti(), 150);
+}
+
+/* ───────── install as an app (PWA) ───────── */
+let INSTALL = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); INSTALL = e; refreshInstall(); });
+window.addEventListener("appinstalled", () => { INSTALL = null; toast(t("installed")); refreshInstall(); });
+const standalone = () => (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const canInstall = () => !standalone() && (!!INSTALL || isIOS());
+function installSlot(cls) { return `<span data-install-slot="${esc(cls || "lang")}">${canInstall() ? `<button class="${esc(cls || "lang")} inst" data-install>${I.dl} ${t("install")}</button>` : ""}</span>`; }
+function refreshInstall() { $$("[data-install-slot]").forEach(el => { el.outerHTML = installSlot(el.dataset.installSlot); }); }
+document.addEventListener("click", e => { if (e.target.closest("[data-install]")) doInstall(); });
+async function doInstall() {
+  if (INSTALL) { const ev = INSTALL; INSTALL = null; ev.prompt(); try { await ev.userChoice; } catch (e) {} refreshInstall(); return; }
+  openSheet(`<h3>${t("ios_t")}</h3><div class="how" style="margin:10px 0 14px">${isIOS() ? `<div>${t("ios_1")} ${I.share.replace("<svg", '<svg style="vertical-align:-4px;color:var(--blue)"')}</div><div>${t("ios_2")}</div><div>${t("ios_3")}</div>` : `<div>${t("inst_other")}</div>`}</div><button class="btn" id="iX">${t("close")}</button>`);
+  $("#iX").onclick = closeSheet;
+}
+
+/* ───────── QR code to join (vendor/qrcode.js, MIT) ───────── */
+let QRP = null;
+function loadQR() {
+  if (window.qrcode) return Promise.resolve();
+  if (!QRP) QRP = new Promise((res, rej) => { const s = document.createElement("script"); s.src = "/vendor/qrcode.js"; s.onload = res; s.onerror = () => { QRP = null; rej(new Error("qr")); }; document.head.appendChild(s); });
+  return QRP;
+}
+function joinURL() { const base = (S.info && S.info.public_url) || location.origin; return base.replace(/\/+$/, "") + "/?try=1"; }
+const isLocalURL = u => /\/\/(localhost|127\.|0\.0\.0\.0|\[::1\])/i.test(u);
+async function qrSVG(text) { await loadQR(); const q = qrcode(0, "M"); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 2, scalable: true }); }
+async function openShare() {
+  const u = joinURL();
+  openSheet(`<h3>${t("share_app")}</h3><p class="sub" style="margin:4px 0 10px">${t("share_s")}</p><div class="qrbox" id="qrS"><span class="spin"></span></div><div class="urlline mono">${esc(u)}</div>
+    ${isLocalURL(u) ? `<div class="bwarn">${t("local_warn")}</div>` : ""}<div class="row2" style="margin-top:12px"><button class="btn ghost" id="shCopy">${t("copy_link")}</button><button class="btn" id="shX">${t("close")}</button></div>`);
+  $("#shX").onclick = closeSheet;
+  $("#shCopy").onclick = () => { if (navigator.share) navigator.share({ title: BRAND.name, url: u }).catch(() => {}); else if (navigator.clipboard) navigator.clipboard.writeText(u).then(() => toast(t("copied"))); };
+  try { const svg = await qrSVG(u); if ($("#qrS")) $("#qrS").innerHTML = svg; } catch (e) { if ($("#qrS")) $("#qrS").textContent = u; }
+}
+
+/* ───────── desktop sidebar footer ───────── */
+function renderNfoot() {
+  const el = $("#nfoot"); if (!el) return;
+  el.innerHTML = `<div class="sub">${t("sim_banner")}</div><a class="btn ghost" href="/#board" target="_blank" rel="noopener">${I.board} ${t("board")}</a><button class="btn ghost" id="nShare">${I.share} ${t("share_app")}</button>${installSlot("btn ghost")}`;
+  $("#nShare").onclick = openShare;
+}
+
+/* ═══════════════ big-screen live board (#board): no sign-in, read-only ═══════════════ */
+let BOARD = null;
+function stopBoard() { if (BOARD) { clearInterval(BOARD.t1); clearInterval(BOARD.t2); BOARD = null; } }
+function feedRowHTML(o, fresh) {
+  const n = S.info.validators, det = (o.votes && o.votes.detail) || [];
+  const chips = Array.from({ length: n }, (_, i) => { const d = det.find(x => x.node === i + 1), c = !d ? "" : d.agree ? "y" : d.verdict === "not-asked" ? "" : "n"; return `<i class="${c}">V${i + 1}${c === "y" ? " ✓" : c === "n" ? " ✗" : ""}</i>`; }).join("");
+  const stc = { settled: "ok", rejected: "bad", cancelled: "bad", part_filled: "bad", held: "wait", open: "wait", partial: "wait" }[o.status] || "";
+  const big = o.risk && o.risk.level === "ESCALATED";
+  return `<div class="fr ${fresh ? "new" : ""}"><div class="av">${esc([...(o.name || "?")][0])}</div><div style="min-width:0">
+      <div class="ft">${esc(o.name)} <span class="${o.side === "BUY" ? "b" : "s"}">${o.side === "BUY" ? t("buy_o") : t("sell_o")}</span> ${num(o.qty)} ${esc(o.ticker)} <span style="font-weight:600;opacity:.85">${o.otype === "MARKET" ? "· " + t("market_o") : "@ " + price$(o.market, o.price)}</span></div>
+      <div class="fs"><span class="vv">${chips}</span>${o.votes && o.votes.agree != null ? `<span>${ofN(o.votes.agree, n)}</span>` : ""}${big ? `<span class="st2 esc">${t("escalated")}</span>` : ""}${o.anchored ? `<span>⛓ ${t("anchored")}</span>` : ""}<span>${esc(o.market)} · ${agoText(o.ts)}</span></div></div>
+    <span class="st2 ${stc}">${esc(t("st_" + o.status))}</span></div>`;
+}
+async function mountBoard() {
+  stopBoard();
+  if (!S.info) { try { S.info = await api("/api/info"); } catch (e) { $("#main").innerHTML = `<div class="bwarn">${t("no_gateway")}</div>`; return; } }
+  const m = S.info.markets.DSE ? "DSE" : Object.keys(S.info.markets)[0];
+  document.body.classList.toggle("bn", S.lang === "bn");
+  $("#main").innerHTML = `<div class="bh"><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)} · ${t("board")}<small>${esc(BRAND.long)} · ${esc(BRAND.project)}</small></div></div>
+      <div class="bmeta"><span class="bpill"><span class="ldot"></span>${t("live")}</span><span class="bpill">${t("sim_banner")}</span><button class="lang" id="bLang">${S.lang === "bn" ? "EN" : "বাংলা"}</button><span class="clock" id="bclk"></span></div></div>
+    ${tickerTapeHTML(m)}
+    <div class="bg3">
+      <div class="bcol"><div class="bc idx" id="bidx"></div><div class="bc"><h3>${t("heatmap")}<span>${t("heat_note")}</span></h3><div id="bheat"></div></div></div>
+      <div class="bcol"><div class="bc" style="flex:1;min-height:0;display:flex;flex-direction:column"><h3>${t("feed")}<span>${t("feed_s")}</span></h3><div class="bfeed" id="bfeed"><div class="empty">${t("feed_empty")}</div></div></div></div>
+      <div class="bcol"><div class="bc bqr"><h3>${t("scan")}</h3><div class="qrbox" id="bqr"><span class="spin"></span></div><div class="sub" style="margin-top:6px">${t("scan_s")}</div><div class="urlline mono" id="burl"></div><div id="bwarn"></div></div>
+        <div class="bc"><h3>${t("chal")}<span id="bplayers"></span></h3><div id="blb"></div></div>
+        <div class="bc" style="min-height:0;overflow:hidden;flex:1"><h3>${t("notices")}</h3><div id="bnot"></div></div></div>
+    </div>`;
+  $("#bLang").onclick = () => setLang(S.lang === "bn" ? "en" : "bn");
+  const B = BOARD = { n: 0, seen: new Set(), url: "" };
+  const drawQR = () => {
+    const u = joinURL(); if (u === B.url) return; B.url = u;
+    $("#burl").textContent = u.replace(/^https?:\/\//, "").replace(/\/\?try=1$/, "");
+    $("#bwarn").innerHTML = isLocalURL(u) ? `<div class="bwarn">${t("local_warn")}</div>` : "";
+    qrSVG(u).then(svg => { if ($("#bqr")) $("#bqr").innerHTML = svg; }).catch(() => { if ($("#bqr")) $("#bqr").textContent = u; });
+  };
+  const clock = () => { const c = $("#bclk"); if (c) c.textContent = new Date().toLocaleTimeString(loc(), { hour: "2-digit", minute: "2-digit", second: "2-digit" }); };
+  const run = async () => {
+    if (BOARD !== B) return; B.n++;
+    try {
+      if (B.n % 10 === 1) { S.info = await api("/api/info"); drawQR(); }
+      const [ov, feed] = await Promise.all([api("/api/overview/" + m), api("/api/board/feed")]);
+      if (BOARD !== B) return; S.ov[m] = ov;
+      if (B.n % 4 === 1) S.lb = await api("/api/leaderboard").catch(() => S.lb);
+      $("#bidx").innerHTML = idxCardHTML(m, true); $("#bheat").innerHTML = heatHTML(m, true); refreshTape(true);
+      $("#bnot").innerHTML = noticesHTML(ov.notices, 7);
+      const first = B.n === 1;
+      $("#bfeed").innerHTML = feed.length ? feed.map(o => { const fresh = !first && !B.seen.has(o.id); B.seen.add(o.id); return feedRowHTML(o, fresh); }).join("") : `<div class="empty">${t("feed_empty")}</div>`;
+      if (S.lb) { $("#blb").innerHTML = chalHTML(S.lb, 6, true); $("#bplayers").textContent = tf("players", { n: num(S.lb.players ?? S.lb.n) }); }
+    } catch (e) {}
+  };
+  drawQR(); clock(); run();
+  B.t1 = setInterval(run, 2000); B.t2 = setInterval(clock, 1000);
 }
 
 /* ═══════════════ staff console (broker and admin) ═══════════════ */
@@ -1366,7 +2057,7 @@ async function tick() {
   try {
     S.info = S.info || await api("/api/info");
     if (S.token && !S.me) await loadMe();
-    const u = S.me && S.me.user; if (!u) { busyTick = false; return; }
+    const u = S.me && S.me.user; if (!u || S.view === "board" || S.view === "guest") { busyTick = false; return; }
     if (S.view === "onboard") {
       const before = u.status; await loadMe();
       if (S.me.user.status !== before) { if (S.me.user.status === "active") { toast(t("approved_msg")); S.view = null; S.itab = "home"; } route(); }
@@ -1374,11 +2065,14 @@ async function tick() {
       const it = S.itab;
       if (!isLive()) { S.snap[S.market] = await api("/api/market/" + S.market); refreshLive(); }
       if (watchFor !== S.token) { S.watch = await api("/api/watchlist"); watchFor = S.token; }
-      if (["home", "trade", "orders"].includes(it) || tickN % 4 === 0) S.orders = await api("/api/orders");
+      if (["home", "trade", "orders"].includes(it) || tickN % 4 === 0) { S.orders = await api("/api/orders"); afterOrders(); }
+      if (["home", "markets"].includes(it) && (tickN % 3 === 0 || !S.ov[S.market])) await loadOverview(S.market);
+      if (it === "home" && (tickN % 8 === 0 || !S.lb)) await loadLeaderboard();
+      if (tickN % 4 === 0) refreshTape();
       if (tickN % 2 === 0 || !S.portfolios) { const m = await api("/api/me"); S.portfolios = m.portfolios; }
       if (it === "wallet" && tickN % 5 === 0) await loadWallet();
       if (S.itab !== it) { busyTick = false; return; }
-      if (it === "home") refreshHome(); else if (it === "trade") syncTrade(); else if (it === "orders") refreshIOrders(); else if (it === "wallet") refreshWallet();
+      if (it === "home") refreshHome(); else if (it === "markets") refreshOverview(); else if (it === "trade") syncTrade(); else if (it === "orders") refreshIOrders(); else if (it === "wallet") refreshWallet();
       const n = S.orders.filter(isActive).length, tb = $('#itabs .tab[data-t="orders"]');
       if (tb) { let c = tb.querySelector(".cnt"); if (n && !c) { c = document.createElement("span"); c.className = "cnt"; tb.appendChild(c); } if (c) { if (n) c.textContent = n; else c.remove(); } }
     } else {
@@ -1401,6 +2095,7 @@ async function tick() {
   if ("serviceWorker" in navigator && (location.hostname === "localhost" || location.protocol === "https:")) navigator.serviceWorker.register("/sw.js").catch(() => {});
   try { S.info = await api("/api/info"); if (!S.info.markets[S.market]) S.market = Object.keys(S.info.markets)[0]; if (S.token) await loadMe(); }
   catch (e) { $("#root").innerHTML = `<div class="gwrap"><div class="warnbox">${t("no_gateway")}</div></div>`; return; }
+  window.addEventListener("hashchange", () => { if (location.hash === "#board" || S.view === "board") route(); });
   route(); setInterval(tick, 1000);
 })();
 </script>
