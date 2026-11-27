@@ -18,7 +18,7 @@ try:
     import signing as S
 except ImportError:
     _vpy = ROOT / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-    if _vpy.exists() and Path(sys.executable).resolve() != _vpy.resolve():
+    if _vpy.exists() and Path(sys.prefix).resolve() != (ROOT / ".venv").resolve():     # compare environments, not interpreter paths (venv symlinks)
         sys.exit(subprocess.call([str(_vpy)] + sys.argv))
     raise SystemExit("Python packages are missing. Start the system once with run_all first; it installs them.")
 
