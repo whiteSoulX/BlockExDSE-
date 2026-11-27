@@ -9,6 +9,8 @@ What it does: installs dependencies on first run, compiles the contract, starts 
 chain, deploys, starts three edge nodes, opens the dashboard. Ctrl+C stops everything.
 Other chains: set RPC_URL and CHAIN_PRIVATE_KEY (a funded TEST-network key) before running; see README.
 Options: --no-browser   --demo-delay SECONDS   --no-compile   --lan (phone access)   --block-time MS
+         --demo   (poster day: live market simulator on, faster order flow, one-tap "Try it now" accounts)
+         --public (share an https link through a free Cloudflare quick tunnel; needs cloudflared installed)
 """
 import argparse
 import hashlib
@@ -221,6 +223,34 @@ def lan_ip():
         return "YOUR-PC-IP"
 
 
+def start_tunnel():
+    """Free Cloudflare quick tunnel: an https address for the gateway, no account needed. Returns the URL or None."""
+    exe = shutil.which("cloudflared") or shutil.which("cloudflared.exe")
+    if not exe:
+        say("==> --public: cloudflared is not installed, so no public link. Install it, then run again:")
+        say("      Windows: winget install --id Cloudflare.cloudflared    macOS: brew install cloudflared")
+        say("      Linux  : see https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/")
+        return None
+    p = spawn("tunnel", [exe, "tunnel", "--no-autoupdate", "--url", "http://localhost:9001"], ROOT)
+    say("==> Opening a public https link (Cloudflare quick tunnel)")
+    end = time.time() + 40
+    while time.time() < end:
+        time.sleep(1)
+        try:
+            txt = (LOGS / "tunnel.log").read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            txt = ""
+        for word in txt.replace("|", " ").split():
+            if word.startswith("https://") and word.rstrip("/").endswith(".trycloudflare.com"):
+                url = word.rstrip("/")
+                (LOGS / "public_url.txt").write_text(url, encoding="utf-8")
+                return url
+        if p.poll() is not None:
+            break
+    say("==> The tunnel did not start (see logs/tunnel.log). Continuing without a public link.")
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-browser", action="store_true")
@@ -228,6 +258,8 @@ def main():
     ap.add_argument("--block-time", type=int, default=0, help="mine one block every N ms (benchmark realism); 0 = instant")
     ap.add_argument("--lan", action="store_true", help="let phones on the same Wi-Fi open the dashboard (demo use only)")
     ap.add_argument("--demo-delay", type=float, default=None, help="seconds of visual pause between stages (default 0.35)")
+    ap.add_argument("--demo", action="store_true", help="poster day: market simulator on, faster flow, quick-start accounts")
+    ap.add_argument("--public", action="store_true", help="open a free https link with cloudflared (anyone with the link can use the demo)")
     a = ap.parse_args()
 
     if a.block_time:
@@ -259,6 +291,9 @@ def main():
     run_step("Deploying the contract and registering demo traders", [VPY, ROOT / "edge" / "deploy.py"])
 
     extra = {} if a.demo_delay is None else {"DEMO_DELAY": str(a.demo_delay)}
+    if a.demo:
+        extra.update(DEMO_SIM="DSE", SIM_EVERY="0.8", QUICKSTART="1")
+    (LOGS / "public_url.txt").unlink(missing_ok=True) if LOGS.exists() else None
     for i in NODES:
         env_i = {"NODE_ID": str(i), **extra}
         if a.lan and i == 1:
@@ -267,12 +302,21 @@ def main():
     wait_for("edge nodes", lambda: all(http_ok(f"http://127.0.0.1:{9000 + i}/health") for i in NODES), 40)
     wait_for("the gateway API", lambda: http_ok("http://127.0.0.1:9001/api/info"), 20)
 
+    public = start_tunnel() if a.public else None
+    if a.lan and not public:
+        LOGS.mkdir(exist_ok=True)
+        (LOGS / "public_url.txt").write_text(f"http://{lan_ip()}:9001", encoding="utf-8")
+
     say("\n" + "=" * 58)
     say("  BlockExDSE is running")
     say("  Dashboard : http://localhost:9001")
     say(f"  Edge nodes: 9001 (gateway)  9002  9003  9004   |  Chain RPC: {RPC_URL}")
     if a.lan:
         say(f"  On a phone (same Wi-Fi): http://{lan_ip()}:9001   (allow the firewall prompt; demo use only)")
+    if public:
+        say(f"  PUBLIC LINK: {public}   (share it or open {public}/#board for the big screen with its QR code)")
+    if a.demo:
+        say("  Demo mode : market simulator on, \"Try it now\" quick-start accounts on")
     say("  Logs      : " + str(LOGS))
     say("  Press Ctrl+C in this window to stop everything")
     say("=" * 58)

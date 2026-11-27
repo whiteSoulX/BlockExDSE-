@@ -18,6 +18,37 @@ contract accepts one reviewer signature in place of one validator, for a risky o
 Two simulated exchanges run side by side: **DSE** (Dhaka, taka, price-slab circuit breakers) and **LSE** (London, pence).
 Nothing connects to a real exchange and no real money is involved.
 
+## New in the demo-day update (still 2.1)
+
+| Feature | How it works |
+|---|---|
+| **Works on phone, tablet and desktop** | Phone: bottom tabs. Tablet (760 px and wider): side rail, two columns. Desktop (1200 px and wider): sidebar and a trading-terminal layout (stock list, chart and order book, order ticket side by side) |
+| **Market tools like the DSE home page** | Scrolling ticker tape, a **RACE demo index** (weighted, base 1000; clearly labelled as *not* the DSEX) with an intraday chart, turnover, volume, trades, advance/decline breadth, a sector heatmap, top movers (gainers, losers, most active) and a **live notice board** |
+| **Notice board uses real events only** | Price-limit hits, block trades, escalated (4 of 4) orders, orders held for review, validator faults, new players. No invented company news |
+| **Practice challenge** | Leaderboard of investors ranked by the return on their practice portfolio (first names only; demo bots left out; you need one trade to be ranked) |
+| **Achievements and celebrations** | Ten badges (first order, first trade, a 4-of-4 trade, market order, watch 3 stocks, add money, Bangla, run the audit, trade in London, signed cancel). Confetti when a trade settles |
+| **"Try it now"** | A visitor types a nickname and gets a practice account at once. **The signing key is still created in the visitor's browser**; only its address is sent and registered on-chain. Quick accounts skip OTP, ID check and broker approval (demo use only; `QUICKSTART=0` turns it off) |
+| **Live board for the stall screen** | `http://<host>:9001/#board`: no sign-in, read-only. Index, heatmap, ticker, a live blockchain feed (every order with its V1 to V4 votes and anchoring), the leaderboard, the notice board and a **"Scan to trade" QR code** |
+| **Install as an app** | Web app manifest with PNG icons; an *Install app* button on Android and desktop Chrome, *Add to Home Screen* steps on iPhone. Needs https (`--public`) or localhost |
+| **Calmer demo market** | The simulator now drifts back towards the reference price, so prices move like a market instead of sitting at the limits |
+
+New endpoints: `GET /api/overview/{market}`, `GET /api/leaderboard`, `GET /api/board/feed` (all public),
+`POST /api/auth/quickstart`, `GET /vendor/qrcode.js` (qrcode-generator 1.4.4, MIT), `GET /icon-{180,192,512}.png`.
+New test: `scripts/demo_test.py` (27 checks).
+
+## Poster day: let visitors trade on their own phones
+
+1. Install **cloudflared** once (Windows: `winget install --id Cloudflare.cloudflared`; macOS: `brew install cloudflared`).
+2. Start the system: `python run.py --demo --public`. The window prints a **PUBLIC LINK** (`https://….trycloudflare.com`).
+3. Open `<that link>/#board` on the big screen (or on the laptop in full screen, F11). The QR code on the board points to
+   the public link.
+4. Visitors scan the QR code, type a nickname, tap **Start trading**, and can follow the guided first trade. On Android
+   they can tap **Install app**; on iPhone, Share then *Add to Home Screen*.
+5. Without internet at the venue: start a phone hotspot, connect the laptop and the visitors to it, and run
+   `python run.py --demo --lan`. Trading works over plain http on the same Wi-Fi; installing the app needs https.
+
+The quick-start link stays valid for 12 hours per visitor. Everything is practice money: say so when people ask.
+
 ## What is new in 2.1
 
 | For everyday investors | How it works |
@@ -55,7 +86,7 @@ ending at the reference price), and the app labels them that way. New test: `scr
 
 | System | Command |
 |---|---|
-| Docker | `docker compose up --build` (see [DOCKER.md](file:///C:/Users/user/Downloads/blockexdse-v2.0%20Stable/blockexdse/DOCKER.md)) |
+| Docker | `docker compose up --build` (see [DOCKER.md](DOCKER.md)) |
 | Windows | double-click `run_all.bat` (or run it in a terminal) |
 | Linux / macOS | `./run_all.sh` |
 | Any | `python run.py` |
@@ -64,7 +95,9 @@ The launcher installs what is missing, compiles the contract, starts a local tes
 (ports 9001 to 9004), and opens **http://localhost:9001**. Press Ctrl+C to stop. On Windows, `stop_all.bat` frees the ports.
 
 Options: `--no-browser`, `--demo-delay 0.5` (slower stage animation), `--block-time 250` (one block every 250 ms),
-`--lan` (open the dashboard from a phone on the same Wi-Fi; demo use only).
+`--lan` (open the dashboard from a phone on the same Wi-Fi; demo use only), `--demo` (poster day: market simulator on,
+"Try it now" accounts on), `--public` (a free https link through Cloudflare, so phones on any network can open it and
+install the app). See [Poster day](#poster-day-let-visitors-trade-on-their-own-phones).
 
 ## Demo accounts
 
@@ -95,6 +128,7 @@ python scripts/security_test.py     # 18 checks: hashes, nine attacks, audit and
 python scripts/onboarding_test.py   # 14 checks: sign-up, one-time code, ID check, approval
 python scripts/market_test.py       # 15 checks: two markets, market orders, cancel, live data
 python scripts/wallet_test.py       # 15 checks (v2.1): add money, signed withdrawal, replay and forgery refused, watchlist, history, audit
+python scripts/demo_test.py         # 27 checks (v2.1 demo day): overview and demo index, quick start, leaderboard, live board, app files
 python scripts/audit_chain.py       # independent audit of DSE and LSE from the ledger
 ```
 
@@ -125,6 +159,7 @@ chain. Real-money chains are refused unless `ALLOW_MAINNET=yes-i-understand` is 
 | Risk score, quorum, price band, nonce and expiry checks in the contract | Money, shares, reference prices, market data |
 | Locking of funds, matching, settlement, record hashes | All nodes on one computer; a local test blockchain with one node |
 | Audit, attack tests, benchmark | Demo accounts whose keys the server also knows (real sign-ups keep the key in the browser) |
+| Ticker, demo index, breadth, heatmap, movers and notices: computed from this system's own trades | The demo index itself (an illustrative weighted index, not the DSEX); "Try it now" accounts skip identity checks |
 
 Known limits: one gateway orders the incoming orders (no protection against unfair ordering), settlement is gross
 (no netting, so funds are locked per order), and nothing here has been tested on separate machines or a public chain.
@@ -133,7 +168,7 @@ Known limits: one gateway orders the incoming orders (no protection against unfa
 
 `contracts/BlockExDSE.sol` settlement contract · `edge/` validators, gateway, signing, audit · `dashboard/` single-page app
 (`vendor/sign.js` is built from `tools/sign_src.js`; v2.1 added `withdrawDigest`. The page itself is assembled from
-`tools/dash_parts/` with `cat tools/dash_parts/{head.html,core.js,inv.js,staff.js,tail.js} > dashboard/index.html`, or edit
+`tools/dash_parts/` with `cat tools/dash_parts/{head.html,core.js,inv.js,live.js,staff.js,tail.js} > dashboard/index.html`, or edit
 `dashboard/index.html` directly) · `scripts/` tests and benchmark · `tools/film_demo.js` records the
 demo video (needs Playwright; optional) · `run.py` launcher.
 
@@ -150,3 +185,5 @@ demo video (needs Playwright; optional) · `run.py` launcher.
 - `test/BlockExDSE.test.js` still describes the v1 contract API and does not run against v2; the Python scripts above are the
   tests that match the current contract.
 - `tools/film_demo.js` records the v2.0 trading screens. It needs new selectors before it can film the 2.1 investor app.
+- The leaderboard reads on-chain balances only for investors who have traded, and caches the result for 8 seconds.
+- The tests can be started with any Python: they relaunch themselves with the project's `.venv` when needed.
