@@ -312,7 +312,7 @@ async function mountBoard() {
   if (!S.info) { try { S.info = await api("/api/info"); } catch (e) { $("#main").innerHTML = `<div class="bwarn">${t("no_gateway")}</div>`; return; } }
   const m = S.info.markets.DSE ? "DSE" : Object.keys(S.info.markets)[0];
   document.body.classList.toggle("bn", S.lang === "bn");
-  $("#main").innerHTML = `<div class="bh"><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)} · ${t("board")}<small>${esc(BRAND.long)} · ${esc(BRAND.project)}</small></div></div>
+  $("#main").innerHTML = `<div class="bh"><div class="brand"><div class="logo">${logoSVG()}</div><div>${WORDMARK} · ${t("board")}<small>${esc(BRAND.long)} · ${esc(BRAND.project)}</small></div></div>
       <div class="bmeta"><span class="bpill"><span class="ldot"></span>${t("live")}</span><span class="bpill">${t("sim_banner")}</span><button class="lang" id="bLang">${S.lang === "bn" ? "EN" : "বাংলা"}</button><span class="clock" id="bclk"></span></div></div>
     ${tickerTapeHTML(m)}
     <div class="bg3">

@@ -2,6 +2,14 @@
    One page, two layouts: the investor app (phone first, the poster design) and the staff console (broker, admin).
    Change the product name here once the team has chosen it. */
 const BRAND = { name: "BlockExDSE", letter: "B", long: "Risk-adaptive edge consensus with RACD", project: "v2.1 · blockchain stock exchange" };
+/* Logo: a block (blockchain, with a chain link) and a rising market line breaking out of it. One drawing, used everywhere. */
+let LOGO_N = 0;
+function logoSVG() {
+  const id = "bxg" + (++LOGO_N);
+  return `<svg viewBox="0 0 128 128" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1F3864"/><stop offset="1" stop-color="#2F5597"/></linearGradient></defs><rect width="128" height="128" rx="28" fill="url(#${id})"/><polygon points="60,20 100,42 60,64 20,42" fill="#DAE3F3"/><polygon points="20,42 60,64 60,110 20,88" fill="#8FAADC"/><polygon points="100,42 60,64 60,110 100,88" fill="#fff"/><g fill="none" stroke="#1F3864" stroke-width="4" opacity=".55"><rect x="27" y="62" width="16" height="10" rx="5" transform="skewY(29) translate(0,-14)"/><rect x="36" y="67" width="16" height="10" rx="5" transform="skewY(29) translate(0,-14)"/></g><polyline points="68,96 79,81 86,88 104,62" fill="none" stroke="#ED7D31" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><polygon points="110,52 109,70 94,61" fill="#ED7D31"/></svg>`;
+}
+const WORDMARK = 'BlockEx<span class="wm">DSE</span>';
+
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -124,6 +132,24 @@ const L = {
     feed: "Live blockchain feed", feed_s: "Every order: signed on a phone, checked by 4 validators, settled on-chain", feed_empty: "Waiting for the first order…",
     local_warn: "Phones cannot open this address. Start the system with --public (internet link) or --lan (same Wi-Fi).",
     trade_list: "Stocks", order_book: "Order book", tap_price: "Tap a price to use it", page_home: "Overview",
+    // landing page (full width, responsive)
+    n_feat: "Features", n_how: "How it works", n_mkt: "Live market", l_badge: "Live practice market · DSE and LSE",
+    l_h1a: "Safer share trading,", l_h1b: "proved on the blockchain",
+    l_s1: "edge validators check every order", l_s2: "approvals, set by each order’s risk", l_s3: "bad orders reached the ledger in our tests",
+    l_mkt_t: "Live market now", l_mkt_s: "Updating from this system right now: demo prices, and real trades by visitors and practice bots.",
+    l_feat_t: "Why BlockExDSE", l_feat_s: "A ULAB research prototype that shows how a stock exchange can settle trades without trusting one operator.",
+    f1t: "Signed on your phone", f1: "Your signing key is made on your device. Nobody, not even the broker, can place an order for you.",
+    f2t: "Checked at the edge", f2: "Four independent validators run the broker’s pre-trade checks on every order before it reaches the ledger.",
+    f3t: "Risk-adaptive approvals", f3: "RACD scores each order: routine ones need 3 of 4 approvals, large or unusual ones need all 4.",
+    f4t: "Settled on the blockchain", f4: "The smart contract verifies every signature itself, then moves shares and cash together.",
+    f5t: "Live market tools", f5: "Ticker, demo index, heatmap, top movers and a notice board built from real system events.",
+    f6t: "Bangla or English", f6: "Switch language at any time. Amounts follow Bangladeshi grouping and Bangla digits.",
+    l_how_t: "How an order settles", l_how_s: "From your tap to settlement in a few seconds.",
+    h1t: "Sign", h1: "You sign the order on your phone.", h2t: "Check", h2: "Four edge validators run the checks and sign.",
+    h3t: "Score", h3: "The risk score sets 3 of 4 or all 4 approvals.", h4t: "Verify", h4: "The contract recovers every signature itself.",
+    h5t: "Settle", h5: "Shares and cash move together; the record is anchored.",
+    l_foot: "ULAB CSE capstone project. Practice system: simulated money, prices and payments; not connected to a real exchange.",
+    l_cta: "Start with practice money",
     sim_banner: "Practice system: simulated money, prices and payments", copy_link: "Share link", show_all: "Show all {n}", show_less: "Show fewer", trade_1: "trade",
   },
   bn: {
@@ -226,6 +252,23 @@ const L = {
     feed: "লাইভ ব্লকচেইন ফিড", feed_s: "প্রতিটি অর্ডার: ফোনে সই, ৪টি ভ্যালিডেটরের যাচাই, ব্লকচেইনে নিষ্পত্তি", feed_empty: "প্রথম অর্ডারের অপেক্ষা…",
     local_warn: "ফোন এই ঠিকানা খুলতে পারবে না। সিস্টেম --public (ইন্টারনেট লিংক) বা --lan (একই Wi-Fi) দিয়ে চালু করুন।",
     trade_list: "শেয়ার", order_book: "অর্ডার বই", tap_price: "দামে ট্যাপ করলে সেটি বসবে", page_home: "সারসংক্ষেপ",
+    n_feat: "বৈশিষ্ট্য", n_how: "কীভাবে কাজ করে", n_mkt: "লাইভ বাজার", l_badge: "লাইভ অনুশীলন বাজার · DSE ও LSE",
+    l_h1a: "নিরাপদ শেয়ার লেনদেন,", l_h1b: "ব্লকচেইনে প্রমাণিত",
+    l_s1: "এজ ভ্যালিডেটর প্রতিটি অর্ডার যাচাই করে", l_s2: "অনুমোদন, প্রতিটি অর্ডারের ঝুঁকি অনুযায়ী", l_s3: "আমাদের পরীক্ষায় একটি খারাপ অর্ডারও লেজারে যায়নি",
+    l_mkt_t: "এখনকার লাইভ বাজার", l_mkt_s: "এই সিস্টেম থেকে এখনই হালনাগাদ হচ্ছে: ডেমো দাম, আর দর্শক ও অনুশীলন বটদের আসল লেনদেন।",
+    l_feat_t: "কেন BlockExDSE", l_feat_s: "ULAB-এর একটি গবেষণা প্রোটোটাইপ, যা দেখায় একজন অপারেটরের ওপর ভরসা না করেও শেয়ারবাজারে লেনদেন নিষ্পত্তি করা যায়।",
+    f1t: "আপনার ফোনেই সই", f1: "সই করার চাবি আপনার ডিভাইসেই তৈরি হয়। ব্রোকারসহ কেউই আপনার হয়ে অর্ডার দিতে পারে না।",
+    f2t: "এজে যাচাই", f2: "লেজারে পৌঁছানোর আগে চারটি স্বাধীন ভ্যালিডেটর প্রতিটি অর্ডারে ব্রোকারের যাচাইগুলো চালায়।",
+    f3t: "ঝুঁকি অনুযায়ী অনুমোদন", f3: "RACD প্রতিটি অর্ডারের স্কোর করে: সাধারণ অর্ডারে ৪টির মধ্যে ৩টি, বড় বা অস্বাভাবিক অর্ডারে সব ৪টি অনুমোদন লাগে।",
+    f4t: "ব্লকচেইনে নিষ্পত্তি", f4: "স্মার্ট কন্ট্র্যাক্ট নিজেই প্রতিটি সই যাচাই করে, তারপর শেয়ার ও টাকা একসঙ্গে হস্তান্তর করে।",
+    f5t: "লাইভ বাজারের টুল", f5: "টিকার, ডেমো সূচক, হিটম্যাপ, শীর্ষ পরিবর্তন এবং সিস্টেমের আসল ঘটনা নিয়ে নোটিশ বোর্ড।",
+    f6t: "বাংলা বা ইংরেজি", f6: "যেকোনো সময় ভাষা বদলান। টাকার অঙ্ক বাংলা সংখ্যায় ও বাংলাদেশি নিয়মে দেখায়।",
+    l_how_t: "একটি অর্ডার কীভাবে নিষ্পন্ন হয়", l_how_s: "আপনার ট্যাপ থেকে নিষ্পত্তি পর্যন্ত কয়েক সেকেন্ড।",
+    h1t: "সই", h1: "আপনি ফোনে অর্ডারে সই করেন।", h2t: "যাচাই", h2: "চারটি এজ ভ্যালিডেটর যাচাই করে সই দেয়।",
+    h3t: "স্কোর", h3: "ঝুঁকির স্কোর ঠিক করে ৪টির মধ্যে ৩টি নাকি সব ৪টি অনুমোদন লাগবে।", h4t: "প্রমাণ", h4: "কন্ট্র্যাক্ট নিজেই প্রতিটি সই যাচাই করে।",
+    h5t: "নিষ্পত্তি", h5: "শেয়ার ও টাকা একসঙ্গে হস্তান্তর হয়; রেকর্ড ব্লকচেইনে সংরক্ষিত।",
+    l_foot: "ULAB CSE ক্যাপস্টোন প্রকল্প। অনুশীলন সিস্টেম: টাকা, দাম ও পেমেন্ট কাল্পনিক; কোনো আসল এক্সচেঞ্জের সঙ্গে যুক্ত নয়।",
+    l_cta: "অনুশীলনের টাকা দিয়ে শুরু করুন",
     sim_banner: "অনুশীলন সিস্টেম: টাকা, দাম ও পেমেন্ট কাল্পনিক", copy_link: "লিংক শেয়ার", show_all: "সব {n}টি দেখুন", show_less: "কম দেখুন", trade_1: "লেনদেন",
   },
 };
@@ -316,7 +359,8 @@ function route() {
   stopBoard();
   const u = S.me && S.me.user;
   document.body.classList.toggle("bn", S.lang === "bn" && (!u || u.role === "trader"));
-  if (!u) { S.view = "guest"; setShell("guest"); return mountGuest(); }
+  if (!u) { S.view = "guest"; setShell("land"); return mountGuest(); }
+  stopLanding();
   if (u.role === "trader" && u.status !== "active") { S.view = "onboard"; setShell("guest"); return mountOnboard(); }
   if (u.role === "trader") { S.view = "inv"; setShell("inv"); renderInv(); connectStream(); tick(); return; }
   setShell("staff");
@@ -327,12 +371,13 @@ function route() {
 }
 function setShell(kind) {
   if (document.body.dataset.shell === kind) return;
-  document.body.dataset.shell = kind; document.body.className = kind === "staff" ? "staff" : kind === "inv" ? "inv" : kind === "board" ? "board" : "guest";
+  document.body.dataset.shell = kind; document.body.className = kind === "staff" ? "staff" : kind === "inv" ? "inv" : kind === "board" ? "board" : kind === "land" ? "guest land" : "guest";
   if (S.lang === "bn" && kind !== "staff") document.body.classList.add("bn");
   $("#root").innerHTML = kind === "staff"
-    ? `<header><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)} · staff console (simulated)</small></div></div><div class="who" id="who"></div></header><div class="mkbar" id="mkbar"></div><nav id="nav"></nav><main id="main"></main>`
-    : kind === "inv" ? `<div class="shell"><div id="itop"></div><div id="main"></div></div><div class="tabs"><div class="nbrand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)}</small></div></div><div class="in" id="itabs"></div><div class="nfoot" id="nfoot"></div></div>`
+    ? `<header><div class="brand"><div class="logo">${logoSVG()}</div><div>${WORDMARK}<small>${esc(BRAND.project)} · staff console (simulated)</small></div></div><div class="who" id="who"></div></header><div class="mkbar" id="mkbar"></div><nav id="nav"></nav><main id="main"></main>`
+    : kind === "inv" ? `<div class="shell"><div id="itop"></div><div id="main"></div></div><div class="tabs"><div class="nbrand"><div class="logo">${logoSVG()}</div><div>${WORDMARK}<small>${esc(BRAND.project)}</small></div></div><div class="in" id="itabs"></div><div class="nfoot" id="nfoot"></div></div>`
     : kind === "board" ? `<div class="bw" id="main"></div>`
+    : kind === "land" ? `<div class="land" id="main"></div>`
     : `<div class="gwrap" id="main"></div>`;
 }
 

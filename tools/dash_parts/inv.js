@@ -26,18 +26,69 @@ const PAY_COLOR = { bkash: "#E2136E", nagad: "#F6921E", rocket: "#8C3494", bank:
 /* ═══════════════ guest: sign in / sign up ═══════════════ */
 function langBtn() { return `<button class="lang" id="bLang">${S.lang === "bn" ? "EN" : "বাংলা"}</button>`; }
 function bindLang() { const b = $("#bLang"); if (b) b.onclick = () => setLang(S.lang === "bn" ? "en" : "bn"); }
+/* Landing page: full width on desktop and tablet, single column on phones. Live market data comes from public endpoints. */
+const LI = {
+  key: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-4 4 3 3m-5-1 2 2"/></svg>',
+  edge: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  scale: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 21h10M5 7h14M5 7l-3 6a3 3 0 0 0 6 0zM19 7l-3 6a3 3 0 0 0 6 0z"/></svg>',
+  chain: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  chart: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-7"/></svg>',
+  lang: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+};
+let LAND = null;
+function stopLanding() { if (LAND) { clearInterval(LAND); LAND = null; } }
 async function mountGuest() {
-  $("#main").innerHTML = `<div class="top"><span>${installSlot("lang")}</span><div class="topr">${langBtn()}<button class="lang" id="bTour">${t("tour")}</button></div></div>
-    <div class="ghero"><div class="logo">${BRAND.letter}</div><h1>${esc(BRAND.name)}</h1><p>${t("tagline")}</p>
-      <div class="pills3"><span class="chip"><span class="dot"></span>DSE · LSE</span><span class="chip">${I.key.replace("<svg", '<svg width="14" height="14"')} ${t("key_ok").split(" ")[0]}…</span><span class="chip">${t("sim_only")}</span></div></div>
-    ${S.info.quickstart ? tryCardHTML() : ""}
-    <div class="card"><div class="seg"><button id="tIn" class="${S.tab === "in" ? "on" : ""}">${t("signin")}</button><button id="tUp" class="${S.tab === "up" ? "on" : ""}">${t("create")}</button></div><div id="gform"></div></div>`;
-  $(".pills3 .chip:nth-child(2)").innerHTML = `${I.key.replace("<svg", '<svg width="14" height="14"')} ${S.lang === "bn" ? "ফোনে সই" : "Signed on your phone"}`;
-  bindLang(); $("#bTour").onclick = () => openTour(0);
-  $("#tIn").onclick = () => { S.tab = "in"; mountGuest(); }; $("#tUp").onclick = () => { S.tab = "up"; mountGuest(); };
-  bindTry();
+  stopLanding();
+  const m = S.info.markets.DSE ? "DSE" : Object.keys(S.info.markets)[0];
+  const feats = [["key", 1], ["edge", 2], ["scale", 3], ["chain", 4], ["chart", 5], ["lang", 6]];
+  $("#main").innerHTML = `
+  <header class="lnav"><div class="lin">
+    <div class="brand"><div class="logo">${logoSVG()}</div><div>${WORDMARK}<small>${esc(BRAND.project)}</small></div></div>
+    <nav class="llinks"><a href="#lmkt">${t("n_mkt")}</a><a href="#lfeat">${t("n_feat")}</a><a href="#lhow">${t("n_how")}</a><a href="/#board" target="_blank" rel="noopener">${t("board")}</a></nav>
+    <div class="topr">${installSlot("lang")}${langBtn()}<button class="lang ltour" id="bTour">${t("tour")}</button><a class="btn lsign" href="#lauth">${t("signin")}</a></div>
+  </div></header>
+  <div class="lin ltape">${tickerTapeHTML(m)}</div>
+  <section class="lhero"><div class="lin lgrid">
+    <div class="lcopy">
+      <span class="lbadge"><span class="ldot"></span>${t("l_badge")}</span>
+      <h1>${t("l_h1a")} <em>${t("l_h1b")}</em></h1>
+      <p class="lead">${t("tagline")}</p>
+      ${S.info.quickstart ? tryCardHTML().replace('<div class="orline">' + t("or_sign") + '</div>', "") : ""}
+      <div class="lstats"><div><b>${num(4)}</b><span>${t("l_s1")}</span></div><div><b>${S.lang === "bn" ? "৩ বা ৪" : "3 or 4"}</b><span>${t("l_s2")}</span></div><div><b>${num(0)}</b><span>${t("l_s3")}</span></div></div>
+    </div>
+    <div class="lauth" id="lauth"><div class="card"><div class="seg"><button id="tIn" class="${S.tab === "in" ? "on" : ""}">${t("signin")}</button><button id="tUp" class="${S.tab === "up" ? "on" : ""}">${t("create")}</button></div><div id="gform"></div></div>
+      <div class="sub lsim">${I.shield.replace('width="22" height="22"', 'width="16" height="16" style="vertical-align:-3px"')} ${t("sim_only")}</div></div>
+  </div></section>
+  <section class="lsec" id="lmkt"><div class="lin">
+    <div class="lhd"><h2>${t("l_mkt_t")}</h2><p>${t("l_mkt_s")}</p></div>
+    <div class="lmgrid"><div class="card idx" id="lidx"></div>
+      <div class="card"><div class="sec" style="margin-top:0"><b>${t("movers")}</b><span>${esc(m)}</span></div>${moversTabs("mvl")}<div id="lmov"></div></div>
+      <div class="card"><div class="sec" style="margin-top:0"><b>${t("heatmap")}</b><span>${esc(m)}</span></div><div id="lheat"></div><div class="sub" style="margin-top:8px">${t("heat_note")}</div></div></div>
+  </div></section>
+  <section class="lsec alt" id="lfeat"><div class="lin">
+    <div class="lhd"><h2>${t("l_feat_t")}</h2><p>${t("l_feat_s")}</p></div>
+    <div class="lfeat">${feats.map(([ic, k]) => `<div class="fc"><i class="${k % 3 === 0 ? "o" : ""}">${LI[ic]}</i><h3>${t("f" + k + "t")}</h3><p>${t("f" + k)}</p></div>`).join("")}</div>
+  </div></section>
+  <section class="lsec" id="lhow"><div class="lin">
+    <div class="lhd"><h2>${t("l_how_t")}</h2><p>${t("l_how_s")}</p></div>
+    <div class="lsteps">${[1, 2, 3, 4, 5].map(k => `<div class="ls"><b class="n">${num(k)}</b><h3>${t("h" + k + "t")}</h3><p>${t("h" + k)}</p></div>`).join("")}</div>
+    <div class="lcta"><a class="btn" href="#tryc">${t("l_cta")}</a></div>
+  </div></section>
+  <footer class="lfoot"><div class="lin">
+    <div class="brand"><div class="logo">${logoSVG()}</div><div>${WORDMARK}<small>${esc(BRAND.long)}</small></div></div>
+    <p>${t("l_foot")}</p>
+    <div class="lflinks"><a href="/#board" target="_blank" rel="noopener">${t("board")}</a><a href="#" id="fTour">${t("tour")}</a></div>
+  </div></footer>`;
+  bindLang(); $("#bTour").onclick = () => openTour(0); $("#fTour").onclick = e => { e.preventDefault(); openTour(0); };
+  $("#tIn").onclick = () => { S.tab = "in"; authTabs(); }; $("#tUp").onclick = () => { S.tab = "up"; authTabs(); };
+  $$('.land a[href^="#l"], .land a[href="#tryc"]').forEach(a => a.onclick = e => { const el = $(a.getAttribute("href")); if (el) { e.preventDefault(); el.scrollIntoView({ behavior: "smooth", block: "start" }); if (a.getAttribute("href") === "#tryc" && $("#qn")) setTimeout(() => $("#qn").focus(), 400); } });
+  bindTry(); bindMoversTabs("mvl", () => { $("#lmov").innerHTML = moversHTML(m); });
   S.tab === "in" ? formSignIn() : formSignUp();
+  const draw = () => { if (!$("#lidx")) return stopLanding(); $("#lidx").innerHTML = idxCardHTML(m); $("#lmov").innerHTML = moversHTML(m); $("#lheat").innerHTML = heatHTML(m); refreshTape(true); };
+  draw(); await loadOverview(m); draw();
+  LAND = setInterval(async () => { if (S.view !== "guest") return stopLanding(); await loadOverview(m); draw(); }, 3000);
 }
+function authTabs() { $("#tIn").classList.toggle("on", S.tab === "in"); $("#tUp").classList.toggle("on", S.tab === "up"); S.tab === "in" ? formSignIn() : formSignUp(); }
 async function formSignIn() {
   $("#gform").innerHTML = `<label>${t("email")}</label><input id="em" type="email" autocomplete="username" placeholder="you@example.com">
     <label>${t("password")}</label><input id="pw" type="password" autocomplete="current-password">
@@ -95,7 +146,7 @@ function mountOnboard() {
     <div id="err" class="err"></div><button class="btn" id="go">${t("submit_ap")}</button>`;
   } else body = `<h3 style="color:var(--navy);margin:0"><span class="spin"></span>${t("waiting")}</h3><p class="sub">${t("step4s")} ${t("id_end")} <b>${esc(u.nid_last4)}</b>.</p>
     <div class="demo-note">${t("broker_tip")}</div>`;
-  $("#main").innerHTML = `<div class="top"><div class="brand"><div class="logo">${BRAND.letter}</div>${esc(BRAND.name)}</div><div class="topr">${langBtn()}<button class="lang" id="bOut2">${t("signout")}</button></div></div>
+  $("#main").innerHTML = `<div class="top"><div class="brand"><div class="logo">${logoSVG()}</div>${WORDMARK}</div><div class="topr">${langBtn()}<button class="lang" id="bOut2">${t("signout")}</button></div></div>
     <div class="card"><div class="prog">${bar}</div>${body}</div>`;
   bindLang(); $("#bOut2").onclick = async () => { try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {} signOutLocal(); };
   if (st === "otp_pending") {
@@ -115,7 +166,7 @@ const ITABS = [["home", "home"], ["markets", "markets"], ["trade", "trade"], ["o
 function pageTitle() { return S.itab === "stock" && S.stock && MK().tickers[S.stock] ? MK().tickers[S.stock].name : S.itab === "me" ? t("profile") : S.itab === "home" ? t("page_home") : t(S.itab); }
 function renderInv() {
   const u = S.me.user, initials = u.name.split(/\s+/).map(x => [...x][0] || "").join("").slice(0, 2).toUpperCase();
-  $("#itop").innerHTML = `<div class="top"><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)}</small></div></div><div class="ptitle">${esc(pageTitle())}</div>
+  $("#itop").innerHTML = `<div class="top"><div class="brand"><div class="logo">${logoSVG()}</div><div>${WORDMARK}<small>${esc(BRAND.project)}</small></div></div><div class="ptitle">${esc(pageTitle())}</div>
       <div class="topr">${installSlot("lang")}${langBtn()}<button class="avatar" id="bMe" title="${esc(t("profile"))}">${esc(initials)}</button></div></div>
     <div class="chiprow"><button class="chip" id="cMk"><span class="dot ${isLive() ? "" : "off"}" id="liveDot"></span>${esc(S.market)} ${t("market_chip")} ⇄</button>
       <span class="chip" id="cKey" style="${S.key ? "" : "color:var(--bad)"}">${I.key.replace("<svg", '<svg width="15" height="15"')} ${S.key ? t("key_ok") : t("key_no")}</span></div>
