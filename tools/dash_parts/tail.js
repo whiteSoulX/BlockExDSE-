@@ -6,7 +6,7 @@ async function tick() {
   try {
     S.info = S.info || await api("/api/info");
     if (S.token && !S.me) await loadMe();
-    const u = S.me && S.me.user; if (!u) { busyTick = false; return; }
+    const u = S.me && S.me.user; if (!u || S.view === "board" || S.view === "guest") { busyTick = false; return; }
     if (S.view === "onboard") {
       const before = u.status; await loadMe();
       if (S.me.user.status !== before) { if (S.me.user.status === "active") { toast(t("approved_msg")); S.view = null; S.itab = "home"; } route(); }
@@ -14,11 +14,14 @@ async function tick() {
       const it = S.itab;
       if (!isLive()) { S.snap[S.market] = await api("/api/market/" + S.market); refreshLive(); }
       if (watchFor !== S.token) { S.watch = await api("/api/watchlist"); watchFor = S.token; }
-      if (["home", "trade", "orders"].includes(it) || tickN % 4 === 0) S.orders = await api("/api/orders");
+      if (["home", "trade", "orders"].includes(it) || tickN % 4 === 0) { S.orders = await api("/api/orders"); afterOrders(); }
+      if (["home", "markets"].includes(it) && (tickN % 3 === 0 || !S.ov[S.market])) await loadOverview(S.market);
+      if (it === "home" && (tickN % 8 === 0 || !S.lb)) await loadLeaderboard();
+      if (tickN % 4 === 0) refreshTape();
       if (tickN % 2 === 0 || !S.portfolios) { const m = await api("/api/me"); S.portfolios = m.portfolios; }
       if (it === "wallet" && tickN % 5 === 0) await loadWallet();
       if (S.itab !== it) { busyTick = false; return; }
-      if (it === "home") refreshHome(); else if (it === "trade") syncTrade(); else if (it === "orders") refreshIOrders(); else if (it === "wallet") refreshWallet();
+      if (it === "home") refreshHome(); else if (it === "markets") refreshOverview(); else if (it === "trade") syncTrade(); else if (it === "orders") refreshIOrders(); else if (it === "wallet") refreshWallet();
       const n = S.orders.filter(isActive).length, tb = $('#itabs .tab[data-t="orders"]');
       if (tb) { let c = tb.querySelector(".cnt"); if (n && !c) { c = document.createElement("span"); c.className = "cnt"; tb.appendChild(c); } if (c) { if (n) c.textContent = n; else c.remove(); } }
     } else {
@@ -41,6 +44,7 @@ async function tick() {
   if ("serviceWorker" in navigator && (location.hostname === "localhost" || location.protocol === "https:")) navigator.serviceWorker.register("/sw.js").catch(() => {});
   try { S.info = await api("/api/info"); if (!S.info.markets[S.market]) S.market = Object.keys(S.info.markets)[0]; if (S.token) await loadMe(); }
   catch (e) { $("#root").innerHTML = `<div class="gwrap"><div class="warnbox">${t("no_gateway")}</div></div>`; return; }
+  window.addEventListener("hashchange", () => { if (location.hash === "#board" || S.view === "board") route(); });
   route(); setInterval(tick, 1000);
 })();
 </script>

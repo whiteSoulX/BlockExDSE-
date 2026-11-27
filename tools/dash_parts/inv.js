@@ -27,13 +27,15 @@ const PAY_COLOR = { bkash: "#E2136E", nagad: "#F6921E", rocket: "#8C3494", bank:
 function langBtn() { return `<button class="lang" id="bLang">${S.lang === "bn" ? "EN" : "বাংলা"}</button>`; }
 function bindLang() { const b = $("#bLang"); if (b) b.onclick = () => setLang(S.lang === "bn" ? "en" : "bn"); }
 async function mountGuest() {
-  $("#main").innerHTML = `<div class="top"><span></span><div class="topr">${langBtn()}<button class="lang" id="bTour">${t("tour")}</button></div></div>
+  $("#main").innerHTML = `<div class="top"><span>${installSlot("lang")}</span><div class="topr">${langBtn()}<button class="lang" id="bTour">${t("tour")}</button></div></div>
     <div class="ghero"><div class="logo">${BRAND.letter}</div><h1>${esc(BRAND.name)}</h1><p>${t("tagline")}</p>
       <div class="pills3"><span class="chip"><span class="dot"></span>DSE · LSE</span><span class="chip">${I.key.replace("<svg", '<svg width="14" height="14"')} ${t("key_ok").split(" ")[0]}…</span><span class="chip">${t("sim_only")}</span></div></div>
+    ${S.info.quickstart ? tryCardHTML() : ""}
     <div class="card"><div class="seg"><button id="tIn" class="${S.tab === "in" ? "on" : ""}">${t("signin")}</button><button id="tUp" class="${S.tab === "up" ? "on" : ""}">${t("create")}</button></div><div id="gform"></div></div>`;
   $(".pills3 .chip:nth-child(2)").innerHTML = `${I.key.replace("<svg", '<svg width="14" height="14"')} ${S.lang === "bn" ? "ফোনে সই" : "Signed on your phone"}`;
   bindLang(); $("#bTour").onclick = () => openTour(0);
   $("#tIn").onclick = () => { S.tab = "in"; mountGuest(); }; $("#tUp").onclick = () => { S.tab = "up"; mountGuest(); };
+  bindTry();
   S.tab === "in" ? formSignIn() : formSignUp();
 }
 async function formSignIn() {
@@ -110,27 +112,33 @@ function mountOnboard() {
 
 /* ═══════════════ investor app ═══════════════ */
 const ITABS = [["home", "home"], ["markets", "markets"], ["trade", "trade"], ["orders", "orders"], ["wallet", "wallet"]];
+function pageTitle() { return S.itab === "stock" && S.stock && MK().tickers[S.stock] ? MK().tickers[S.stock].name : S.itab === "me" ? t("profile") : S.itab === "home" ? t("page_home") : t(S.itab); }
 function renderInv() {
-  const u = S.me.user, initials = u.name.split(/\s+/).map(x => x[0]).join("").slice(0, 2).toUpperCase();
-  $("#itop").innerHTML = `<div class="top"><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)}</small></div></div>
-      <div class="topr">${langBtn()}<button class="avatar" id="bMe" title="${esc(t("profile"))}">${esc(initials)}</button></div></div>
+  const u = S.me.user, initials = u.name.split(/\s+/).map(x => [...x][0] || "").join("").slice(0, 2).toUpperCase();
+  $("#itop").innerHTML = `<div class="top"><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)}</small></div></div><div class="ptitle">${esc(pageTitle())}</div>
+      <div class="topr">${installSlot("lang")}${langBtn()}<button class="avatar" id="bMe" title="${esc(t("profile"))}">${esc(initials)}</button></div></div>
     <div class="chiprow"><button class="chip" id="cMk"><span class="dot ${isLive() ? "" : "off"}" id="liveDot"></span>${esc(S.market)} ${t("market_chip")} ⇄</button>
-      <span class="chip" id="cKey" style="${S.key ? "" : "color:var(--bad)"}">${I.key.replace("<svg", '<svg width="15" height="15"')} ${S.key ? t("key_ok") : t("key_no")}</span></div>`;
+      <span class="chip" id="cKey" style="${S.key ? "" : "color:var(--bad)"}">${I.key.replace("<svg", '<svg width="15" height="15"')} ${S.key ? t("key_ok") : t("key_no")}</span></div>
+    ${S.itab === "me" ? "" : tickerTapeHTML(S.market)}`;
   bindLang(); $("#bMe").onclick = () => goTab("me");
   $("#cMk").onclick = () => { const ks = Object.keys(S.info.markets); S.market = ks[(ks.indexOf(S.market) + 1) % ks.length]; sessionStorage.setItem("bx_mk", S.market); S.cur = null; S.form.price = null; route(); };
   $("#cKey").onclick = () => goTab("me");
   const tabOf = S.itab === "stock" ? "markets" : S.itab;
   const nActive = S.orders.filter(isActive).length;
-  $("#itabs").innerHTML = ITABS.map(([k, ic]) => `<button class="tab ${tabOf === k ? "on" : ""}" data-t="${k}">${I[ic]}${t(k)}${k === "orders" && nActive ? `<span class="cnt">${nActive}</span>` : ""}</button>`).join("");
+  $("#itabs").innerHTML = ITABS.map(([k, ic]) => `<button class="tab ${tabOf === k ? "on" : ""}" data-t="${k}">${I[ic]}<span>${t(k)}</span>${k === "orders" && nActive ? `<span class="cnt">${nActive}</span>` : ""}</button>`).join("");
   $$("#itabs .tab").forEach(b => b.onclick = () => goTab(b.dataset.t));
+  renderNfoot();
   ({ home: mountHome, markets: mountMarkets, stock: mountStock, trade: mountTrade, orders: mountIOrders, wallet: mountWallet, me: mountMe })[S.itab]();
   if (S.guide.on) showCoach();
+  if (S.welcome) showWelcome();
+  if (!S.ov[S.market]) loadOverview(S.market).then(() => { refreshTape(true); if (S.itab === "home") refreshHome(); else if (S.itab === "markets") refreshOverview(); });
 }
 function goTab(k) { if (S.guide.on && k !== "trade") endGuide(); S.itab = k; window.scrollTo(0, 0); renderInv(); tick(); }
 function refreshLive() {
   if (S.view === "inv") {
     const d = $("#liveDot"); if (d) d.className = "dot " + (isLive() ? "" : "off");
     if (S.itab === "home") refreshHome(); else if (S.itab === "markets") refreshMarkets(); else if (S.itab === "stock") refreshStock(); else if (S.itab === "trade") syncTrade();
+    refreshTape();
     return;
   }
   if ($("#strip")) { $("#strip").innerHTML = stripHTML(); $$("#strip .trow").forEach(r => r.onclick = () => { S.tk[S.market] = r.dataset.t; refreshLive(); }); }
@@ -225,20 +233,35 @@ function latestOrder() { return S.orders.find(x => x.id === S.cur) || S.orders.f
 
 /* ───────── home ───────── */
 function mountHome() {
-  $("#main").innerHTML = `<div class="card hero" id="hero"></div>
-    <div class="qa"><button data-a="buy">${I.buy}${t("buy")}</button><button data-a="sell">${I.sell}${t("sell")}</button><button data-a="add">${I.add}${t("add_money")}</button><button data-a="out">${I.out}${t("withdraw")}</button></div>
-    <div id="startcard"></div>
-    <div class="sec"><b>${t("live_order")}</b><a data-go="orders">${t("see_all")}</a></div><div id="liveord"></div>
-    <div class="sec"><b>${t("watchlist")}</b><a data-go="markets">${t("markets")}</a></div><div class="card" id="watch"></div>
-    <div class="sec"><b>${t("holdings")}</b><span>${esc(S.market)}</span></div><div class="card" id="holds"></div>`;
+  $("#main").innerHTML = `<div class="pg home">
+    <div class="col c1">
+      <div class="card hero" id="hero" style="--o:1"></div>
+      <div class="qa" style="--o:2"><button data-a="buy">${I.buy}${t("buy")}</button><button data-a="sell">${I.sell}${t("sell")}</button><button data-a="add">${I.add}${t("add_money")}</button><button data-a="out">${I.out}${t("withdraw")}</button></div>
+      <div id="startcard" style="--o:3"></div>
+      <div style="--o:9"><div class="sec"><b>${t("holdings")}</b><span>${esc(S.market)}</span></div><div class="card" id="holds"></div></div>
+    </div>
+    <div class="col c2">
+      <div style="--o:6"><div class="sec"><b>${t("pulse")}</b><a data-go="markets">${t("markets")}</a></div><div class="card idx" id="hidx"></div></div>
+      <div style="--o:7"><div class="sec"><b>${t("movers")}</b></div><div class="card">${moversTabs("mvh")}<div id="hmov"></div></div></div>
+      <div style="--o:10"><div class="sec"><b>${t("heatmap")}</b><span>${esc(S.market)}</span></div><div class="card"><div id="hheat"></div><div class="sub" style="margin-top:8px">${t("heat_note")}</div></div></div>
+    </div>
+    <div class="col c3">
+      <div style="--o:4"><div class="sec"><b>${t("live_order")}</b><a data-go="orders">${t("see_all")}</a></div><div id="liveord"></div></div>
+      <div style="--o:5"><div class="sec"><b>${I.trophy.replace("<svg", '<svg style="vertical-align:-3px;color:var(--amber)"')} ${t("chal")}</b><span id="hplayers"></span></div><div class="card" id="hchal"></div></div>
+      <div style="--o:8"><div class="sec"><b>${t("watchlist")}</b><a data-go="markets">${t("markets")}</a></div><div class="card" id="watch"></div></div>
+      <div style="--o:11"><div class="card" id="badges"></div></div>
+      <div style="--o:12"><div class="sec"><b>${t("notices")}</b><span class="ldot"></span></div><div class="card" id="hnot"></div></div>
+    </div></div>`;
   $$(".qa button").forEach(b => b.onclick = () => {
     const a = b.dataset.a;
     if (a === "buy" || a === "sell") { S.side = a.toUpperCase(); goTab("trade"); }
     else if (a === "add") { goTab("wallet"); openDeposit(); } else { goTab("wallet"); openWithdraw(); }
   });
   $$("[data-go]").forEach(b => b.onclick = () => goTab(b.dataset.go));
-  refreshHome();
+  bindMoversTabs("mvh", () => { $("#hmov").innerHTML = moversHTML(S.market); });
+  badgeSig = ""; refreshHome();
   loadAllHist(S.market).then(() => { if (S.itab === "home") refreshHome(); });
+  if (!S.lb) loadLeaderboard().then(() => { if (S.itab === "home") refreshHome(); });
 }
 function refreshHome() {
   if (!$("#hero")) return;
@@ -252,31 +275,57 @@ function refreshHome() {
   $("#liveord").innerHTML = liveOrderHTML(latestOrder());
   const wl = (S.watch[S.market] || []).filter(k => MK().tickers[k]);
   $("#watch").innerHTML = wl.length ? wl.map(stockRow).join("") : `<div class="empty">${t("watch_empty")}</div>`;
-  $("#holds").innerHTML = v && v.rows.length ? v.rows.map(r => `<div class="lrow" data-s="${esc(r.k)}"><div class="l"><div class="tk">${esc(r.k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(MK().tickers[r.k].name)}</div><small>${num(r.q)} ${t("shares")}${r.locked ? ` · ${num(r.locked)} 🔒` : ""}</small></div></div>
-      <div class="r"><b>${cash$(S.market, r.value)}</b><br>${pcHTML(r.chg)}</div></div>`).join("") : `<div class="empty">—</div>`;
+  const hrows = v ? v.rows.slice().sort((a, b) => b.value - a.value) : [], hall = S.showAllHold || hrows.length <= 5;
+  $("#holds").innerHTML = hrows.length ? (hall ? hrows : hrows.slice(0, 5)).map(r => `<div class="lrow" data-s="${esc(r.k)}"><div class="l"><div class="tk">${esc(r.k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(MK().tickers[r.k].name)}</div><small>${num(r.q)} ${t("shares")}${r.locked ? ` · ${num(r.locked)} 🔒` : ""}</small></div></div>
+      <div class="r"><b>${cash$(S.market, r.value)}</b><br>${pcHTML(r.chg)}</div></div>`).join("") + (hrows.length > 5 ? `<button class="btn ghost sm" id="hAll" style="margin-top:8px;width:100%">${hall ? t("show_less") : tf("show_all", { n: num(hrows.length) })}</button>` : "") : `<div class="empty">—</div>`;
+  if ($("#hAll")) $("#hAll").onclick = () => { S.showAllHold = !S.showAllHold; refreshHome(); };
   $$("#watch .lrow, #holds .lrow").forEach(r => r.onclick = () => openStock(r.dataset.s));
+  const m = S.market;
+  $("#hidx").innerHTML = idxCardHTML(m); $("#hmov").innerHTML = moversHTML(m); $("#hheat").innerHTML = heatHTML(m);
+  $("#hnot").innerHTML = noticesHTML(S.ov[m] && S.ov[m].notices, 6);
+  $("#hchal").innerHTML = chalHTML(S.lb, 5); $("#hplayers").textContent = S.lb ? tf("players", { n: num(S.lb.players ?? S.lb.n) }) : "";
+  renderBadges();
 }
 function stockRow(k) {
   const m = S.market, x = MK().tickers[k], sn = snap(), v = sn && sn.tickers[k], last = v ? v.last : x.ref, chg = v ? v.chg : 0, h = S.hist[m + ":" + k];
-  const vals = h ? h.daily.map(d => d.close).concat([last]) : null;
-  return `<div class="lrow" data-s="${esc(k)}"><div class="l"><div class="tk">${esc(k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(x.name)}</div><small>${esc(k)} · ${esc(x.sector || "")}</small></div></div>
-    <div style="flex:none">${vals ? spark(vals.slice(-20), 58, 26, vals[vals.length - 1] < vals[Math.max(0, vals.length - 20)] ? "#C0392B" : "#2E9E5B", false) : ""}</div>
-    <div class="r"><b>${price$(m, last)}</b><br>${pcHTML(chg)}</div></div>`;
+  const vals = h ? h.daily.map(d => d.close).concat([last]) : null, ov = S.ov[m], r = ov && ov.rows.find(z => z.ticker === k);
+  return `<div class="lrow" data-s="${esc(k)}"><div class="l" style="flex:1"><div class="tk">${esc(k.slice(0, 4))}</div><div style="min-width:0"><div class="nm">${esc(x.name)}</div><small>${esc(k)} · ${esc(x.sector || "")}</small></div></div>
+    <div style="flex:none;width:62px">${vals ? spark(vals.slice(-20), 58, 26, vals[vals.length - 1] < vals[Math.max(0, vals.length - 20)] ? "#C0392B" : "#2E9E5B", false) : ""}</div>
+    <div class="r" style="min-width:86px"><b>${price$(m, last)}</b><br>${pcHTML(chg)}</div>
+    <div class="xc">${num(v ? v.volume : r ? r.volume : 0)}</div><div class="xc">${num(r ? r.trades : v ? v.trades : 0)}</div><div class="xc">${cash$(m, r ? r.turnover : 0)}</div></div>`;
 }
-
 /* ───────── markets ───────── */
 function mountMarkets() {
   const sectors = [...new Set(Object.values(MK().tickers).map(x => x.sector).filter(Boolean))];
-  const mks = Object.keys(S.info.markets);
+  const mks = Object.keys(S.info.markets), P = S.mpanel;
+  const panels = [["stocks", "stocks"], ["movers", "movers"], ["heat", "heatmap"], ["news", "news"]];
   $("#main").innerHTML = `<div class="seg">${mks.map(m => `<button data-m="${m}" class="${m === S.market ? "on" : ""}">${esc(m)} · ${esc(S.info.markets[m].name.replace(" Stock Exchange", ""))}</button>`).join("")}</div>
-    <div class="search">${I.search}<input id="q" placeholder="${esc(t("search"))}" value="${esc(S.q)}" autocomplete="off"></div>
-    <div class="hscroll" id="mf"><button class="chip ${S.mfilter === "all" ? "on" : ""}" data-f="all">${t("all")}</button><button class="chip ${S.mfilter === "watch" ? "on" : ""}" data-f="watch">★ ${t("watchlist")}</button>${sectors.map(s => `<button class="chip ${S.mfilter === s ? "on" : ""}" data-f="${esc(s)}">${esc(s)}</button>`).join("")}</div>
-    <div class="card" id="mlist"></div><div class="sub" style="text-align:center">${esc(MK().hours)}</div>`;
+    <div class="pg markets"><div class="col c1">
+      <div class="card idx" id="midx" style="--o:1"></div>
+      <div class="seg sm mseg" id="mseg" style="--o:2">${panels.map(([k, l]) => `<button data-p="${k}" class="${P === k ? "on" : ""}">${t(l)}</button>`).join("")}</div>
+      <div class="mpanel ${P === "stocks" ? "on" : ""}" data-panel="stocks" style="--o:3">
+        <div class="search">${I.search}<input id="q" placeholder="${esc(t("search"))}" value="${esc(S.q)}" autocomplete="off"></div>
+        <div class="hscroll" id="mf"><button class="chip ${S.mfilter === "all" ? "on" : ""}" data-f="all">${t("all")}</button><button class="chip ${S.mfilter === "watch" ? "on" : ""}" data-f="watch">★ ${t("watchlist")}</button>${sectors.map(s => `<button class="chip ${S.mfilter === s ? "on" : ""}" data-f="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+        <div class="card"><div class="lhead"><span class="l0">${t("stock")}</span><span class="sp"></span><span>${t("last")}</span><span>${t("volume")}</span><span>${t("trades_n")}</span><span>${t("turnover")}</span></div><div id="mlist"></div></div>
+        <div class="sub" style="text-align:center;margin-bottom:12px">${esc(MK().hours)}</div></div>
+    </div><div class="col c2">
+      <div class="mpanel ${P === "movers" ? "on" : ""}" data-panel="movers" style="--o:4"><div class="sec"><b>${t("movers")}</b></div><div class="card">${moversTabs("mvm")}<div id="mmov"></div></div></div>
+      <div class="mpanel ${P === "heat" ? "on" : ""}" data-panel="heat" style="--o:5"><div class="sec"><b>${t("heatmap")}</b></div><div class="card"><div id="mheat"></div><div class="sub" style="margin-top:8px">${t("heat_note")}</div></div></div>
+      <div class="mpanel ${P === "news" ? "on" : ""}" data-panel="news" style="--o:6"><div class="sec"><b>${t("notices")}</b><span class="ldot"></span></div><div class="card"><div id="mnot"></div><div class="sub" style="margin-top:6px">${t("notices_note")}</div></div></div>
+    </div></div>`;
   $$(".seg button[data-m]").forEach(b => b.onclick = () => { S.market = b.dataset.m; sessionStorage.setItem("bx_mk", S.market); S.mfilter = "all"; route(); });
+  $$("#mseg [data-p]").forEach(b => b.onclick = () => { S.mpanel = b.dataset.p; $$("#mseg [data-p]").forEach(x => x.classList.toggle("on", x === b)); $$(".mpanel").forEach(x => x.classList.toggle("on", x.dataset.panel === S.mpanel)); });
   $("#q").oninput = () => { S.q = $("#q").value; refreshMarkets(); };
   $$("#mf .chip").forEach(b => b.onclick = () => { S.mfilter = b.dataset.f; $$("#mf .chip").forEach(c => c.classList.toggle("on", c === b)); refreshMarkets(); });
-  refreshMarkets();
+  bindMoversTabs("mvm", () => { $("#mmov").innerHTML = moversHTML(S.market); });
+  refreshMarkets(); refreshOverview();
   loadAllHist(S.market).then(() => { if (S.itab === "markets") refreshMarkets(); });
+  loadOverview(S.market).then(() => { if (S.itab === "markets") { refreshOverview(); refreshMarkets(); } });
+}
+function refreshOverview() {
+  if (!$("#midx")) return; const m = S.market;
+  $("#midx").innerHTML = idxCardHTML(m); $("#mmov").innerHTML = moversHTML(m); $("#mheat").innerHTML = heatHTML(m);
+  $("#mnot").innerHTML = noticesHTML(S.ov[m] && S.ov[m].notices, 25);
 }
 function refreshMarkets() {
   if (!$("#mlist")) return;
@@ -289,20 +338,41 @@ function refreshMarkets() {
 function openStock(k) { S.stock = k; S.tk[S.market] = k; S.itab = "stock"; window.scrollTo(0, 0); renderInv(); }
 
 /* ───────── stock page ───────── */
+function chartHTML(m, k, range) {
+  const x = MK().tickers[k], sn = snap(), v = sn && sn.tickers[k], last = v ? v.last : x.ref, h = S.hist[m + ":" + k];
+  let vals, note;
+  if (range === "1M") { vals = h ? h.daily.map(d => d.close).concat([last]) : null; note = t("ill"); }
+  else { const tr = h ? h.today.map(p => p.price) : []; const live = (sn ? sn.tape : []).filter(q => q.ticker === k).map(q => q.price).reverse();
+    vals = [x.ref].concat(live.length ? live : tr); note = vals.length > 1 ? t("today_trades") : t("no_trades_today"); if (vals.length < 2) vals = [x.ref, x.ref]; }
+  return { html: vals ? `<div style="height:170px">${lineChart(vals, { base: range === "1D" ? x.ref : null, color: vals[vals.length - 1] < vals[0] ? "#C0392B" : "#2F5597" })}</div>` : `<div style="height:170px;display:flex;align-items:center;justify-content:center"><span class="spin"></span></div>`, note };
+}
+function bookHTML(m, k) {
+  const sn = snap(), v = sn && sn.tickers[k], bids = v ? v.bids : [], asks = v ? v.asks : [], mx = Math.max(1, ...bids.map(a => a[1]), ...asks.map(a => a[1]));
+  return `<div><div class="h"><span>${t("buyers")}</span><span>${t("qty")}</span></div>${bids.map(a => `<div class="lv bid" data-px="${a[0]}"><i style="width:${a[1] / mx * 100}%"></i><span class="up">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>
+    <div><div class="h"><span>${t("sellers")}</span><span>${t("qty")}</span></div>${asks.map(a => `<div class="lv ask" data-px="${a[0]}"><i style="width:${a[1] / mx * 100}%"></i><span class="dn">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>`;
+}
+function tradesHTML(m, k, n) {
+  const sn = snap(), tape = (sn ? sn.tape : []).filter(q => q.ticker === k).slice(0, n || 6);
+  return tape.map(q => `<div class="lrow" style="cursor:default;padding:7px 0"><span>${num(q.qty)} @ <b>${price$(m, q.price)}</b></span><span class="sub">${new Date(q.t).toLocaleTimeString(loc())}</span></div>`).join("") || `<div class="empty">${t("none_yet")}</div>`;
+}
 function mountStock() {
   const k = S.stock, x = MK().tickers[k]; if (!x) { S.itab = "markets"; return mountMarkets(); }
   const on = (S.watch[S.market] || []).includes(k);
   $("#main").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><button class="back" id="bBack">${I.back} ${t("markets")}</button>
       <button class="star" id="bStar" title="${esc(on ? t("following") : t("follow"))}">${on ? I.starOn : I.star}</button></div>
-    <div style="margin:2px 2px 10px"><div class="sub" style="font-weight:700">${esc(k)} · ${esc(x.sector)}</div><div style="font-size:20px;font-weight:800;color:var(--navy)">${esc(x.name)}</div><div class="sub">${esc(x.about)}</div></div>
-    <div class="card"><div id="sprice"></div><div class="seg sm" style="margin:10px 0 6px;max-width:220px"><button data-r="1D" class="${S.histRange === "1D" ? "on" : ""}">${t("chart_1d")}</button><button data-r="1M" class="${S.histRange === "1M" ? "on" : ""}">${t("chart_1m")}</button></div>
-      <div id="chart"></div><div class="sub" id="chartnote"></div></div>
-    <div class="card"><div class="stats" id="sstats"></div><div id="srange"></div></div>
-    <div class="card"><div class="book" id="sbook"></div></div>
-    <div class="sec"><b>${t("recent")}</b></div><div class="card" id="stape"></div><div style="height:70px"></div>
-    <div class="sticky"><div class="in row2"><button class="btn buy" id="sBuy">${t("buy")}</button><button class="btn sell" id="sSell">${t("sell")}</button></div></div>`;
+    <div class="pg stock"><div class="col c1">
+      <div style="margin:2px 2px 10px;--o:1"><div class="sub" style="font-weight:700">${esc(k)} · ${esc(x.sector)}</div><div style="font-size:20px;font-weight:800;color:var(--navy)">${esc(x.name)}</div><div class="sub">${esc(x.about)}</div></div>
+      <div class="card" style="--o:2"><div id="sprice"></div><div class="seg sm" style="margin:10px 0 6px;max-width:220px"><button data-r="1D" class="${S.histRange === "1D" ? "on" : ""}">${t("chart_1d")}</button><button data-r="1M" class="${S.histRange === "1M" ? "on" : ""}">${t("chart_1m")}</button></div>
+        <div id="chart"></div><div class="sub" id="chartnote"></div></div>
+      <div class="card" style="--o:3"><div class="stats" id="sstats"></div><div id="srange"></div></div>
+    </div><div class="col c2">
+      <div class="sticky" style="--o:9"><div class="in row2"><button class="btn buy" id="sBuy">${t("buy")}</button><button class="btn sell" id="sSell">${t("sell")}</button></div></div>
+      <div style="--o:4"><div class="sec"><b>${t("order_book")}</b></div><div class="card"><div class="book" id="sbook"></div></div></div>
+      <div style="--o:5"><div class="sec"><b>${t("recent")}</b></div><div class="card" id="stape"></div></div>
+      <div style="height:70px;--o:8" class="phonepad"></div>
+    </div></div>`;
   $("#bBack").onclick = () => goTab("markets");
-  $("#bStar").onclick = async () => { try { S.watch = await api("/api/watchlist", { method: "POST", body: { market: S.market, ticker: k, on: !on } }); mountStock(); } catch (e) { toast(e.message); } };
+  $("#bStar").onclick = async () => { try { S.watch = await api("/api/watchlist", { method: "POST", body: { market: S.market, ticker: k, on: !on } }); mountStock(); checkBadges(); } catch (e) { toast(e.message); } };
   $$("[data-r]").forEach(b => b.onclick = () => { S.histRange = b.dataset.r; mountStock(); });
   $("#sBuy").onclick = () => { S.side = "BUY"; S.form.price = null; goTab("trade"); };
   $("#sSell").onclick = () => { S.side = "SELL"; S.form.price = null; goTab("trade"); };
@@ -311,31 +381,24 @@ function mountStock() {
 function refreshStock() {
   if (!$("#sprice")) return;
   const m = S.market, k = S.stock, x = MK().tickers[k], sn = snap(), v = sn && sn.tickers[k];
-  const last = v ? v.last : x.ref, chg = v ? v.chg : 0, h = S.hist[m + ":" + k];
+  const last = v ? v.last : x.ref, chg = v ? v.chg : 0;
   $("#sprice").innerHTML = `<div class="big">${price$(m, last)}</div><div>${pcHTML(chg)} <span class="sub">${t("today")}</span></div>`;
-  let vals, note;
-  if (S.histRange === "1M") { vals = h ? h.daily.map(d => d.close).concat([last]) : null; note = t("ill"); }
-  else { const tr = h ? h.today.map(p => p.price) : []; const live = (sn ? sn.tape : []).filter(q => q.ticker === k).map(q => q.price).reverse();
-    vals = [x.ref].concat(live.length ? live : tr); note = vals.length > 1 ? t("today_trades") : t("no_trades_today"); if (vals.length < 2) vals = [x.ref, x.ref]; }
-  $("#chart").innerHTML = vals ? `<div style="width:100%">${spark(vals, 340, 150, vals[vals.length - 1] < vals[0] ? "#C0392B" : "#2F5597", true).replace('width="340"', 'width="100%"').replace('height="150"', 'height="150" preserveAspectRatio="none"')}</div>` : `<div style="height:150px;display:flex;align-items:center;justify-content:center"><span class="spin"></span></div>`;
-  $("#chartnote").textContent = note;
+  const c = chartHTML(m, k, S.histRange); $("#chart").innerHTML = c.html; $("#chartnote").textContent = c.note;
   const lo = x.lo, hi = x.hi, posOf = p => Math.max(0, Math.min(100, (p - lo) / (hi - lo) * 100));
   $("#sstats").innerHTML = `<div><small>${t("ref")}</small><b>${price$(m, x.ref)}</b></div><div><small>${t("dayrange")}</small><b>${v && v.low != null ? `${price$(m, v.low)} – ${price$(m, v.high)}` : "—"}</b></div>
     <div><small>${t("band")} ±${num(x.band)}%</small><b>${price$(m, lo)} – ${price$(m, hi)}</b></div><div><small>${t("volume")}</small><b>${num(v ? v.volume : 0)}</b></div>`;
   $("#srange").innerHTML = `<div class="rangebar"><i style="left:${posOf(last)}%"></i></div><div class="foot"><span>${price$(m, lo)}</span><span>${t("allowed")}</span><span>${price$(m, hi)}</span></div>`;
-  const bids = v ? v.bids : [], asks = v ? v.asks : [], mx = Math.max(1, ...bids.map(a => a[1]), ...asks.map(a => a[1]));
-  $("#sbook").innerHTML = `<div><div class="h"><span>${t("buyers")}</span><span>${t("qty")}</span></div>${bids.map(a => `<div class="lv bid"><i style="width:${a[1] / mx * 100}%"></i><span class="up">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>
-    <div><div class="h"><span>${t("sellers")}</span><span>${t("qty")}</span></div>${asks.map(a => `<div class="lv ask"><i style="width:${a[1] / mx * 100}%"></i><span class="dn">${price$(m, a[0])}</span><span>${num(a[1])}</span></div>`).join("") || `<div class="empty">${t("none_side")}</div>`}</div>`;
-  const tape = (sn ? sn.tape : []).filter(q => q.ticker === k).slice(0, 6);
-  $("#stape").innerHTML = tape.map(q => `<div class="lrow" style="cursor:default;padding:7px 0"><span>${num(q.qty)} @ <b>${price$(m, q.price)}</b></span><span class="sub">${new Date(q.t).toLocaleTimeString(loc())}</span></div>`).join("") || `<div class="empty">${t("none_yet")}</div>`;
+  $("#sbook").innerHTML = bookHTML(m, k);
+  $("#stape").innerHTML = tradesHTML(m, k, 8);
 }
-
 /* ───────── trade ───────── */
 function defaultPrice(tk) { const e = expectPrice(tk, S.side); return e != null ? e : lastOf(S.market, tk); }
 function mountTrade() {
   const cfg = MK(), tk = selTicker();
   if (S.form.ticker !== tk || S.form.market !== S.market || !S.form.price) { S.form.ticker = tk; S.form.market = S.market; S.form.price = defaultPrice(tk); }
-  $("#main").innerHTML = `<div class="sec"><b>${t("new_order")}</b><span>${t("checked_by")}</span></div>
+  $("#main").innerHTML = `<div class="pg trade"><div class="col c1"><div class="sec"><b>${t("trade_list")}</b><span>${esc(S.market)}</span></div><div class="card" id="tlist"></div></div>
+    <div class="col c2"><div id="tside"></div></div>
+    <div class="col c3"><div class="sec"><b>${t("new_order")}</b><span>${t("checked_by")}</span></div>
     <div class="card" id="tcard">
       <div class="seg side" id="side"><button class="${S.side === "BUY" ? "on" : ""}" data-s="BUY">${t("buy")}</button><button class="sell ${S.side === "SELL" ? "on" : ""}" data-s="SELL">${t("sell")}</button></div>
       <div class="f" id="f-tk" style="margin-bottom:8px"><small>${t("stock")}</small><select id="tk">${Object.entries(cfg.tickers).map(([k, v]) => `<option value="${esc(k)}" ${k === tk ? "selected" : ""}>${esc(k)} · ${esc(v.name)}</option>`).join("")}</select></div>
@@ -348,7 +411,7 @@ function mountTrade() {
       <button class="btn ${S.side === "BUY" ? "buy" : "sell"}" id="go">${I.key} ${t("sign_submit")}</button>
       <div class="sub" style="margin-top:8px;text-align:center" id="keyline">${S.key ? `${t("signed_with")} ${H(S.me.user.wallet)}` : `<span class="dn">${t("nokey_trade")}</span>`}</div>
     </div>
-    <div class="sec"><b>${t("live_order")}</b><span id="curId"></span></div><div id="liveord"></div>`;
+    <div class="sec"><b>${t("live_order")}</b><span id="curId"></span></div><div id="liveord"></div></div></div>`;
   $$("#side button").forEach(b => b.onclick = () => { S.side = b.dataset.s; S.form.price = defaultPrice($("#tk").value); mountTrade(); });
   $$("#otype button").forEach(b => b.onclick = () => { S.otype = b.dataset.o; mountTrade(); });
   $("#tk").onchange = () => { S.tk[S.market] = $("#tk").value; S.form.ticker = $("#tk").value; S.form.price = defaultPrice($("#tk").value); mountTrade(); };
@@ -356,6 +419,7 @@ function mountTrade() {
   if (S.otype === "LIMIT") $("#px").oninput = () => { S.form.price = $("#px").value; syncTrade(); };
   $("#hLim").onclick = () => toast(t("limit_help"));
   $("#go").onclick = submitOrder;
+  if (innerWidth >= 760) setTimeout(() => refreshTradeSide(selTicker()), 0);
   if (S.prefill) {
     const p = S.prefill; S.prefill = null; S.side = p.side; S.otype = p.otype || "LIMIT"; if (p.ticker) { S.tk[S.market] = p.ticker; S.form.ticker = p.ticker; }
     S.form.qty = p.qty; S.form.price = p.price || defaultPrice(p.ticker); return mountTrade();
@@ -388,6 +452,7 @@ function syncTrade() {
   if (!$("#go").dataset.sending) busy($("#go"), block);
   const o = S.orders.find(z => z.id === S.cur) || null;
   $("#liveord").innerHTML = liveOrderHTML(o); $("#curId").textContent = o ? o.id : "";
+  if (innerWidth >= 760) refreshTradeSide(tk);
   if (S.guide.on && S.guide.step === GUIDE.length - 1 && o && o.status !== S.guide.seen) { S.guide.seen = o.status; showCoach(); }
 }
 async function submitOrder() {
@@ -400,11 +465,35 @@ async function submitOrder() {
     const sig = BXSign.sign(S.key, BXSign.orderDigest(domainOf(S.market), order));      // signed here; only the signature leaves the device
     const r = await api("/api/order", { method: "POST", body: { market: S.market, ticker: tk, qty: q, price, side: S.side, otype: S.otype, nonce: order.nonce, expiry: order.expiry, sig } });
     S.cur = r.id; toast(t("sent"));
-    S.orders = await api("/api/orders").catch(() => S.orders);
+    S.orders = await api("/api/orders").catch(() => S.orders); setFlag("ordered");
     if (S.guide.on) { S.guide.step = 6; showCoach(); }
     syncTrade(); $("#liveord").scrollIntoView({ behavior: "smooth", block: "center" });
   } catch (e) { toast(e.message); }
   setTimeout(() => { delete b.dataset.sending; syncTrade(); }, 600);
+}
+
+function refreshTradeSide(tk) {
+  const m = S.market, x = MK().tickers[tk], el = $("#tside"); if (!el || !x) return;
+  if (el.dataset.tk !== tk || el.dataset.r !== S.histRange || !el.innerHTML) {
+    el.dataset.tk = tk; el.dataset.r = S.histRange;
+    el.innerHTML = `<div class="sec"><b>${esc(x.name)}</b><span>${esc(tk)} · ${esc(x.sector)}</span></div>
+      <div class="card"><div class="tt"><div id="tsp"></div><div class="seg sm" style="margin:0;width:170px;height:fit-content"><button data-tr="1D" class="${S.histRange === "1D" ? "on" : ""}">${t("chart_1d")}</button><button data-tr="1M" class="${S.histRange === "1M" ? "on" : ""}">${t("chart_1m")}</button></div></div>
+        <div id="tch" style="margin-top:8px"></div><div class="sub" id="tchn"></div></div>
+      <div class="sec"><b>${t("order_book")}</b><span>${t("tap_price")}</span></div><div class="card"><div class="book bookc" id="tbk"></div></div>
+      <div class="sec"><b>${t("recent")}</b></div><div class="card" id="ttr"></div>`;
+    $$("#tside [data-tr]").forEach(b => b.onclick = () => { S.histRange = b.dataset.tr; refreshTradeSide(tk); });
+    $("#tbk").onclick = e => { const lv = e.target.closest("[data-px]"); if (!lv || S.otype !== "LIMIT") return; S.form.price = +lv.dataset.px; $("#px").value = lv.dataset.px; syncTrade(); };
+    if (!(m + ":" + tk in S.hist)) loadHist(m, tk).then(() => { if (S.itab === "trade" && $("#tside")) refreshTradeSide(selTicker()); });
+  }
+  const sn = snap(), v = sn && sn.tickers[tk], last = v ? v.last : x.ref, chg = v ? v.chg : 0;
+  $("#tsp").innerHTML = `<div class="big" style="font-size:26px">${price$(m, last)}</div><div>${pcHTML(chg)} <span class="sub">${t("today")}</span></div>`;
+  const c = chartHTML(m, tk, S.histRange); $("#tch").innerHTML = c.html; $("#tchn").textContent = c.note;
+  $("#tbk").innerHTML = bookHTML(m, tk); $("#ttr").innerHTML = tradesHTML(m, tk, 6);
+  if (innerWidth >= 1200 && $("#tlist")) {
+    const wl = S.watch[m] || [], ks = Object.keys(MK().tickers).sort((a, b) => (wl.includes(b) - wl.includes(a)));
+    $("#tlist").innerHTML = ks.map(k => { const r = tapeRows(m).find(z => z.k === k); return `<div class="lrow ${k === tk ? "sel" : ""}" data-k="${esc(k)}" style="padding:7px 6px;border-radius:10px;${k === tk ? "background:var(--pale)" : ""}"><div class="l"><div class="tk" style="width:36px;height:36px">${esc(k.slice(0, 4))}</div><div style="min-width:0"><div class="nm" style="font-size:13.5px">${wl.includes(k) ? "★ " : ""}${esc(k)}</div><small>${esc(MK().tickers[k].name)}</small></div></div><div class="r"><b style="font-size:13.5px">${price$(m, r.last)}</b><br>${pcHTML(r.chg)}</div></div>`; }).join("");
+    $$("#tlist .lrow").forEach(r => r.onclick = () => { if (S.guide.on) return; S.tk[m] = r.dataset.k; S.form.ticker = r.dataset.k; S.form.price = defaultPrice(r.dataset.k); mountTrade(); });
+  }
 }
 
 /* ───────── guided first trade ───────── */
@@ -437,7 +526,7 @@ function showCoach() {
 /* ───────── orders ───────── */
 function mountIOrders() {
   $("#main").innerHTML = `<div class="sec"><b>${t("orders")}</b><span>DSE · LSE</span></div>
-    <div class="seg" id="of"><button data-f="active" class="${S.ofilter === "active" ? "on" : ""}">${t("active")}</button><button data-f="done" class="${S.ofilter === "done" ? "on" : ""}">${t("completed")}</button><button data-f="all" class="${S.ofilter === "all" ? "on" : ""}">${t("all")}</button></div><div id="olist2"></div>`;
+    <div class="seg" id="of"><button data-f="active" class="${S.ofilter === "active" ? "on" : ""}">${t("active")}</button><button data-f="done" class="${S.ofilter === "done" ? "on" : ""}">${t("completed")}</button><button data-f="all" class="${S.ofilter === "all" ? "on" : ""}">${t("all")}</button></div><div id="olist2" class="olist"></div>`;
   $$("#of button").forEach(b => b.onclick = () => { S.ofilter = b.dataset.f; mountIOrders(); });
   refreshIOrders();
 }
@@ -461,8 +550,8 @@ function refreshIOrders() {
 /* ───────── wallet ───────── */
 function mountWallet() {
   const mks = Object.keys(S.info.markets);
-  $("#main").innerHTML = `<div class="sec"><b>${t("wallet")}</b><span>${t("practice")}</span></div><div id="wbal"></div>
-    <div class="row2" style="margin-bottom:14px"><button class="btn" id="bDep">${I.add} ${t("add_money")}</button><button class="btn ghost" id="bWd">${I.out} ${t("withdraw")}</button></div>
+  $("#main").innerHTML = `<div class="sec"><b>${t("wallet")}</b><span>${t("practice")}</span></div><div id="wbal" class="wbals"></div>
+    <div class="row2 wbtns" style="margin-bottom:14px"><button class="btn" id="bDep">${I.add} ${t("add_money")}</button><button class="btn ghost" id="bWd">${I.out} ${t("withdraw")}</button></div>
     <div class="sec"><b>${t("history")}</b></div><div class="card" id="whist"><span class="spin"></span></div>`;
   $("#bDep").onclick = () => openDeposit(); $("#bWd").onclick = () => openWithdraw();
   refreshWallet(); loadWallet();
@@ -512,6 +601,7 @@ function bindMoney(kind, m) {
         r = await api("/api/wallet/withdraw", { method: "POST", body: { market: m, amount, method: S.payMethod, nonce, expiry, sig } });
       }
       if (S.portfolios) S.portfolios[m] = r.balance;
+      if (kind === "dep") setFlag("funded");
       openSheet(`<div style="text-align:center"><div class="okmark">${I.bigcheck}</div><h3>${kind === "dep" ? t("done_dep") : t("done_wd")}</h3>
         <div class="big" style="margin:6px 0">${cash$(m, r.entry.amount)}</div><div class="sub">${esc(r.entry.method_name)} · ${t("ref_id")} ${esc(r.entry.id)}</div>
         <div class="sub" style="margin:4px 0 14px">${t("tx")} ${H(r.entry.tx)} · block ${num(r.entry.block)}</div><button class="btn" id="mclose">${t("close")}</button></div>`);
@@ -526,25 +616,31 @@ function openWithdraw(m) { m = m || S.market; openSheet(moneyForm("wd", m)); bin
 function mountMe() {
   const u = S.me.user;
   $("#main").innerHTML = `<button class="back" id="bBack">${I.back} ${t("home")}</button>
+    <div class="pg me"><div class="col c1">
     <div class="card" style="display:flex;gap:12px;align-items:center"><div class="avatar" style="width:54px;height:54px;font-size:19px">${esc(u.name.split(/\s+/).map(x => x[0]).join("").slice(0, 2).toUpperCase())}</div>
       <div style="min-width:0"><div style="font-weight:800;font-size:17px;color:var(--navy)">${esc(u.name)}</div><div class="sub">${esc(u.email)}${u.nid_last4 ? ` · ${t("id_end")} ${esc(u.nid_last4)}` : ""}</div><div class="sub">${H(u.wallet)}</div></div></div>
     <div class="card"><div class="mrow" style="cursor:default"><b>${t("language")}</b><div class="seg sm" style="margin:0;width:170px"><button data-l="en" class="${S.lang === "en" ? "on" : ""}">English</button><button data-l="bn" class="${S.lang === "bn" ? "on" : ""}">বাংলা</button></div></div>
       <div class="mrow" id="rGuide"><div><b>${t("guided")}</b><br><span>${t("guided_s")}</span></div>›</div>
-      <div class="mrow" id="rTour"><div><b>${t("tour")}</b></div>›</div></div>
+      <div class="mrow" id="rTour"><div><b>${t("tour")}</b></div>›</div>
+      <div class="mrow" id="rShare"><div><b>${I.share.replace("<svg", '<svg style="vertical-align:-4px;color:var(--blue)"')} ${t("share_app")}</b><br><span>${t("share_s")}</span></div>›</div>
+      <a class="mrow" href="/#board" target="_blank" rel="noopener" style="color:inherit;text-decoration:none"><div><b>${I.board.replace("<svg", '<svg style="vertical-align:-4px;color:var(--blue)"')} ${t("board")}</b><br><span>${t("board_s")}</span></div>›</a>
+      ${canInstall() ? `<div class="mrow" data-install><div><b>${I.dl.replace("<svg", '<svg style="vertical-align:-3px;color:var(--blue)"')} ${t("install")}</b></div>›</div>` : ""}</div>
     <div class="sec"><b>${t("key")}</b></div><div class="card" id="keycard"></div>
+    </div><div class="col c2"><div class="card" id="badges"></div>
     <div class="sec"><b>${t("check")}</b></div><div class="card"><div class="mrow" id="rAudit"><div>${I.shield.replace("<svg", '<svg style="vertical-align:-5px;color:var(--blue)"')} <b>${t("run_audit")} · ${esc(S.market)}</b><br><span>${t("audit_s")}</span></div>›</div><div id="iaudit"></div></div>
     <div class="sec"><b>${t("how")}</b></div><div class="card how"><div>${t("how1")}</div><div>${t("how2")}</div><div>${t("how3")}</div><div>${t("how4")}</div></div>
     <div class="sec"><b>${t("roadmap")}</b></div><div class="card" id="iroad"></div>
-    <button class="btn ghost" id="bOut" style="margin-top:6px">${t("signout")}</button>`;
+    <button class="btn ghost" id="bOut" style="margin-top:6px">${t("signout")}</button></div></div>`;
   $("#bBack").onclick = () => goTab("home");
   $$("[data-l]").forEach(b => b.onclick = () => setLang(b.dataset.l));
-  $("#rGuide").onclick = startGuide; $("#rTour").onclick = () => openTour(0);
+  $("#rGuide").onclick = startGuide; $("#rTour").onclick = () => openTour(0); $("#rShare").onclick = openShare;
   $("#rAudit").onclick = async () => { $("#iaudit").innerHTML = `<span class="spin"></span>`; try { const rep = await api("/api/audit/" + S.market);
+    setFlag("audit");
     $("#iaudit").innerHTML = `<div class="${rep.ok ? "pass" : "fail"}" style="margin-top:6px">${rep.ok ? t("audit_ok") : t("audit_bad")}</div><div class="sub">${num(rep.orders)} orders · ${num(rep.trades)} trades · ${num(rep.signatures_checked)} signatures</div>` +
       rep.checks.map(c => `<div class="sub" style="padding:3px 0"><span class="${c.ok ? "pass" : "fail"}">${c.ok ? "✓" : "✗"}</span> ${esc(c.name)}</div>`).join(""); } catch (e) { $("#iaudit").textContent = e.message; } };
   $("#bOut").onclick = async () => { try { await api("/api/auth/logout", { method: "POST" }); } catch (e) {} signOutLocal(); };
   $("#iroad").innerHTML = Object.entries(ROAD).map(([k, v], i) => `<details ${i === 0 ? "" : ""}><summary style="cursor:pointer;font-weight:700;color:${["var(--ok)", "var(--warn)", "var(--mut)"][i]};padding:6px 0">${esc(k)} (${v.length})</summary>${v.map(x => `<div class="sub" style="padding:3px 0 3px 10px">• ${esc(x)}</div>`).join("")}</details>`).join("");
-  renderKeyCard();
+  renderKeyCard(); badgeSig = ""; renderBadges(true);
 }
 function renderKeyCard() {
   const u = S.me.user, el = $("#keycard"); if (!el) return;

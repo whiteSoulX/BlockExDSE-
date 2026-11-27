@@ -8,13 +8,15 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = n => Number(n).toLocaleString();
 const short = h => h ? h.slice(0, 10) + "…" + h.slice(-6) : "–";
-const S = { token: sessionStorage.getItem("bx_token") || "", market: sessionStorage.getItem("bx_mk") || "DSE", me: null, portfolios: null, info: null,
+const S = { token: sessionStorage.getItem("bx_token") || localStorage.getItem("bx_qtoken") || "", market: sessionStorage.getItem("bx_mk") || "DSE", me: null, portfolios: null, info: null,
             view: null, tab: "in", otpDemo: "", orders: [], cur: null, side: "BUY", otype: "LIMIT", tk: {}, snap: {}, nodes: [], req: null,
             accounts: [], demo: [], sim: {}, es: null, liveAt: 0, key: null, keyDemo: false, tmpKey: null, review: [],
             lab: { audit: {}, results: null, tamper: {}, bench: null, benchJob: null, busy: false },
             // v2.1 investor app
             lang: localStorage.getItem("bx_lang") || "en", itab: "home", stock: null, hist: {}, histRange: "1M", watch: {}, wallet: null,
-            ofilter: "active", form: { qty: 10, price: null }, guide: { on: false, step: 0 }, mfilter: "all", q: "" };
+            ofilter: "active", form: { qty: 10, price: null }, guide: { on: false, step: 0 }, mfilter: "all", q: "",
+            // demo-day features: market overview, leaderboard, live board
+            ov: {}, lb: null, bfeed: [], prevOrd: null, mpanel: "stocks", mvtab: "gainers", welcome: null };
 const STAGES = ["submitted", "edge_validated", "consensus", "onchain", "matched", "settled"];
 const LABEL = { submitted: "Signed by investor", edge_validated: "Edge checked", consensus: "Validators signed", onchain: "Verified on-chain", matched: "Matched", settled: "Settled" };
 const MODE_NAME = { chain_only: "Contract only (no edge)", edge_only: "Gateway check only", fixed3: "Always 3 of 4", fixed4: "Always 4 of 4", racd: "Risk-proportional (3 or 4)" };
@@ -95,6 +97,34 @@ const L = {
     session_end: "Session ended. Please sign in again.", approved_msg: "Approved. Your account is registered on the blockchain.",
     contact_ok: "Mobile verified.", submitted: "Submitted. A broker will review it.", copied: "Copied",
     no_gateway: "Cannot reach the gateway on port 9001. Is the system running?", no_sign: "The signing module (vendor/sign.js) did not load, so orders cannot be signed.",
+    // v2.1 market tools and demo-day features
+    idx_name: "RACE demo index", idx_note: "Weighted average of the {n} demo stocks, base 1000. Simulated: this is not the DSEX.", live: "Live",
+    mkt_open: "Open", status_note: "Demo market: open all day. Real DSE hours: {h}", pulse: "Market today", turnover: "Turnover", trades_n: "Trades",
+    adv: "up", dec: "down", unch: "unchanged", heatmap: "Heatmap", heat_note: "Colour shows today's change. Bigger tiles carry more index weight.",
+    movers: "Top movers", gainers: "Gainers", losers: "Losers", active_m: "Most active", no_movers: "Nothing yet today.",
+    notices: "Live notice board", notices_note: "Real events from this system only: price limits, block trades, escalations, validators, new players.", no_notices: "No notices yet.",
+    stocks: "Stocks", news: "Notices", code: "Code", last: "Last", change: "Change", ago_s: "{n}s ago", ago_m: "{n} min ago", ago_h: "{n} h ago",
+    chal: "Practice challenge", players: "{n} players", chal_join: "Make one trade to join the leaderboard.", your_rank: "Your rank", you: "you",
+    chal_empty: "No one has traded yet. Be the first!", chal_rule: "Ranked by return on the practice portfolio since joining. Simulated money.", trades_w: "trades",
+    badges: "Achievements", b_unlocked: "Achievement unlocked",
+    b_first_order: "First order", b_first_order_d: "Sign and send your first order", b_first_trade: "First trade", b_first_trade_d: "Get an order settled on the blockchain",
+    b_escalated: "Big league", b_escalated_d: "Trade a large order that needs all 4 validators", b_market: "Market taker", b_market_d: "Place a market order",
+    b_watch3: "Watcher", b_watch3_d: "Follow 3 stocks", b_funded: "Funded", b_funded_d: "Add practice money", b_bangla: "Bangla", b_bangla_d: "Use the app in Bangla",
+    b_audit: "Auditor", b_audit_d: "Run the independent audit", b_lse: "Globetrotter", b_lse_d: "Trade on the London demo market", b_cancel: "Changed my mind", b_cancel_d: "Cancel an order with your signature",
+    cel_buy: "Trade settled! You bought {q} {tk}.", cel_sell: "Trade settled! You sold {q} {tk}.",
+    try_t: "Try it now: no sign-up", try_s: "Pick a nickname and trade with practice money in seconds. Your signing key is created on this phone.",
+    nick: "Your nickname", try_go: "Start trading", try_wait: "Creating your account on the blockchain…", or_sign: "or sign in",
+    perk1: "Practice money", perk2: "Real blockchain", perk3: "4 validators", nick_bad: "Use 2 to 24 letters or numbers.",
+    welcome_t: "Welcome, {name}!", welcome_s: "Your practice account is ready and registered on the blockchain.",
+    welcome_get: "You got {cash} practice cash and {n} shares of every company.", explore: "Explore on my own",
+    install: "Install app", ios_t: "Add RACE to your Home Screen", ios_1: "Tap the Share button in Safari", ios_2: "Choose “Add to Home Screen”", ios_3: "Open RACE from your Home Screen",
+    inst_other: "Open your browser menu and choose “Install app” or “Add to Home screen”.", installed: "Installed. Open RACE from your home screen.",
+    share_app: "Share this app", share_s: "Let a friend scan this code to try trading on their phone.",
+    board: "Live board", board_s: "For a big screen at the stall", scan: "Scan to trade", scan_s: "Open your camera, scan, pick a nickname. Practice money only.",
+    feed: "Live blockchain feed", feed_s: "Every order: signed on a phone, checked by 4 validators, settled on-chain", feed_empty: "Waiting for the first order…",
+    local_warn: "Phones cannot open this address. Start the system with --public (internet link) or --lan (same Wi-Fi).",
+    trade_list: "Stocks", order_book: "Order book", tap_price: "Tap a price to use it", page_home: "Overview",
+    sim_banner: "Practice system: simulated money, prices and payments", copy_link: "Share link", show_all: "Show all {n}", show_less: "Show fewer", trade_1: "trade",
   },
   bn: {
     tagline: "নিরাপদে শেয়ার কিনুন ও বেচুন। প্রতিটি অর্ডার আপনার ফোনেই সই হয় এবং ব্লকচেইনে নিষ্পত্তির আগে ৪টি স্বাধীন ভ্যালিডেটর তা যাচাই করে।",
@@ -170,9 +200,37 @@ const L = {
     session_end: "সেশন শেষ। আবার সাইন ইন করুন।", approved_msg: "অনুমোদিত। আপনার অ্যাকাউন্ট ব্লকচেইনে নিবন্ধিত হয়েছে।",
     contact_ok: "মোবাইল যাচাই হয়েছে।", submitted: "জমা হয়েছে। একজন ব্রোকার পর্যালোচনা করবেন।", copied: "কপি হয়েছে",
     no_gateway: "পোর্ট 9001-এ গেটওয়ে পাওয়া যাচ্ছে না। সিস্টেম চালু আছে কি?", no_sign: "সই করার মডিউল (vendor/sign.js) লোড হয়নি, তাই অর্ডারে সই করা যাবে না।",
+    idx_name: "RACE ডেমো সূচক", idx_note: "{n}টি ডেমো শেয়ারের ভারযুক্ত গড়, ভিত্তি ১০০০। সিমুলেশন: এটি DSEX নয়।", live: "লাইভ",
+    mkt_open: "খোলা", status_note: "ডেমো বাজার: সারাদিন খোলা। আসল DSE-এর সময়: {h}", pulse: "আজকের বাজার", turnover: "লেনদেনের মূল্য", trades_n: "লেনদেন সংখ্যা",
+    adv: "বেড়েছে", dec: "কমেছে", unch: "অপরিবর্তিত", heatmap: "হিটম্যাপ", heat_note: "রং আজকের পরিবর্তন দেখায়। বড় ঘরের সূচকে ভার বেশি।",
+    movers: "শীর্ষ পরিবর্তন", gainers: "দর বেড়েছে", losers: "দর কমেছে", active_m: "সর্বাধিক লেনদেন", no_movers: "আজ এখনও কিছু নেই।",
+    notices: "লাইভ নোটিশ বোর্ড", notices_note: "শুধু এই সিস্টেমের আসল ঘটনা: দামের সীমা, ব্লক লেনদেন, উচ্চ ঝুঁকি, ভ্যালিডেটর, নতুন খেলোয়াড়।", no_notices: "এখনও কোনো নোটিশ নেই।",
+    stocks: "শেয়ার", news: "নোটিশ", code: "কোড", last: "সর্বশেষ", change: "পরিবর্তন", ago_s: "{n} সেকেন্ড আগে", ago_m: "{n} মিনিট আগে", ago_h: "{n} ঘণ্টা আগে",
+    chal: "অনুশীলন প্রতিযোগিতা", players: "{n} জন খেলোয়াড়", chal_join: "লিডারবোর্ডে আসতে একটি লেনদেন করুন।", your_rank: "আপনার অবস্থান", you: "আপনি",
+    chal_empty: "এখনও কেউ লেনদেন করেনি। আপনিই প্রথম হোন!", chal_rule: "যোগ দেওয়ার পর থেকে অনুশীলন পোর্টফোলিওর রিটার্ন অনুযায়ী ক্রম। টাকা কাল্পনিক।", trades_w: "লেনদেন",
+    badges: "অর্জন", b_unlocked: "নতুন অর্জন",
+    b_first_order: "প্রথম অর্ডার", b_first_order_d: "প্রথম অর্ডারে সই করে পাঠান", b_first_trade: "প্রথম লেনদেন", b_first_trade_d: "একটি অর্ডার ব্লকচেইনে নিষ্পন্ন করুন",
+    b_escalated: "বড় খেলোয়াড়", b_escalated_d: "৪টি ভ্যালিডেটরের অনুমোদন লাগে এমন বড় অর্ডারে লেনদেন করুন", b_market: "মার্কেট অর্ডার", b_market_d: "একটি মার্কেট অর্ডার দিন",
+    b_watch3: "নজরদার", b_watch3_d: "৩টি শেয়ার নজরে রাখুন", b_funded: "টাকা যোগ", b_funded_d: "অনুশীলনের টাকা যোগ করুন", b_bangla: "বাংলা", b_bangla_d: "অ্যাপটি বাংলায় ব্যবহার করুন",
+    b_audit: "নিরীক্ষক", b_audit_d: "স্বাধীন অডিট চালান", b_lse: "বিশ্বযাত্রী", b_lse_d: "লন্ডনের ডেমো বাজারে লেনদেন করুন", b_cancel: "মত বদল", b_cancel_d: "সই করে একটি অর্ডার বাতিল করুন",
+    cel_buy: "লেনদেন নিষ্পন্ন! আপনি {q}টি {tk} কিনেছেন।", cel_sell: "লেনদেন নিষ্পন্ন! আপনি {q}টি {tk} বেচেছেন।",
+    try_t: "এখনই চেষ্টা করুন: সাইন-আপ ছাড়াই", try_s: "একটি ডাকনাম দিন, কয়েক সেকেন্ডেই অনুশীলনের টাকায় লেনদেন শুরু করুন। আপনার সই করার চাবি এই ফোনেই তৈরি হয়।",
+    nick: "আপনার ডাকনাম", try_go: "লেনদেন শুরু", try_wait: "ব্লকচেইনে আপনার অ্যাকাউন্ট তৈরি হচ্ছে…", or_sign: "অথবা সাইন ইন",
+    perk1: "অনুশীলনের টাকা", perk2: "আসল ব্লকচেইন", perk3: "৪টি ভ্যালিডেটর", nick_bad: "২ থেকে ২৪টি অক্ষর বা সংখ্যা দিন।",
+    welcome_t: "স্বাগতম, {name}!", welcome_s: "আপনার অনুশীলন অ্যাকাউন্ট তৈরি এবং ব্লকচেইনে নিবন্ধিত।",
+    welcome_get: "আপনি পেয়েছেন {cash} অনুশীলনের টাকা এবং প্রতিটি কোম্পানির {n}টি করে শেয়ার।", explore: "নিজে ঘুরে দেখি",
+    install: "অ্যাপ ইনস্টল", ios_t: "RACE হোম স্ক্রিনে যোগ করুন", ios_1: "Safari-তে শেয়ার বোতামে ট্যাপ করুন", ios_2: "“Add to Home Screen” বেছে নিন", ios_3: "হোম স্ক্রিন থেকে RACE খুলুন",
+    inst_other: "ব্রাউজারের মেনু খুলে “Install app” বা “Add to Home screen” বেছে নিন।", installed: "ইনস্টল হয়েছে। হোম স্ক্রিন থেকে RACE খুলুন।",
+    share_app: "অ্যাপটি শেয়ার করুন", share_s: "বন্ধুকে এই কোড স্ক্যান করতে দিন, সে তার ফোনে লেনদেন করে দেখতে পারবে।",
+    board: "লাইভ বোর্ড", board_s: "স্টলের বড় স্ক্রিনের জন্য", scan: "স্ক্যান করে লেনদেন করুন", scan_s: "ক্যামেরা খুলে স্ক্যান করুন, একটি ডাকনাম দিন। শুধু অনুশীলনের টাকা।",
+    feed: "লাইভ ব্লকচেইন ফিড", feed_s: "প্রতিটি অর্ডার: ফোনে সই, ৪টি ভ্যালিডেটরের যাচাই, ব্লকচেইনে নিষ্পত্তি", feed_empty: "প্রথম অর্ডারের অপেক্ষা…",
+    local_warn: "ফোন এই ঠিকানা খুলতে পারবে না। সিস্টেম --public (ইন্টারনেট লিংক) বা --lan (একই Wi-Fi) দিয়ে চালু করুন।",
+    trade_list: "শেয়ার", order_book: "অর্ডার বই", tap_price: "দামে ট্যাপ করলে সেটি বসবে", page_home: "সারসংক্ষেপ",
+    sim_banner: "অনুশীলন সিস্টেম: টাকা, দাম ও পেমেন্ট কাল্পনিক", copy_link: "লিংক শেয়ার", show_all: "সব {n}টি দেখুন", show_less: "কম দেখুন", trade_1: "লেনদেন",
   },
 };
 const t = k => (L[S.lang] && L[S.lang][k]) || L.en[k] || k;
+const tf = (k, p) => t(k).replace(/\{(\w+)\}/g, (_, x) => p[x] ?? "");
 const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
 const loc = () => S.lang === "bn" ? "bn-BD" : "en-IN";
 /* "3 of 4" and the approval sentences, in the word order of each language */
@@ -181,7 +239,7 @@ function needQ(r, q, n) {
   if (S.lang === "bn") return r ? `<b>${t("escalated")}:</b> ${num(q.risky)}টি অনুমোদন লাগবে, ${num(q.routine)}টি নয়` : `<b>${t("routine")}:</b> ${ofN(q.routine, n)} অনুমোদন লাগবে`;
   return r ? `<b>${t("escalated")}:</b> needs ${q.risky} approvals, not ${q.routine}` : `<b>${t("routine")}:</b> needs ${q.routine} of ${n} approvals`;
 }
-function setLang(l) { S.lang = l; localStorage.setItem("bx_lang", l); document.documentElement.lang = l === "bn" ? "bn" : "en"; document.body.classList.toggle("bn", l === "bn"); route(); }
+function setLang(l) { S.lang = l; if (l === "bn") setFlag("bangla"); localStorage.setItem("bx_lang", l); document.documentElement.lang = l === "bn" ? "bn" : "en"; document.body.classList.toggle("bn", l === "bn"); route(); }
 
 /* ───────── numbers ───────── */
 const MK = () => S.info.markets[S.market];
@@ -214,8 +272,8 @@ async function api(path, opt = {}) {
 let toastT; function toast(msg) { const el = $("#toast"); el.textContent = msg; el.style.display = "block"; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = "none", 4200); }
 function signOutLocal() {
   S.token = ""; S.tab = "in"; S.otpDemo = ""; S.me = null; S.portfolios = null; S.view = null; S.cur = null; S.key = null; S.keyDemo = false; S.review = [];
-  S.itab = "home"; S.watch = {}; S.wallet = null; S.guide = { on: false, step: 0 }; closeSheet(); hideCoach();
-  sessionStorage.removeItem("bx_token"); sessionStorage.removeItem("bx_demo_key"); route();
+  S.itab = "home"; S.watch = {}; S.wallet = null; S.orders = []; S.ordersLoaded = false; S.lb = null; S.guide = { on: false, step: 0 }; closeSheet(); hideCoach();
+  sessionStorage.removeItem("bx_token"); sessionStorage.removeItem("bx_demo_key"); localStorage.removeItem("bx_qtoken"); S.prevOrd = null; route();
 }
 function setToken(tk) { S.token = tk; sessionStorage.setItem("bx_token", tk); }
 document.addEventListener("click", e => { const h = e.target.closest(".hash"); if (h && h.dataset.full && navigator.clipboard) navigator.clipboard.writeText(h.dataset.full).then(() => toast(t("copied") + ": " + short(h.dataset.full))); });
@@ -254,6 +312,8 @@ async function act(btn, fn, okMsg) {
 
 /* ───────── routing ───────── */
 function route() {
+  if (location.hash === "#board") { S.view = "board"; setShell("board"); return mountBoard(); }
+  stopBoard();
   const u = S.me && S.me.user;
   document.body.classList.toggle("bn", S.lang === "bn" && (!u || u.role === "trader"));
   if (!u) { S.view = "guest"; setShell("guest"); return mountGuest(); }
@@ -267,11 +327,12 @@ function route() {
 }
 function setShell(kind) {
   if (document.body.dataset.shell === kind) return;
-  document.body.dataset.shell = kind; document.body.className = kind === "staff" ? "staff" : kind === "inv" ? "inv" : "guest";
+  document.body.dataset.shell = kind; document.body.className = kind === "staff" ? "staff" : kind === "inv" ? "inv" : kind === "board" ? "board" : "guest";
   if (S.lang === "bn" && kind !== "staff") document.body.classList.add("bn");
   $("#root").innerHTML = kind === "staff"
     ? `<header><div class="brand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)} · staff console (simulated)</small></div></div><div class="who" id="who"></div></header><div class="mkbar" id="mkbar"></div><nav id="nav"></nav><main id="main"></main>`
-    : kind === "inv" ? `<div class="shell"><div id="itop"></div><div id="main"></div></div><div class="tabs"><div class="in" id="itabs"></div></div>`
+    : kind === "inv" ? `<div class="shell"><div id="itop"></div><div id="main"></div></div><div class="tabs"><div class="nbrand"><div class="logo">${BRAND.letter}</div><div>${esc(BRAND.name)}<small>${esc(BRAND.project)}</small></div></div><div class="in" id="itabs"></div><div class="nfoot" id="nfoot"></div></div>`
+    : kind === "board" ? `<div class="bw" id="main"></div>`
     : `<div class="gwrap" id="main"></div>`;
 }
 
