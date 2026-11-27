@@ -1,7 +1,7 @@
-# RACE (BlockExDSE v2.1) - runnable prototype
+# BlockExDSE v2.1 - runnable prototype
 
-**RACE: Risk-Adaptive Consensus at the Edge.** The product name is set in one place: `BRAND` at the top of the script in
-`dashboard/index.html`.
+**BlockExDSE: risk-adaptive edge consensus (RACD) for blockchain stock exchange settlement.** The product name is set in
+one place: `BRAND` at the top of `tools/dash_parts/core.js` (assembled into `dashboard/index.html`).
 
 A simulated stock-exchange settlement system in which nobody acts alone:
 
@@ -23,7 +23,7 @@ Nothing connects to a real exchange and no real money is involved.
 | Feature | How it works |
 |---|---|
 | **Works on phone, tablet and desktop** | Phone: bottom tabs. Tablet (760 px and wider): side rail, two columns. Desktop (1200 px and wider): sidebar and a trading-terminal layout (stock list, chart and order book, order ticket side by side) |
-| **Market tools like the DSE home page** | Scrolling ticker tape, a **RACE demo index** (weighted, base 1000; clearly labelled as *not* the DSEX) with an intraday chart, turnover, volume, trades, advance/decline breadth, a sector heatmap, top movers (gainers, losers, most active) and a **live notice board** |
+| **Market tools like the DSE home page** | Scrolling ticker tape, a **BlockExDSE demo index** (weighted, base 1000; clearly labelled as *not* the DSEX) with an intraday chart, turnover, volume, trades, advance/decline breadth, a sector heatmap, top movers (gainers, losers, most active) and a **live notice board** |
 | **Notice board uses real events only** | Price-limit hits, block trades, escalated (4 of 4) orders, orders held for review, validator faults, new players. No invented company news |
 | **Practice challenge** | Leaderboard of investors ranked by the return on their practice portfolio (first names only; demo bots left out; you need one trade to be ranked) |
 | **Achievements and celebrations** | Ten badges (first order, first trade, a 4-of-4 trade, market order, watch 3 stocks, add money, Bangla, run the audit, trade in London, signed cancel). Confetti when a trade settles |
